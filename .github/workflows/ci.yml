@@ -10,12 +10,18 @@ permissions:
 
 jobs:
   check:
-    name: Node ${{ matrix.node }}
-    runs-on: ubuntu-latest
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental || false }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest]
         node: [22, 24]
+        include:
+          - os: windows-latest
+            node: 22
+            experimental: true
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -30,6 +36,8 @@ jobs:
       - run: pnpm run test:coverage
       - run: pnpm run build
       - name: Pack and smoke-test the CLI
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           pnpm pack
           mkdir -p /tmp/smoke && cd /tmp/smoke

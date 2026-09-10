@@ -218,6 +218,17 @@ describe('discover (name collisions)', () => {
     expect(report.dropped).toEqual([])
   })
 
+  it('prefixes every member when all colliding skills come from plugins or sources', async () => {
+    const market = await tempDir('market')
+    await writeSkill(join(market, 'official', 'external_plugins', 'discord', 'skills'), 'access', 'discord', { body: 'discord body' })
+    await writeSkill(join(market, 'official', 'external_plugins', 'telegram', 'skills'), 'access', 'telegram', { body: 'telegram body' })
+    await writeSkill(join(market, 'official', 'plugins', 'solo', 'skills'), 'solo-skill', 'solo')
+    const claudeRoot: SkillRoot = { path: market, source: 's', rank: 580, mode: 'nested', maxDepth: 7, origin: { kind: 'claude-plugins' }, label: 'claude' }
+    const report = await discover([claudeRoot])
+    expect(report.skills.map(skill => skill.name)).toEqual(['discord-access', 'telegram-access', 'solo-skill'])
+    expect(report.skills.every(skill => skill.name !== 'access')).toBe(true)
+  })
+
   it('never renames onto an existing name', async () => {
     const a = await tempDir('a')
     const b = await tempDir('b')

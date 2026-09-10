@@ -163,9 +163,10 @@ describe('cli', () => {
     out.length = 0
 
     expect(await run('doctor', '--json')).toBe(0)
-    const report = json<{ git: boolean; repaired: unknown[]; invalid: unknown[]; dropped: unknown[] }>()
+    const report = json<{ git: boolean; repaired: unknown[]; renamed: unknown[]; invalid: unknown[]; dropped: unknown[] }>()
     expect(report.git).toBe(true)
     expect(report.repaired).toHaveLength(1)
+    expect(report.renamed).toHaveLength(0)
     expect(report.invalid).toHaveLength(1)
     expect(report.dropped).toHaveLength(1)
   })

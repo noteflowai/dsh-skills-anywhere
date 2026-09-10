@@ -193,32 +193,44 @@ export async function discover(roots: readonly SkillRoot[], options: DiscoverOpt
 
 /**
  * Different skills that share a name (three Claude Code plugins each shipping
- * `configure`, say) would collapse to one entry in the dsh registry. Keep the
- * highest-precedence entry's name and prefix the others with their plugin,
- * repository, or agent so every skill stays reachable.
+ * `configure`, say) would collapse to one entry in the dsh registry. When a
+ * skill you authored (an agent directory) is involved, it keeps the bare name
+ * and the others are prefixed with their plugin, repository, or agent. When
+ * every member of the group comes from a plugin marketplace or a git source,
+ * all of them are prefixed, because a bare `configure` would be meaningless.
  */
 function disambiguate(skills: readonly DiscoveredSkill[]): DiscoveredSkill[] {
-  const taken = new Set(skills.map(skill => skill.name))
-  const seen = new Set<string>()
-  const result: DiscoveredSkill[] = []
+  const groups = new Map<string, DiscoveredSkill[]>()
   for (const skill of skills) {
-    if (!seen.has(skill.name)) {
-      seen.add(skill.name)
-      result.push(skill)
-      continue
+    const group = groups.get(skill.name)
+    if (group === undefined) groups.set(skill.name, [skill])
+    else group.push(skill)
+  }
+  const taken = new Set(skills.map(skill => skill.name))
+  const renamed = new Map<DiscoveredSkill, string>()
+  for (const [name, group] of groups) {
+    if (group.length < 2) continue
+    const allThirdParty = group.every(skill => skill.origin.kind === 'claude-plugins' || skill.origin.kind === 'source')
+    const toRename = allThirdParty ? group : group.slice(1)
+    if (allThirdParty) taken.delete(name)
+    for (const skill of toRename) {
+      const prefix = collisionPrefix(skill)
+      let candidate = normalizeSkillName(`${prefix}-${name}`) ?? name
+      let counter = 2
+      while (taken.has(candidate)) {
+        candidate = normalizeSkillName(`${prefix}-${name}-${counter}`) ?? `${name}-${counter}`
+        counter += 1
+      }
+      taken.add(candidate)
+      renamed.set(skill, candidate)
     }
-    const prefix = collisionPrefix(skill)
-    let candidate = normalizeSkillName(`${prefix}-${skill.name}`) ?? skill.name
-    let counter = 2
-    while (taken.has(candidate) || seen.has(candidate)) {
-      candidate = normalizeSkillName(`${prefix}-${skill.name}-${counter}`) ?? `${skill.name}-${counter}`
-      counter += 1
-    }
-    taken.add(candidate)
-    seen.add(candidate)
+  }
+  return skills.map((skill) => {
+    const candidate = renamed.get(skill)
+    if (candidate === undefined) return skill
     const warning = `name "${skill.name}" collides with another skill; published as "${candidate}"`
     const extra = skill.metadata.skillsAnywhere as Record<string, unknown> | undefined
-    result.push({
+    return {
       ...skill,
       name: candidate,
       warnings: [...skill.warnings, warning],
@@ -230,9 +242,8 @@ function disambiguate(skills: readonly DiscoveredSkill[]): DiscoveredSkill[] {
           warnings: [...((extra?.warnings as string[] | undefined) ?? []), warning],
         },
       },
-    })
-  }
-  return result
+    }
+  })
 }
 
 function collisionPrefix(skill: DiscoveredSkill): string {

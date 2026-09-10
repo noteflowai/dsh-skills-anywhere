@@ -116,7 +116,7 @@ describe('SkillsAnywhereProvider inside the dsh registry', () => {
     await writeSkill(join(market, 'telegram', 'skills'), 'access', 'telegram', { body: 'telegram access' })
     const ctx = await mount(home)
     const summaries = await ctx.skills.list({ cwd: project })
-    expect(summaries.map(skill => skill.name)).toEqual(['access', 'telegram-access'])
+    expect(summaries.map(skill => skill.name)).toEqual(['discord-access', 'telegram-access'])
     const loaded = await ctx.skills.get('telegram-access', { cwd: project })
     expect(loaded?.name).toBe('telegram-access')
     expect(loaded?.content).toBe('telegram access')

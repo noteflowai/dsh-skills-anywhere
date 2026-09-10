@@ -37,6 +37,18 @@ npx dsh-skills-anywhere add anthropics/skills
 
 照常启动 dsh。技能目录里现在包含了上面所有内容；用 `skill` 工具或 `/技能名` 加载，与之前完全一样。
 
+在一台只装了 Claude Code 的机器上，`list` 已经能找到官方插件市场里的 31 个技能，而这些 dsh 自己一个都看不到：
+
+```
+$ npx dsh-skills-anywhere list
+NAME                 FROM                                                    PATH
+discord-access       claude plugin discord @ claude-plugins-official         ~/.claude/plugins/marketplaces/.../discord/skills/access/SKILL.md
+frontend-design      claude plugin frontend-design @ claude-plugins-official ~/.claude/plugins/marketplaces/.../frontend-design/skills/frontend-design/SKILL.md
+skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.claude/plugins/marketplaces/.../skill-creator/skills/skill-creator/SKILL.md
+...
+31 skills, 6 renamed — run `dsh-skills-anywhere doctor` for details
+```
+
 <details>
 <summary>从 GitHub 安装（不经 npm）</summary>
 
@@ -185,7 +197,7 @@ dsh-skills-anywhere doctor [--json]           被修复、跳过、重命名、�
 
 1. 按 rank 顺序扫描根目录；同一 rank 内按 Agent 表顺序，再按路径。
 2. 指向**同一文件**（软链接）的条目折叠为第一个；**同名且正文字节相同**的条目折叠为第一个。两者都在 `doctor` 中显示为隐藏的重复项。
-3. 仍然**同名**但内容不同的条目全部保留：第一个保持原名，其余加上插件、仓库或 Agent 前缀（如 `telegram-configure`）。`doctor` 会列出重命名。
+3. 仍然**同名**但内容不同的条目全部保留。如果其中有你自己的（来自 Agent 目录），它保持原名，其余加上插件、仓库或 Agent 前缀（如 `telegram-configure`）；如果全部来自市场或 git 源，则全部加前缀，得到 `discord-access`、`telegram-access` 而不是一个没有意义的 `access`。`doctor` 会列出重命名。
 4. 随后 dsh 注册表按 rank 把本提供器的候选与内置候选合并。
 
 ## 安全说明

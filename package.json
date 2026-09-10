@@ -1,6 +1,6 @@
 {
   "name": "dsh-skills-anywhere",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Your skills, anywhere. A live Agent Skills provider for DeepSeek Harness: every other agent's skill directories (Claude Code, Codex, Cursor, Gemini CLI, Copilot and 60+ more), Claude Code plugin marketplaces, and any GitHub skill repo, all in the dsh skill catalog. Zero copies, zero symlinks.",
   "keywords": [
     "deepseek-harness",

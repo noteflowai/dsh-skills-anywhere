@@ -171,13 +171,19 @@ async function list(cli: Cli, config: ResolvedConfig): Promise<number> {
     console.log(`\nDropped duplicates (${report.dropped.length}):`)
     console.log(table(report.dropped.map(entry => [entry.skill.name, entry.reason, shorten(entry.skill.path, config.home), `-> ${shorten(entry.winner.path, config.home)}`])))
   }
-  const repaired = report.skills.filter(skill => skill.warnings.length > 0).length
+  const renamed = report.skills.filter(isRenamed).length
+  const repaired = report.skills.filter(skill => skill.warnings.length > 0 && !isRenamed(skill)).length
   console.log(`\n${report.skills.length} skills` +
     (report.dropped.length > 0 ? `, ${report.dropped.length} duplicates hidden` : '') +
     (report.invalid.length > 0 ? `, ${report.invalid.length} skipped` : '') +
+    (renamed > 0 ? `, ${renamed} renamed` : '') +
     (repaired > 0 ? `, ${repaired} repaired` : '') +
-    (report.invalid.length + repaired > 0 ? ' — run `dsh-skills-anywhere doctor` for details' : ''))
+    (report.invalid.length + repaired + renamed > 0 ? ' — run `dsh-skills-anywhere doctor` for details' : ''))
   return 0
+}
+
+function isRenamed(skill: { metadata: Record<string, unknown> }): boolean {
+  return typeof (skill.metadata.skillsAnywhere as { renamedFrom?: unknown } | undefined)?.renamedFrom === 'string'
 }
 
 async function agents(cli: Cli, config: ResolvedConfig): Promise<number> {
@@ -342,7 +348,8 @@ async function doctor(cli: Cli, config: ResolvedConfig): Promise<number> {
     console.log(JSON.stringify({
       git,
       roots: report.roots.map(root => ({ label: root.root.label, path: root.root.path, exists: root.exists, count: root.count })),
-      repaired: report.skills.filter(skill => skill.warnings.length > 0).map(skill => ({ name: skill.name, path: skill.path, warnings: skill.warnings })),
+      renamed: report.skills.filter(isRenamed).map(skill => ({ name: skill.name, from: (skill.metadata.skillsAnywhere as { renamedFrom: string }).renamedFrom, path: skill.path })),
+      repaired: report.skills.filter(skill => skill.warnings.length > 0 && !isRenamed(skill)).map(skill => ({ name: skill.name, path: skill.path, warnings: skill.warnings })),
       invalid: report.invalid.map(entry => ({ path: entry.path, reason: entry.reason })),
       dropped: report.dropped.map(entry => ({ name: entry.skill.name, path: entry.skill.path, reason: entry.reason, winner: entry.winner.path })),
       complete: report.complete,
@@ -354,7 +361,12 @@ async function doctor(cli: Cli, config: ResolvedConfig): Promise<number> {
   const present = report.roots.filter(root => root.exists)
   console.log(`\nRoots present (${present.length} of ${report.roots.length}):`)
   console.log(table(present.map(root => [root.root.label, String(root.count).padStart(3), shorten(root.root.path, config.home)])))
-  const repaired = report.skills.filter(skill => skill.warnings.length > 0)
+  const renamed = report.skills.filter(isRenamed)
+  if (renamed.length > 0) {
+    console.log(`\nRenamed to avoid collisions (${renamed.length}):`)
+    console.log(table(renamed.map(skill => [(skill.metadata.skillsAnywhere as { renamedFrom: string }).renamedFrom, `-> ${skill.name}`, shorten(skill.path, config.home)])))
+  }
+  const repaired = report.skills.filter(skill => skill.warnings.length > 0 && !isRenamed(skill))
   if (repaired.length > 0) {
     console.log(`\nRepaired frontmatter (${repaired.length}):`)
     for (const skill of repaired) {

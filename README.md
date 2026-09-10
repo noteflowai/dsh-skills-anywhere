@@ -37,6 +37,18 @@ npx dsh-skills-anywhere add anthropics/skills
 
 Start dsh as usual. The skill catalog now includes everything above; load a skill with the `skill` tool or `/skill-name` exactly as before.
 
+On a machine with only Claude Code installed, `list` already finds the 31 skills inside the official plugin marketplace, none of which dsh sees on its own:
+
+```
+$ npx dsh-skills-anywhere list
+NAME                 FROM                                                    PATH
+discord-access       claude plugin discord @ claude-plugins-official         ~/.claude/plugins/marketplaces/.../discord/skills/access/SKILL.md
+frontend-design      claude plugin frontend-design @ claude-plugins-official ~/.claude/plugins/marketplaces/.../frontend-design/skills/frontend-design/SKILL.md
+skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.claude/plugins/marketplaces/.../skill-creator/skills/skill-creator/SKILL.md
+...
+31 skills, 6 renamed — run `dsh-skills-anywhere doctor` for details
+```
+
 <details>
 <summary>Install from GitHub instead of npm</summary>
 
@@ -185,7 +197,7 @@ The `dsh-skills-anywhere/tools` row accepts `findLimit` (default 10), `findMaxLi
 
 1. Roots are scanned in rank order. Within one rank, the agent table order, then path.
 2. Entries pointing at the **same file** (symlinks) collapse to the first. Entries with the **same name and byte-identical body** collapse to the first. Both appear in `doctor` as hidden duplicates.
-3. Entries that still **share a name** but differ are kept: the first keeps the name, the others are prefixed with their plugin, repository, or agent (`telegram-configure`). `doctor` lists the renames.
+3. Entries that still **share a name** but differ are all kept. If one of them is yours (an agent directory) it keeps the bare name and the others are prefixed with their plugin, repository, or agent (`telegram-configure`). If every member comes from a marketplace or a git source, all of them are prefixed, so you get `discord-access` and `telegram-access` rather than a meaningless bare `access`. `doctor` lists the renames.
 4. The dsh registry then merges this provider's candidates with the built-in ones by rank.
 
 ## Security notes
