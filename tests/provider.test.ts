@@ -1,5 +1,5 @@
 import { mkdir, rm, symlink, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
 import SkillRegistry from '@deepseek-ai/dsh-skill'
 import { describe, expect, it } from 'vitest'
@@ -54,18 +54,19 @@ describe('plugin exports', () => {
 
 describe('resolveConfig', () => {
   it('derives every path from home and expands ~', () => {
-    const resolved = resolveConfig({ home: '/h', extraUserDirs: ['~/x/skills', '/abs'], ranks: { user: 5 } }, {})
-    expect(resolved.dshHome).toBe('/h/.dsh')
-    expect(resolved.stateDir).toBe('/h/.dsh/skills-anywhere')
-    expect(resolved.cacheDir).toBe('/h/.dsh/skills-anywhere/cache')
-    expect(resolved.userSourcesFile).toBe('/h/.dsh/skills-anywhere/sources.json')
-    expect(resolved.extraUserDirs).toEqual(['/h/x/skills', '/abs'])
+    const h = resolve('/h')
+    const resolved = resolveConfig({ home: h, extraUserDirs: ['~/x/skills', resolve('/abs')], ranks: { user: 5 } }, {})
+    expect(resolved.dshHome).toBe(join(h, '.dsh'))
+    expect(resolved.stateDir).toBe(join(h, '.dsh', 'skills-anywhere'))
+    expect(resolved.cacheDir).toBe(join(h, '.dsh', 'skills-anywhere', 'cache'))
+    expect(resolved.userSourcesFile).toBe(join(h, '.dsh', 'skills-anywhere', 'sources.json'))
+    expect(resolved.extraUserDirs).toEqual([join(h, 'x', 'skills'), resolve('/abs')])
     expect(resolved.ranks).toEqual({ project: 250, user: 5, claudePlugins: 580, sources: 700 })
   })
   it('honours DSH_HOME and HOME from the environment', () => {
-    const resolved = resolveConfig({}, { HOME: '/home/u', DSH_HOME: '/opt/dsh' })
-    expect(resolved.home).toBe('/home/u')
-    expect(resolved.dshHome).toBe('/opt/dsh')
+    const resolved = resolveConfig({}, { HOME: resolve('/home/u'), DSH_HOME: resolve('/opt/dsh') })
+    expect(resolved.home).toBe(resolve('/home/u'))
+    expect(resolved.dshHome).toBe(resolve('/opt/dsh'))
   })
 })
 

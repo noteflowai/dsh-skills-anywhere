@@ -13,7 +13,7 @@ All notable changes to this project are documented here. The format follows
   leaving one bare `access`. A skill from your own agent directory still keeps
   its bare name.
 - `doctor` and `list` report renames separately from frontmatter repairs.
-- CI runs on macOS as well as Linux, with an experimental Windows job.
+- CI runs on Linux, macOS, and Windows.
 
 ## [0.2.0] - 2026-09-10
 

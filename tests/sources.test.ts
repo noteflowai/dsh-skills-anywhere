@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
   hasGit, readLock, readSourcesFile, resolveSource, sameRepository, syncSource, writeLock, writeSourcesFile,
@@ -56,10 +57,11 @@ describe('resolveSource', () => {
   })
 
   it('parses local paths and file URLs', () => {
-    const local = resolveSource('/srv/skills', CACHE)
-    expect(local.url).toBe('/srv/skills')
+    const path = resolve('/srv/skills')
+    const local = resolveSource(path, CACHE)
+    expect(local.url).toBe(path)
     expect(local.id).toMatch(/^local\/[0-9a-f]{12}$/)
-    expect(resolveSource('file:///srv/skills', CACHE).id).toBe(local.id)
+    expect(resolveSource(pathToFileURL(path).href, CACHE).id).toBe(local.id)
   })
 
   it('object specs override parsed values and carry rank', () => {
