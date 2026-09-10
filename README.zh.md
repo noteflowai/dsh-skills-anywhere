@@ -20,6 +20,8 @@
 
 几百个技能会让每次模型请求都变得臃肿，所以提供器带有**目录预算**：默认最多 50 个技能进入模型的会话目录，其余的通过插件新增的两个小工具一次 `find_skills` 调用即可到达，`/name` 调用不受影响。
 
+这套技能池**在 dsh 之外也能用**：`dsh-skills-anywhere mcp` 把它作为 [MCP](https://modelcontextprotocol.io) 服务器提供给任何 MCP 客户端（Claude Code、Cursor、Codex、Windsurf……），暴露 `find_skills` / `open_skill` 工具和 `skill://` 资源。技能装一次，所有 Agent 都能用。
+
 它还会**去重**软链接和字节级相同的副本（`skills` CLI 会把同一份技能链接到多个 Agent）、**修复**常见的 frontmatter 偏差而不是悄悄丢掉技能，并对**同名冲突**（`discord/configure` 与 `telegram/configure`）自动加前缀，保证每个技能都能被调用。附带一个小 CLI，让你清楚看到 dsh 会看到什么、为什么。
 
 ## 快速开始
@@ -145,9 +147,44 @@ dsh-skills-anywhere add <source> [--ref] [--path] [--rank] [--project]
 dsh-skills-anywhere remove <source> [--project]
 dsh-skills-anywhere sync [--force] [--json]   立即克隆或刷新全部源
 dsh-skills-anywhere doctor [--json]           被修复、跳过、重命名、去重的技能及原因
+dsh-skills-anywhere mcp                       通过 stdio 把同一批技能提供给任意 MCP 客户端
 ```
 
 所有命令支持 `--cwd <dir>` 指定项目。CLI 与插件走同一套代码，无需 dsh 运行。
+
+## 作为 MCP 服务器使用
+
+技能不是 dsh 独有的概念，这个提供器也不是。`dsh-skills-anywhere mcp` 启动一个基于 stdio 的 [Model Context Protocol](https://modelcontextprotocol.io) 服务器，把完全相同的技能池（Agent 目录、Claude Code 市场、git 源，以及同样的去重与重命名规则）提供给任何 MCP 客户端：
+
+| 工具 | 作用 |
+| --- | --- |
+| `list_skills` | 浏览全部允许模型调用的技能及其描述、来源（支持 `limit`、`offset`） |
+| `find_skills` | 按关键词搜索名称、描述与来源 |
+| `open_skill` | 加载某个技能的完整指令，以及其脚本和参考文件所在目录 |
+
+技能同时以 `skill://<名称>` 资源（带自动补全）暴露，方便支持 @ 引用资源的客户端。frontmatter 设置了 `disable-model-invocation: true` 的技能永远不会被列出或打开。该服务器完全不需要安装 dsh。
+
+**Claude Code**
+
+```sh
+claude mcp add skills-anywhere -- npx -y dsh-skills-anywhere mcp
+```
+
+**Cursor**（`.cursor/mcp.json` 或 `~/.cursor/mcp.json`）
+
+```json
+{ "mcpServers": { "skills-anywhere": { "command": "npx", "args": ["-y", "dsh-skills-anywhere", "mcp"] } } }
+```
+
+**Codex**（`~/.codex/config.toml`）
+
+```toml
+[mcp_servers.skills-anywhere]
+command = "npx"
+args = ["-y", "dsh-skills-anywhere", "mcp"]
+```
+
+如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
 
 ## 配置
 

@@ -1,7 +1,7 @@
 {
   "name": "dsh-skills-anywhere",
-  "version": "0.2.1",
-  "description": "Your skills, anywhere. A live Agent Skills provider for DeepSeek Harness: every other agent's skill directories (Claude Code, Codex, Cursor, Gemini CLI, Copilot and 60+ more), Claude Code plugin marketplaces, and any GitHub skill repo, all in the dsh skill catalog. Zero copies, zero symlinks.",
+  "version": "0.3.0",
+  "description": "Your skills, anywhere. A live Agent Skills provider for DeepSeek Harness: every other agent's skill directories (Claude Code, Codex, Cursor, Gemini CLI, Copilot and 60+ more), Claude Code plugin marketplaces, and any GitHub skill repo, all in the dsh skill catalog, and served to any MCP client (Claude Code, Cursor, Codex) too. Zero copies, zero symlinks.",
   "keywords": [
     "deepseek-harness",
     "dsh",
@@ -13,7 +13,10 @@
     "claude-code",
     "codex",
     "cursor",
-    "plugin"
+    "plugin",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol"
   ],
   "author": "Note Flow AI <admin@noteflowai.com>",
   "license": "MIT",
@@ -46,6 +49,10 @@
       "types": "./lib/tools.d.ts",
       "default": "./lib/tools.js"
     },
+    "./mcp": {
+      "types": "./lib/mcp.d.ts",
+      "default": "./lib/mcp.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -76,14 +83,16 @@
     "check": "pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "chokidar": "^5.0.0",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "zod": "^4.5.4"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",
     "@deepseek-ai/dsh-skill": ">=0.1.5-rc.1",
-    "@deepseek-ai/schemastery": "^3.18.2",
-    "@deepseek-ai/dsh-tools": ">=0.1.5-rc.1"
+    "@deepseek-ai/dsh-tools": ">=0.1.5-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.2"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.2",

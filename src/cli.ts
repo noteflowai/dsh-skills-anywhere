@@ -29,6 +29,7 @@ Commands
   remove <source>      Remove a git source
   sync                 Clone or refresh every source now
   doctor               Explain skipped, repaired, and duplicate skills
+  mcp                  Serve the same skills to any MCP client over stdio
 
 Options
   --cwd <dir>          Project directory (default: current directory)
@@ -105,6 +106,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     case 'remove': case 'rm': return await remove(cli, config)
     case 'sync': return await sync(cli, config)
     case 'doctor': return await doctor(cli, config)
+    case 'mcp': return await mcp(cli)
     default:
       console.error(`unknown command "${command}"\n`)
       console.error(HELP)
@@ -383,6 +385,12 @@ async function doctor(cli: Cli, config: ResolvedConfig): Promise<number> {
     console.log(table(report.dropped.map(entry => [entry.skill.name, entry.reason, shorten(entry.skill.path, config.home), `-> ${shorten(entry.winner.path, config.home)}`])))
   }
   if (!report.complete) console.log('\nWARNING: at least one root could not be read completely; see messages above.')
+  return 0
+}
+
+async function mcp(cli: Cli): Promise<number> {
+  const { runStdio } = await import('./mcp.ts')
+  await runStdio({ cwd: cli.cwd, config: { sync: true, watch: false } })
   return 0
 }
 

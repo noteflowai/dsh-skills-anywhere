@@ -11,10 +11,13 @@
  */
 
 import type { Context } from '@deepseek-ai/cordis'
-import { isSkillName, renderSkillContent, type SkillDefinition, type SkillSummary } from '@deepseek-ai/dsh-skill'
+import { isSkillName, renderSkillContent, type SkillDefinition } from '@deepseek-ai/dsh-skill'
 import { defineTool } from '@deepseek-ai/dsh-tools'
 import z from '@deepseek-ai/schemastery'
 import type Schema from '@deepseek-ai/schemastery'
+import { searchSkills } from './search.ts'
+
+export { searchSkills, queryTerms, type SkillMatch, type SearchableSkill } from './search.ts'
 
 export const name = 'skills-anywhere-tools'
 export const inject = ['skills', 'tools']
@@ -36,66 +39,6 @@ export const Config: Schema<Config> = z.object({
   find: z.boolean().default(true),
   open: z.boolean().default(true),
 }) as unknown as Schema<Config>
-
-export interface SkillMatch {
-  readonly name: string
-  readonly description: string
-  readonly source: string
-  readonly provider: string
-  /** Listed in the session catalog for the model. */
-  readonly listed: boolean
-  readonly score: number
-}
-
-/** Split a query into lowercase alphanumeric terms. */
-export function queryTerms(query: string): string[] {
-  return [...new Set(query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(term => term.length > 1))]
-}
-
-/**
- * Rank skills against a keyword query. Name matches weigh most, then
- * description, `whenToUse`, and origin labels. Skills matching no term are
- * dropped; ties break alphabetically.
- */
-export function searchSkills(skills: readonly SkillSummary[], query: string, limit: number): SkillMatch[] {
-  const terms = queryTerms(query)
-  if (terms.length === 0) return []
-  const matches: SkillMatch[] = []
-  for (const skill of skills) {
-    const nameText = skill.name.toLowerCase()
-    const nameWords = nameText.split('-')
-    const description = skill.description.toLowerCase()
-    const whenToUse = (skill.whenToUse ?? '').toLowerCase()
-    const origin = `${skill.source} ${skill.provider}`.toLowerCase()
-    let score = 0
-    let matched = 0
-    for (const term of terms) {
-      let termScore = 0
-      if (nameText === term) termScore += 60
-      else if (nameWords.includes(term)) termScore += 40
-      else if (nameText.includes(term)) termScore += 20
-      if (description.includes(term)) termScore += 8
-      if (whenToUse.includes(term)) termScore += 6
-      if (origin.includes(term)) termScore += 2
-      if (termScore > 0) matched += 1
-      score += termScore
-    }
-    if (matched === 0) continue
-    // Reward covering more of the query over hammering one term.
-    score += matched * 30
-    matches.push({
-      name: skill.name,
-      description: skill.description,
-      source: skill.source,
-      provider: skill.provider,
-      listed: skill.invocation.modelInvocable,
-      score,
-    })
-  }
-  return matches
-    .toSorted((left, right) => right.score - left.score || left.name.localeCompare(right.name))
-    .slice(0, limit)
-}
 
 /** Whether a loaded definition may be handed to the model. */
 export function isOpenable(skill: Pick<SkillDefinition, 'invocation' | 'metadata'>): boolean {

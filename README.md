@@ -20,6 +20,8 @@ You already have skills. They live in `~/.claude/skills`, `~/.codex/skills`, `~/
 
 Hundreds of skills would bloat every model request, so the provider keeps a **catalog budget**: at most 50 skills enter the model's session catalog by default, and the rest stay one `find_skills` call away through two small tools the plugin adds, with `/name` invocation untouched.
 
+The same pool is available **outside dsh** too: `dsh-skills-anywhere mcp` serves it to any [MCP](https://modelcontextprotocol.io) client (Claude Code, Cursor, Codex, Windsurf…) as `find_skills` / `open_skill` tools and `skill://` resources, so one install of a skill reaches every agent you use.
+
 It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI links one canonical copy into several agents), **repairs** common frontmatter drift instead of silently dropping a skill, and **renames** colliding names (`discord/configure` vs `telegram/configure`) so every skill stays reachable. A small CLI shows you exactly what dsh will see and why.
 
 ## Quick start
@@ -145,9 +147,44 @@ dsh-skills-anywhere add <source> [--ref] [--path] [--rank] [--project]
 dsh-skills-anywhere remove <source> [--project]
 dsh-skills-anywhere sync [--force] [--json]   Clone or refresh every source now
 dsh-skills-anywhere doctor [--json]           Repaired, skipped, renamed and duplicate skills, with reasons
+dsh-skills-anywhere mcp                       Serve the same skills to any MCP client over stdio
 ```
 
 All commands accept `--cwd <dir>` to pick the project. The CLI uses the same code path as the plugin and never needs dsh running.
+
+## Use as an MCP server
+
+Skills are not a dsh-only idea, and neither is this provider. `dsh-skills-anywhere mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio that exposes the identical pool (agent directories, Claude Code marketplaces, git sources, same dedupe and rename rules) to any MCP client:
+
+| Tool | What it does |
+| --- | --- |
+| `list_skills` | Browse every model-invocable skill with its description and origin (`limit`, `offset`) |
+| `find_skills` | Keyword search across names, descriptions and origins |
+| `open_skill` | Load one skill's instructions plus the directory its scripts and references live in |
+
+Skills are also exposed as `skill://<name>` resources (with completion), for clients that let you @-mention resources. Skills whose frontmatter sets `disable-model-invocation: true` are never listed or opened. The server needs no dsh installation at all.
+
+**Claude Code**
+
+```sh
+claude mcp add skills-anywhere -- npx -y dsh-skills-anywhere mcp
+```
+
+**Cursor** (`.cursor/mcp.json` or `~/.cursor/mcp.json`)
+
+```json
+{ "mcpServers": { "skills-anywhere": { "command": "npx", "args": ["-y", "dsh-skills-anywhere", "mcp"] } } }
+```
+
+**Codex** (`~/.codex/config.toml`)
+
+```toml
+[mcp_servers.skills-anywhere]
+command = "npx"
+args = ["-y", "dsh-skills-anywhere", "mcp"]
+```
+
+Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
 
 ## Configuration
 

@@ -1,0 +1,167 @@
+import { mkdir, readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
+import { afterEach, describe, expect, it } from 'vitest'
+import { createSkillsAnywhereServer, modelSkills, renderSkill, type SkillsAnywhereMcp } from '../src/mcp.ts'
+import { quietLogger, tempDir, writeSkill } from './helpers.ts'
+
+interface Harness {
+  readonly home: string
+  readonly project: string
+  readonly client: Client
+  readonly mcp: SkillsAnywhereMcp
+}
+
+const open: Harness[] = []
+
+afterEach(async () => {
+  for (const entry of open.splice(0)) {
+    await entry.client.close()
+    await entry.mcp.close()
+  }
+})
+
+async function harness(options: { cacheMs?: number } = {}): Promise<Harness> {
+  const home = await tempDir('mcp-home')
+  const project = await tempDir('mcp-project')
+  await mkdir(join(project, '.git'))
+  await writeSkill(join(home, '.claude', 'skills'), 'pdf-forms', 'Fill and flatten PDF forms', { body: 'Use pdftk.\nSee scripts/fill.py.' })
+  await writeSkill(join(home, '.codex', 'skills'), 'react-testing', 'Test React components with Vitest')
+  await writeSkill(join(project, '.claude', 'skills'), 'deploy-notes', 'How this project ships releases')
+  await writeSkill(join(home, '.claude', 'skills'), 'secret-ops', 'Operator only', { frontmatter: { 'disable-model-invocation': true } })
+
+  const mcp = createSkillsAnywhereServer({
+    cwd: project,
+    config: { home, dshHome: join(home, '.dsh'), sync: false },
+    log: quietLogger(),
+    findLimit: 3,
+    ...(options.cacheMs !== undefined ? { cacheMs: options.cacheMs } : {}),
+  })
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+  await mcp.server.connect(serverTransport)
+  const client = new Client({ name: 'test-client', version: '0.0.0' })
+  await client.connect(clientTransport)
+  const result = { home, project, client, mcp }
+  open.push(result)
+  return result
+}
+
+function textOf(result: unknown): string {
+  const content = (result as { content?: { type: string; text?: string }[] }).content ?? []
+  return content.map(block => block.text ?? '').join('\n')
+}
+
+describe('MCP server', () => {
+  it('advertises the three tools, instructions and the package version', async () => {
+    const { client } = await harness()
+    const tools = (await client.listTools()).tools.map(tool => tool.name).toSorted()
+    expect(tools).toEqual(['find_skills', 'list_skills', 'open_skill'])
+    expect(client.getInstructions()).toContain('find_skills')
+    const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
+    expect(client.getServerVersion()).toEqual({ name: 'dsh-skills-anywhere', version: pkg.version })
+  })
+
+  it('list_skills shows skills from every agent with their origin and hides author-disabled ones', async () => {
+    const { client } = await harness()
+    const result = await client.callTool({ name: 'list_skills', arguments: {} })
+    const structured = result.structuredContent as { total: number; skills: { name: string; source: string }[] }
+    expect(structured.total).toBe(3)
+    expect(structured.skills.map(skill => skill.name).toSorted()).toEqual(['deploy-notes', 'pdf-forms', 'react-testing'])
+    expect(structured.skills.find(skill => skill.name === 'deploy-notes')?.source).toBe('claude-code (project)')
+    expect(structured.skills.find(skill => skill.name === 'react-testing')?.source).toBe('codex (user)')
+    expect(textOf(result)).toContain('- pdf-forms — Fill and flatten PDF forms [claude-code (user)]')
+    expect(textOf(result)).not.toContain('secret-ops')
+
+    const page = await client.callTool({ name: 'list_skills', arguments: { limit: 1, offset: 1 } })
+    expect((page.structuredContent as { skills: unknown[] }).skills).toHaveLength(1)
+  })
+
+  it('find_skills ranks keyword matches and rejects an empty query', async () => {
+    const { client } = await harness()
+    const result = await client.callTool({ name: 'find_skills', arguments: { query: 'pdf form filling' } })
+    const structured = result.structuredContent as { total: number; matches: { name: string }[] }
+    expect(structured.total).toBe(3)
+    expect(structured.matches[0]?.name).toBe('pdf-forms')
+    expect(textOf(result)).toContain('1 of 3 skills matched')
+
+    const none = await client.callTool({ name: 'find_skills', arguments: { query: 'kubernetes' } })
+    expect(textOf(none)).toContain('No skills matched')
+
+    const empty = await client.callTool({ name: 'find_skills', arguments: { query: '   ' } })
+    expect(empty.isError).toBe(true)
+  })
+
+  it('open_skill renders dsh-style skill content with the base directory', async () => {
+    const { client, home } = await harness()
+    const result = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    expect(result.isError).toBeFalsy()
+    const structured = result.structuredContent as { name: string; directory: string; path: string; content: string }
+    expect(structured.name).toBe('pdf-forms')
+    expect(structured.directory).toBe(join(home, '.claude', 'skills', 'pdf-forms'))
+    expect(structured.path).toBe(join(structured.directory, 'SKILL.md'))
+    expect(structured.content).toContain('Use pdftk.')
+    const text = textOf(result)
+    expect(text).toContain('<skill_content name="pdf-forms">')
+    expect(text).toContain(`Base directory for this skill: ${structured.directory}`)
+    expect(text).toContain('<skill_instructions>\nUse pdftk.')
+  })
+
+  it('open_skill refuses unknown, invalid and author-disabled skills', async () => {
+    const { client } = await harness()
+    const unknown = await client.callTool({ name: 'open_skill', arguments: { name: 'nope' } })
+    expect(unknown.isError).toBe(true)
+    expect(textOf(unknown)).toContain('unknown')
+    const invalid = await client.callTool({ name: 'open_skill', arguments: { name: 'Not A Name!' } })
+    expect(invalid.isError).toBe(true)
+    expect(textOf(invalid)).toContain('invalid skill name')
+    const disabled = await client.callTool({ name: 'open_skill', arguments: { name: 'secret-ops' } })
+    expect(disabled.isError).toBe(true)
+    expect(textOf(disabled)).toContain('disabled by its author')
+  })
+
+  it('open_skill sees a skill installed after the last scan', async () => {
+    const { client, home } = await harness({ cacheMs: 60_000 })
+    await client.callTool({ name: 'list_skills', arguments: {} })
+    await writeSkill(join(home, '.gemini', 'skills'), 'late-arrival', 'Installed later')
+    const result = await client.callTool({ name: 'open_skill', arguments: { name: 'late-arrival' } })
+    expect(result.isError).toBeFalsy()
+    expect((result.structuredContent as { name: string }).name).toBe('late-arrival')
+  })
+
+  it('exposes skills as skill:// resources with completion', async () => {
+    const { client } = await harness()
+    const templates = await client.listResourceTemplates()
+    expect(templates.resourceTemplates.map(template => template.uriTemplate)).toEqual(['skill://{name}'])
+    const listed = await client.listResources()
+    expect(listed.resources.map(resource => resource.uri).toSorted()).toEqual(['skill://deploy-notes', 'skill://pdf-forms', 'skill://react-testing'])
+    const read = await client.readResource({ uri: 'skill://react-testing' })
+    const content = read.contents[0] as { text: string; mimeType?: string }
+    expect(content.mimeType).toBe('text/markdown')
+    expect(content.text).toContain('<skill_content name="react-testing">')
+    const completion = await client.complete({
+      ref: { type: 'ref/resource', uri: 'skill://{name}' },
+      argument: { name: 'name', value: 'pd' },
+    })
+    expect(completion.completion.values).toEqual(['pdf-forms'])
+    await expect(client.readResource({ uri: 'skill://secret-ops' })).rejects.toThrow(/disabled/)
+  })
+
+  it('refresh caches one discovery pass and exposes the report', async () => {
+    const { mcp } = await harness({ cacheMs: 60_000 })
+    const first = await mcp.refresh()
+    expect(modelSkills(first).map(skill => skill.name).toSorted()).toEqual(['deploy-notes', 'pdf-forms', 'react-testing'])
+    expect(first.skills).toHaveLength(4)
+    expect(await mcp.refresh()).toBe(first)
+    expect(await mcp.refresh(true)).not.toBe(first)
+  })
+})
+
+describe('renderSkill', () => {
+  it('escapes the name attribute and directory text', () => {
+    const text = renderSkill({ name: 'a"b<c', directory: '/tmp/<dir>&x', content: 'body' })
+    expect(text).toContain('<skill_content name="a&quot;b&lt;c">')
+    expect(text).toContain('Base directory for this skill: /tmp/&lt;dir&gt;&amp;x')
+    expect(text.endsWith('</skill_content>')).toBe(true)
+  })
+})

@@ -4,6 +4,22 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-09-10
+
+### Added
+
+- **MCP server mode.** `dsh-skills-anywhere mcp` serves the same skill pool to
+  any Model Context Protocol client over stdio: `list_skills`, `find_skills`
+  and `open_skill` tools plus `skill://<name>` resources with completion.
+  Author-disabled skills are never exposed. Works without dsh installed.
+- `dsh-skills-anywhere/mcp` entry point exporting `createSkillsAnywhereServer`,
+  `runStdio` and `renderSkill` for custom transports.
+
+### Changed
+
+- Keyword search moved to a dsh-free module shared by the dsh tools and the
+  MCP server; ranking is unchanged.
+
 ## [0.2.1] - 2026-09-10
 
 ### Changed
