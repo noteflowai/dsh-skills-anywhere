@@ -1,0 +1,95 @@
+{
+  "name": "dsh-skills-anywhere",
+  "version": "0.1.0",
+  "description": "Your skills, anywhere. A live Agent Skills provider for DeepSeek Harness: every other agent's skill directories (Claude Code, Codex, Cursor, Gemini CLI, Copilot and 60+ more), Claude Code plugin marketplaces, and any GitHub skill repo, all in the dsh skill catalog. Zero copies, zero symlinks.",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "agent-skills",
+    "skills",
+    "SKILL.md",
+    "claude-code",
+    "codex",
+    "cursor",
+    "plugin"
+  ],
+  "author": "Note Flow AI <admin@noteflowai.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/noteflowai/dsh-skills-anywhere",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noteflowai/dsh-skills-anywhere.git"
+  },
+  "bugs": {
+    "url": "https://github.com/noteflowai/dsh-skills-anywhere/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "bin": {
+    "dsh-skills-anywhere": "lib/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/**/*.js",
+    "lib/**/*.d.ts",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.5-rc.1": "compatible"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepare": "node -e \"process.exit(require('fs').existsSync('lib/index.js') ? 0 : 1)\" || pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src tests",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build"
+  },
+  "dependencies": {
+    "chokidar": "^5.0.0",
+    "yaml": "^2.9.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-skill": ">=0.1.5-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.2"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-skill": "0.1.5-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.2",
+    "@types/node": "^22.20.2",
+    "@vitest/coverage-v8": "^5.0.0",
+    "oxlint": "^1.82.0",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
+  },
+  "packageManager": "pnpm@12.3.4"
+}

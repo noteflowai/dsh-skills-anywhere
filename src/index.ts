@@ -1,0 +1,50 @@
+/**
+ * dsh-skills-anywhere — a live Agent Skills provider for DeepSeek Harness.
+ *
+ * Mount it next to `@deepseek-ai/dsh-skill` and the shipped catalog gains the
+ * skills of every other coding agent on the machine, the skills inside Claude
+ * Code plugin marketplaces, and any git repository listed as a source. Nothing
+ * is copied or symlinked: files are read where they live and re-read on load.
+ *
+ * @module dsh-skills-anywhere
+ */
+
+import type { Context } from '@deepseek-ai/cordis'
+import { Config, resolveConfig } from './config.ts'
+import { SkillsAnywhereProvider } from './provider.ts'
+
+/** Cordis plugin name; stable across releases. */
+export const name = 'skills-anywhere'
+
+/** The skill registry must exist before the provider can register. */
+export const inject = ['skills']
+
+export { Config }
+export type { Config as ConfigInput, RankConfig, ResolvedConfig } from './config.ts'
+export { resolveConfig, projectSourcesFile, DEFAULT_RANKS } from './config.ts'
+export { AGENTS, agentById, type AgentSpec } from './agents.ts'
+export { discover, findProjectRoot } from './discover.ts'
+export type { DiscoveredSkill, DiscoveryReport, DroppedSkill, InvalidSkill, RootReport, SkillOrigin, SkillRoot } from './discover.ts'
+export { parseSkillMarkdown, normalizeSkillName, isSkillName, splitFrontmatter } from './frontmatter.ts'
+export type { ParsedSkill, ParseResult } from './frontmatter.ts'
+export {
+  resolveSource, syncSource, hasGit, readSourcesFile, writeSourcesFile, readLock, sameRepository,
+} from './sources.ts'
+export type { SourceSpec, ResolvedSource, SyncResult, SyncStatus, LockEntry, LockFile } from './sources.ts'
+export { SkillsAnywhereProvider, type ProviderLogger } from './provider.ts'
+
+/** Register the skills-anywhere provider on `ctx.skills`. */
+export function apply(ctx: Context, config: Config = {}): void {
+  const resolved = resolveConfig(config)
+  let provider!: SkillsAnywhereProvider
+  ctx.skills.registerProvider((control) => {
+    provider = new SkillsAnywhereProvider(resolved, {
+      info: message => ctx.logger.info(message),
+      warn: message => ctx.logger.warn(message),
+      debug: message => ctx.logger.debug(message),
+    }, control)
+    return provider
+  })
+  ctx.effect(() => () => { void provider.dispose() }, 'skills-anywhere provider')
+  ctx.logger.info(`skills-anywhere: provider "${resolved.providerName}" registered (agents=${resolved.agents}, claudePlugins=${resolved.claudePlugins}, sources=${resolved.sources.length}${resolved.sourcesFiles ? '+files' : ''})`)
+}

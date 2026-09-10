@@ -1,0 +1,41 @@
+name: Release
+
+# Publishes to npm when a tag like v0.1.0 is pushed. Requires an NPM_TOKEN
+# repository secret with publish rights; the job is skipped without one.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: git config --global user.name ci && git config --global user.email ci@example.com
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run check
+      - name: Check the tag matches package.json
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          test "v$PKG" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != v$PKG"; exit 1; }
+      - name: Publish to npm
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dsh-skills-anywhere-*.tgz

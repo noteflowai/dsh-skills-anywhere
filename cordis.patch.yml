@@ -1,0 +1,24 @@
+# Bundle patch applied over the selected dsh profile when this package is listed
+# in `dsh.profile.bundles` (that is what `dsh plugin add dsh-skills-anywhere` does).
+#
+# The plugin registers one extra provider on the built-in `ctx.skills` registry,
+# so the shipped `@deepseek-ai/dsh-skill` / `dsh-skill-filesystem` / `dsh-tool-skill`
+# rows stay untouched: the model keeps its usual `skill` tool and `/name`
+# invocation, and simply sees more skills in the catalog.
+#
+# Override any field in your profile's own cordis.patch.yml by restating this
+# row's `id` with a complete `config` block (a patch replaces, not merges).
+
+- insert:
+    - id: skills-anywhere
+      name: dsh-skills-anywhere
+      config:
+        # Discover skills from the directories of other coding agents
+        # (~/.claude/skills, .cursor/skills, ~/.codex/skills, ...).
+        agents: true
+        # Discover skills inside Claude Code plugin marketplaces
+        # (~/.claude/plugins/marketplaces/*/plugins/*/skills/*).
+        claudePlugins: true
+        # Git repositories full of skills, synced into a local cache.
+        # Add more here or with `npx dsh-skills-anywhere add owner/repo`.
+        sources: []

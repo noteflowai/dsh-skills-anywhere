@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: git config --global user.name ci && git config --global user.email ci@example.com
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+      - run: pnpm run test:coverage
+      - run: pnpm run build
+      - name: Pack and smoke-test the CLI
+        run: |
+          pnpm pack
+          mkdir -p /tmp/smoke && cd /tmp/smoke
+          npm init -y >/dev/null
+          npm install "$GITHUB_WORKSPACE"/dsh-skills-anywhere-*.tgz >/dev/null
+          npx dsh-skills-anywhere agents | head -5
+          npx dsh-skills-anywhere doctor
