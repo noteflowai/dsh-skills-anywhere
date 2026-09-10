@@ -18,6 +18,8 @@ You already have skills. They live in `~/.claude/skills`, `~/.codex/skills`, `~/
 - **Any git repository full of skills.** Point at `anthropics/skills`, a sub-directory, a branch, a tag, or a commit. It is shallow-cloned into a local cache, refreshed in the background, and pinned in a lock file.
 - **Zero copies, zero symlinks.** Files are read where they live and re-read on every load. Edit a skill in Cursor and dsh sees the change. Nothing to import, nothing to keep in sync.
 
+Hundreds of skills would bloat every model request, so the provider keeps a **catalog budget**: at most 50 skills enter the model's session catalog by default, and the rest stay one `find_skills` call away through two small tools the plugin adds, with `/name` invocation untouched.
+
 It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI links one canonical copy into several agents), **repairs** common frontmatter drift instead of silently dropping a skill, and **renames** colliding names (`discord/configure` vs `telegram/configure`) so every skill stays reachable. A small CLI shows you exactly what dsh will see and why.
 
 ## Quick start
@@ -98,6 +100,29 @@ Sources come from three places, merged in this order: the plugin `config.sources
 
 Each repository is shallow-cloned once into `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>` and refreshed when dsh starts, every `syncIntervalMs` (6 hours by default), and whenever a sources file changes. The resolved commit of every source is written to `~/.dsh/skills-anywhere/lock.json`. Discovery only ever reads the cache, so a failed refresh means yesterday's skills, never an empty catalog. The catalog is invalidated as soon as a refresh brings changes; dsh never waits on the network.
 
+## Catalog budget and the `find_skills` / `open_skill` tools
+
+dsh publishes every model-invocable skill's name and description into the session, on every request. With marketplaces and a few git sources that is hundreds of lines of context. The provider therefore ranks its skills and marks only the first `catalog.limit` (default 50) as model-invocable; the remainder is published with model invocation off, which keeps it out of the catalog but still loadable by you with `/name`.
+
+Two tools, registered by the `dsh-skills-anywhere/tools` row, make the hidden part reachable for the model:
+
+- **`find_skills(query, limit?)`** searches every skill by keyword (name, description, `whenToUse`, origin), catalog or not, and says which matches are listed.
+- **`open_skill(name)`** loads any skill by exact name, including ones the budget hid. Skills whose own frontmatter says `disable-model-invocation: true` are still refused, exactly as the built-in `skill` tool does.
+
+```yaml
+- id: skills-anywhere
+  config:
+    catalog:
+      limit: 30                       # 0 = unlimited (old behaviour)
+      pin: [frontend-design]          # always listed
+      hide: [example-skill]           # never listed, still searchable and /name-invocable
+- id: skills-anywhere-tools
+  config:
+    findLimit: 10
+```
+
+Author-disabled skills never count against the budget. Which skills stay listed follows the precedence order below, so project-level skills win over user-level, which win over marketplaces and git sources. The tools row needs the tool runtime (`ctx.tools`); in a profile without one it stays pending and the provider works alone.
+
 ## CLI
 
 ```
@@ -149,7 +174,12 @@ Override the row in your profile's `cordis.patch.yml`. A patch replaces the whol
 | `watch` | `true` | Watch local roots and refresh the catalog on change |
 | `excludeSkills` | `[]` | Skill names to hide |
 | `ranks` | `{ project: 250, user: 550, claudePlugins: 580, sources: 700 }` | Precedence per group |
+| `catalog.limit` | `50` | Skills from this provider listed in the model catalog; `0` = unlimited |
+| `catalog.pin` | `[]` | Names always listed |
+| `catalog.hide` | `[]` | Names never listed (still `/name`-invocable and searchable) |
 | `dshHome`, `home` | `$DSH_HOME` / `~` | Path roots, mainly for tests |
+
+The `dsh-skills-anywhere/tools` row accepts `findLimit` (default 10), `findMaxLimit` (50), and `find` / `open` booleans to register only one tool.
 
 ## How precedence and duplicates work
 

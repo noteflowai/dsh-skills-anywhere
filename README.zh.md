@@ -18,6 +18,8 @@
 - **任意装满技能的 git 仓库。** 指向 `anthropics/skills`、某个子目录、分支、标签或提交即可。浅克隆到本地缓存，后台刷新，并用 lock 文件锁定版本。
 - **零拷贝、零软链接。** 文件在哪就从哪读取，每次加载都重新读。你在 Cursor 里改了技能，dsh 立刻看到。不需要导入，也不需要同步。
 
+几百个技能会让每次模型请求都变得臃肿，所以提供器带有**目录预算**：默认最多 50 个技能进入模型的会话目录，其余的通过插件新增的两个小工具一次 `find_skills` 调用即可到达，`/name` 调用不受影响。
+
 它还会**去重**软链接和字节级相同的副本（`skills` CLI 会把同一份技能链接到多个 Agent）、**修复**常见的 frontmatter 偏差而不是悄悄丢掉技能，并对**同名冲突**（`discord/configure` 与 `telegram/configure`）自动加前缀，保证每个技能都能被调用。附带一个小 CLI，让你清楚看到 dsh 会看到什么、为什么。
 
 ## 快速开始
@@ -98,6 +100,29 @@ npx dsh-skills-anywhere add o/r --ref 3f2a9c1 --rank 300           # 锁定提�
 
 每个仓库只浅克隆一次到 `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>`，在 dsh 启动时、每隔 `syncIntervalMs`（默认 6 小时）以及源文件变化时刷新。每个源解析出的提交写入 `~/.dsh/skills-anywhere/lock.json`。发现过程只读缓存，因此刷新失败意味着"昨天的技能"，而不是空目录。刷新带来变化时立即使目录失效；dsh 永远不等待网络。
 
+## 目录预算与 `find_skills` / `open_skill` 工具
+
+dsh 会把每个模型可调用技能的名称和描述放进会话，每次请求都带上。加上插件市场和几个 git 源，这就是几百行上下文。因此提供器会对技能排序，只把前 `catalog.limit` 个（默认 50）标记为模型可调用；其余技能以关闭模型调用的方式发布，不进目录，但你仍可用 `/name` 加载。
+
+由 `dsh-skills-anywhere/tools` 行注册的两个工具让模型也能触达被隐藏的部分：
+
+- **`find_skills(query, limit?)`** 按关键词搜索全部技能（名称、描述、`whenToUse`、来源），无论是否在目录中，并标明哪些已列出。
+- **`open_skill(name)`** 按精确名称加载任意技能，包括被预算隐藏的。frontmatter 里写了 `disable-model-invocation: true` 的技能仍会被拒绝，与内置 `skill` 工具行为一致。
+
+```yaml
+- id: skills-anywhere
+  config:
+    catalog:
+      limit: 30                       # 0 = 不限制（旧行为）
+      pin: [frontend-design]          # 始终列出
+      hide: [example-skill]           # 从不列出，但仍可搜索、可 /name 调用
+- id: skills-anywhere-tools
+  config:
+    findLimit: 10
+```
+
+作者禁用的技能不占预算。哪些技能保留在目录中遵循下文的优先级顺序：项目级优先于用户级，再优先于市场与 git 源。工具行依赖工具运行时（`ctx.tools`）；在没有它的 profile 中该行保持挂起，提供器独立工作。
+
 ## CLI
 
 ```
@@ -149,7 +174,12 @@ dsh-skills-anywhere doctor [--json]           被修复、跳过、重命名、�
 | `watch` | `true` | 监视本地根目录，变化时刷新目录 |
 | `excludeSkills` | `[]` | 要隐藏的技能名 |
 | `ranks` | `{ project: 250, user: 550, claudePlugins: 580, sources: 700 }` | 各组优先级 |
+| `catalog.limit` | `50` | 本提供器进入模型目录的技能数；`0` = 不限制 |
+| `catalog.pin` | `[]` | 始终列出的名称 |
+| `catalog.hide` | `[]` | 从不列出的名称（仍可 `/name` 调用和搜索） |
 | `dshHome`、`home` | `$DSH_HOME` / `~` | 路径根，主要用于测试 |
+
+`dsh-skills-anywhere/tools` 行接受 `findLimit`（默认 10）、`findMaxLimit`（50），以及 `find` / `open` 布尔值以便只注册其中一个工具。
 
 ## 优先级与去重规则
 

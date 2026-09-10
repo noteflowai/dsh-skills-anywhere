@@ -22,3 +22,18 @@
         # Git repositories full of skills, synced into a local cache.
         # Add more here or with `npx dsh-skills-anywhere add owner/repo`.
         sources: []
+        # At most this many skills from this provider enter the model's session
+        # catalog (0 = unlimited). The rest stay user-invocable via /name and
+        # reachable for the model through the find_skills / open_skill tools.
+        catalog:
+          limit: 50
+          pin: []
+          hide: []
+
+    # Model-facing search + load tools for skills outside the catalog budget.
+    # Needs the tool runtime (`ctx.tools`); in a profile without it this row
+    # simply stays pending.
+    - id: skills-anywhere-tools
+      name: dsh-skills-anywhere/tools
+      config:
+        findLimit: 10

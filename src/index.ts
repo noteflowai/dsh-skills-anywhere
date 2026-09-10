@@ -20,7 +20,7 @@ export const name = 'skills-anywhere'
 export const inject = ['skills']
 
 export { Config }
-export type { Config as ConfigInput, RankConfig, ResolvedConfig } from './config.ts'
+export type { Config as ConfigInput, RankConfig, CatalogConfig, ResolvedConfig } from './config.ts'
 export { resolveConfig, projectSourcesFile, DEFAULT_RANKS } from './config.ts'
 export { AGENTS, agentById, type AgentSpec } from './agents.ts'
 export { discover, findProjectRoot } from './discover.ts'
@@ -31,7 +31,7 @@ export {
   resolveSource, syncSource, hasGit, readSourcesFile, writeSourcesFile, readLock, sameRepository,
 } from './sources.ts'
 export type { SourceSpec, ResolvedSource, SyncResult, SyncStatus, LockEntry, LockFile } from './sources.ts'
-export { SkillsAnywhereProvider, type ProviderLogger } from './provider.ts'
+export { SkillsAnywhereProvider, applyCatalogBudget, type ProviderLogger, type CatalogState } from './provider.ts'
 
 /** Register the skills-anywhere provider on `ctx.skills`. */
 export function apply(ctx: Context, config: Config = {}): void {

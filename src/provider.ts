@@ -47,6 +47,9 @@ interface Locator {
   readonly directory: string
 }
 
+/** Where a published skill stands with respect to the model catalog. */
+export type CatalogState = 'visible' | 'hidden' | 'disabled'
+
 const WATCH_DEBOUNCE_MS = 80
 const MAX_WATCHED_PROJECTS = 32
 const SOURCES_FILE_POLL_MS = 2000
@@ -64,6 +67,8 @@ export class SkillsAnywhereProvider implements SkillProvider {
   private invalidateTimer: NodeJS.Timeout | undefined
   private lastReport: DiscoveryReport | undefined
   private lastSync: SyncResult[] = []
+  /** Catalog state per project root (`''` for no cwd) from the latest `list()`. */
+  private readonly catalogStates = new Map<string, Map<string, CatalogState>>()
 
   constructor(
     private readonly config: ResolvedConfig,
@@ -104,8 +109,20 @@ export class SkillsAnywhereProvider implements SkillProvider {
       warn: message => this.log.warn(message),
     })
     this.lastReport = report
-    const candidates = report.skills.map(skill => toCandidate(skill, this.name))
+    const states = applyCatalogBudget(report.skills, this.config.catalog)
+    this.catalogStates.set(options.cwd === undefined ? '' : await findProjectRoot(options.cwd), states)
+    const candidates = report.skills.map(skill => toCandidate(skill, this.name, states.get(skill.name) ?? 'visible'))
     return report.complete ? candidates : { candidates, complete: false }
+  }
+
+  /**
+   * Catalog state of one published skill as of the latest `list()` for the
+   * project containing `cwd`. `hidden` means the budget kept it out of the
+   * model catalog; `disabled` means the skill's own frontmatter did.
+   */
+  async catalogState(name: string, cwd?: string): Promise<CatalogState | undefined> {
+    const key = cwd === undefined ? '' : await findProjectRoot(cwd)
+    return (this.catalogStates.get(key) ?? this.catalogStates.get(''))?.get(name)
   }
 
   /** Re-read the winning file so edits are always reflected. */
@@ -129,7 +146,8 @@ export class SkillsAnywhereProvider implements SkillProvider {
       name: candidate.name,
       description: parsed.skill.description,
       ...(parsed.skill.whenToUse !== undefined ? { whenToUse: parsed.skill.whenToUse } : {}),
-      invocation: parsed.skill.invocation,
+      // The candidate carries the catalog decision (budget or author policy).
+      invocation: candidate.invocation,
       source: candidate.source,
       provider: this.name,
       resourceBase: { kind: 'directory', path: locator.directory },
@@ -396,20 +414,52 @@ export class SkillsAnywhereProvider implements SkillProvider {
   }
 }
 
-function toCandidate(skill: DiscoveredSkill, provider: string): SkillCandidate {
+/**
+ * Decide which skills the model catalog lists. Author-disabled skills never
+ * count against the budget; pinned names come first; hidden names never show;
+ * the rest fill the remaining slots in precedence order.
+ */
+export function applyCatalogBudget(
+  skills: readonly DiscoveredSkill[],
+  catalog: ResolvedConfig['catalog'],
+): Map<string, CatalogState> {
+  const states = new Map<string, CatalogState>()
+  const eligible: DiscoveredSkill[] = []
+  for (const skill of skills) {
+    if (!skill.invocation.modelInvocable) states.set(skill.name, 'disabled')
+    else if (catalog.hide.has(skill.name)) states.set(skill.name, 'hidden')
+    else eligible.push(skill)
+  }
+  const ordered = [
+    ...eligible.filter(skill => catalog.pin.has(skill.name)),
+    ...eligible.filter(skill => !catalog.pin.has(skill.name)),
+  ]
+  ordered.forEach((skill, index) => {
+    states.set(skill.name, catalog.limit === 0 || index < catalog.limit ? 'visible' : 'hidden')
+  })
+  return states
+}
+
+function toCandidate(skill: DiscoveredSkill, provider: string, state: CatalogState): SkillCandidate {
   const locator: Locator = { path: skill.path, directory: skill.directory }
+  const extra = skill.metadata.skillsAnywhere as Record<string, unknown> | undefined
   return {
     name: skill.name,
     description: skill.description,
     ...(skill.whenToUse !== undefined ? { whenToUse: skill.whenToUse } : {}),
-    invocation: skill.invocation,
+    invocation: state === 'hidden'
+      ? { modelInvocable: false, userInvocable: skill.invocation.userInvocable }
+      : skill.invocation,
     provider,
     source: skill.source,
     rank: skill.rank,
     locator,
     path: skill.path,
     resourceBase: { kind: 'directory', path: skill.directory },
-    metadata: skill.metadata,
+    metadata: {
+      ...skill.metadata,
+      skillsAnywhere: { ...extra, catalog: state, authorInvocation: skill.invocation },
+    },
   }
 }
 

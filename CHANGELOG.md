@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-09-10
+
+### Added
+
+- **Catalog budget.** `catalog.limit` (default 50), `catalog.pin`, and
+  `catalog.hide` decide which skills enter the model's session catalog; the
+  rest are published with model invocation off, so `/name` still works and
+  context stays small.
+- **`find_skills` and `open_skill` tools** (`dsh-skills-anywhere/tools` row):
+  keyword search over every skill, listed or not, and loading of any skill the
+  budget hid. Author-disabled skills remain refused.
+- Candidate metadata now records `skillsAnywhere.catalog` and
+  `skillsAnywhere.authorInvocation`.
+
+### Changed
+
+- Git sources declared in config or the user sources file now sync when the
+  plugin starts, not on the first catalog request.
+
 ## [0.1.0] - 2026-09-10
 
 ### Added

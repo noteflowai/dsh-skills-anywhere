@@ -22,6 +22,15 @@ export interface RankConfig {
   readonly sources?: number
 }
 
+export interface CatalogConfig {
+  /** Maximum skills this provider exposes to the model catalog; `0` means unlimited. Default 50. */
+  readonly limit?: number
+  /** Skill names always kept in the model catalog. */
+  readonly pin?: readonly string[]
+  /** Skill names never shown to the model catalog (still user-invocable and searchable). */
+  readonly hide?: readonly string[]
+}
+
 export interface Config {
   /** Unique provider name on `ctx.skills`. */
   readonly providerName?: string
@@ -64,12 +73,15 @@ export interface Config {
   /** Skill names to hide. */
   readonly excludeSkills?: readonly string[]
   readonly ranks?: RankConfig
+  /** Model-catalog budget: which skills are listed for the model versus reachable through `find_skills`. */
+  readonly catalog?: CatalogConfig
 }
 
 export const DEFAULT_RANKS = { project: 250, user: 550, claudePlugins: 580, sources: 700 } as const
 export const DEFAULT_SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000
 export const DEFAULT_SYNC_TIMEOUT_MS = 120_000
 export const DEFAULT_MAX_DEPTH = 5
+export const DEFAULT_CATALOG_LIMIT = 50
 
 const SourceSchema = z.union([
   z.string(),
@@ -108,6 +120,11 @@ export const Config: Schema<Config> = z.object({
     claudePlugins: z.number().default(DEFAULT_RANKS.claudePlugins),
     sources: z.number().default(DEFAULT_RANKS.sources),
   }).default({ ...DEFAULT_RANKS }),
+  catalog: z.object({
+    limit: z.number().default(DEFAULT_CATALOG_LIMIT),
+    pin: z.array(z.string()).default([]),
+    hide: z.array(z.string()).default([]),
+  }).default({ limit: DEFAULT_CATALOG_LIMIT, pin: [], hide: [] }),
 }) as unknown as Schema<Config>
 
 export interface ResolvedConfig {
@@ -132,6 +149,7 @@ export interface ResolvedConfig {
   readonly watch: boolean
   readonly excludeSkills: readonly string[]
   readonly ranks: Required<RankConfig>
+  readonly catalog: { readonly limit: number; readonly pin: ReadonlySet<string>; readonly hide: ReadonlySet<string> }
   /** `<dshHome>/skills-anywhere` */
   readonly stateDir: string
   /** User-level sources file. */
@@ -176,6 +194,11 @@ export function resolveConfig(config: Config = {}, env: Record<string, string | 
     watch: config.watch ?? true,
     excludeSkills: config.excludeSkills ?? [],
     ranks,
+    catalog: {
+      limit: Math.max(0, Math.floor(config.catalog?.limit ?? DEFAULT_CATALOG_LIMIT)),
+      pin: new Set(config.catalog?.pin ?? []),
+      hide: new Set(config.catalog?.hide ?? []),
+    },
     stateDir,
     userSourcesFile: join(stateDir, 'sources.json'),
     lockFile: join(stateDir, 'lock.json'),
