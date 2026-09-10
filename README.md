@@ -42,11 +42,12 @@ Start dsh as usual. The skill catalog now includes everything above; load a skil
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
 ```
 
-A git install ships sources, so pnpm has to run this package's `prepare` build. pnpm 10+ refuses until you allow it: add the key it prints to the profile's `pnpm-workspace.yaml` and run the `add` again.
+A git install ships sources, so pnpm has to run this package's `prepare` build. pnpm 10+ refuses until you allow it: the first `add` fails and prints the exact key to allow. Copy that key (it includes the commit) into the profile's `pnpm-workspace.yaml` and run the `add` again.
 
 ```yaml
+# $DSH_HOME/profiles/web/pnpm-workspace.yaml
 allowBuilds:
-  dsh-skills-anywhere: true
+  'dsh-skills-anywhere@https://codeload.github.com/noteflowai/dsh-skills-anywhere/tar.gz/<sha>': true
 ```
 
 Pin a commit (`github:noteflowai/dsh-skills-anywhere#<sha>`) if you want the install to be reproducible.

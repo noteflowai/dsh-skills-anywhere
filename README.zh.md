@@ -42,11 +42,12 @@ npx dsh-skills-anywhere add anthropics/skills
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
 ```
 
-git 安装拿到的是源码，pnpm 需要运行本包的 `prepare` 构建脚本。pnpm 10+ 默认拒绝，需要把它打印出来的包名加到 profile 的 `pnpm-workspace.yaml` 后重新执行 `add`：
+git 安装拿到的是源码，pnpm 需要运行本包的 `prepare` 构建脚本。pnpm 10+ 默认拒绝：第一次 `add` 会失败并打印出需要放行的精确键名（包含提交哈希）。把它原样复制到 profile 的 `pnpm-workspace.yaml` 后重新执行 `add`：
 
 ```yaml
+# $DSH_HOME/profiles/web/pnpm-workspace.yaml
 allowBuilds:
-  dsh-skills-anywhere: true
+  'dsh-skills-anywhere@https://codeload.github.com/noteflowai/dsh-skills-anywhere/tar.gz/<sha>': true
 ```
 
 需要可复现安装时请锁定提交：`github:noteflowai/dsh-skills-anywhere#<sha>`。
