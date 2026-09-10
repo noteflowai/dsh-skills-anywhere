@@ -20,6 +20,7 @@
   ],
   "author": "Note Flow AI <admin@noteflowai.com>",
   "license": "MIT",
+  "mcpName": "io.github.noteflowai/dsh-skills-anywhere",
   "homepage": "https://github.com/noteflowai/dsh-skills-anywhere",
   "repository": {
     "type": "git",

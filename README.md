@@ -27,15 +27,20 @@ It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI
 ## Quick start
 
 ```sh
+# The package is not on npm yet; install the release tarball (no build step, no git needed).
+PKG=https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz
+
 # 1. Install into the dsh profile you use (web is the default UI profile)
-dsh plugin --profile web add dsh-skills-anywhere
+dsh plugin --profile web add $PKG
 
 # 2. See what the model will get, without booting dsh
-npx dsh-skills-anywhere list
+npx -y $PKG list
 
 # 3. Add a whole repository of skills
-npx dsh-skills-anywhere add anthropics/skills
+npx -y $PKG add anthropics/skills
 ```
+
+Once the npm release is out, `dsh-skills-anywhere` replaces `$PKG` everywhere below, which is how the rest of this README writes the commands.
 
 Start dsh as usual. The skill catalog now includes everything above; load a skill with the `skill` tool or `/skill-name` exactly as before.
 
@@ -52,7 +57,9 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 ```
 
 <details>
-<summary>Install from GitHub instead of npm</summary>
+<summary>Install from a git checkout instead of the tarball</summary>
+
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly. Prefer that. If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -184,7 +191,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
+Until the npm release lands, replace `dsh-skills-anywhere` in these commands with the release tarball URL (`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`). Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
 
 ## Configuration
 

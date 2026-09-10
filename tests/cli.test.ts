@@ -41,6 +41,7 @@ describe('cli', () => {
   it('prints help and rejects unknown commands', async () => {
     expect(await main(['--help'])).toBe(0)
     expect(out.join('\n')).toContain('Usage: dsh-skills-anywhere')
+    expect(out.join('\n')).toContain('mcp ')
     out.length = 0
     expect(await main(['bogus'])).toBe(2)
     expect(err.join('\n')).toContain('unknown command')

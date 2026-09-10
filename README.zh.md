@@ -27,15 +27,20 @@
 ## 快速开始
 
 ```sh
+# 尚未发布到 npm；先安装 release 里的构建产物 tarball（无需构建，也不需要 git）。
+PKG=https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz
+
 # 1. 安装到你使用的 dsh profile（web 是默认的 UI profile）
-dsh plugin --profile web add dsh-skills-anywhere
+dsh plugin --profile web add $PKG
 
 # 2. 不启动 dsh，直接查看模型将看到的技能
-npx dsh-skills-anywhere list
+npx -y $PKG list
 
 # 3. 添加一整个技能仓库
-npx dsh-skills-anywhere add anthropics/skills
+npx -y $PKG add anthropics/skills
 ```
+
+npm 发布后，下文所有命令中的 `$PKG` 直接换成 `dsh-skills-anywhere` 即可（本文其余部分按 npm 包名书写）。
 
 照常启动 dsh。技能目录里现在包含了上面所有内容；用 `skill` 工具或 `/技能名` 加载，与之前完全一样。
 
@@ -52,7 +57,9 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 ```
 
 <details>
-<summary>从 GitHub 安装（不经 npm）</summary>
+<summary>从 git 检出安装（不用 tarball）</summary>
+
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL，推荐这种方式。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -184,7 +191,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
+npm 发布前，把这些命令里的 `dsh-skills-anywhere` 换成 release tarball 的 URL（`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`）。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
 
 ## 配置
 
