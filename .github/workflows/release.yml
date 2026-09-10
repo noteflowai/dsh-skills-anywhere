@@ -36,6 +36,8 @@ jobs:
         run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+      - name: Pack tarball
+        run: pnpm pack
       - name: GitHub release
         uses: softprops/action-gh-release@v2
         with:
