@@ -171,11 +171,14 @@ Skills are not a dsh-only idea, and neither is this provider. `dsh-skills-anywhe
 
 Skills are also exposed as `skill://<name>` resources (with completion), for clients that let you @-mention resources. Skills whose frontmatter sets `disable-model-invocation: true` are never listed or opened. The server needs no dsh installation at all.
 
-**Claude Code**
+**Claude Code** (as a plugin; this repo doubles as a plugin marketplace)
 
 ```sh
-claude mcp add skills-anywhere -- npx -y dsh-skills-anywhere mcp
+claude plugin marketplace add noteflowai/dsh-skills-anywhere
+claude plugin install dsh-skills-anywhere@noteflowai
 ```
+
+Or register the bare server instead: `claude mcp add skills-anywhere -- npx -y dsh-skills-anywhere mcp`. Either way, restart Claude Code once so it connects.
 
 **Cursor** (`.cursor/mcp.json` or `~/.cursor/mcp.json`)
 
@@ -191,7 +194,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-Until the npm release lands, replace `dsh-skills-anywhere` in these commands with the release tarball URL (`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`). Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
+Until the npm release lands, replace `dsh-skills-anywhere` in the manual commands with the release tarball URL (the plugin manifest already does this) (`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`). Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
 
 ## Configuration
 

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "noteflowai",
+  "description": "Plugins by Note Flow AI",
+  "owner": { "name": "Note Flow AI", "email": "admin@noteflowai.com", "url": "https://github.com/noteflowai" },
+  "plugins": [
+    {
+      "name": "dsh-skills-anywhere",
+      "source": "./",
+      "displayName": "Skills Anywhere",
+      "description": "Every skill you have installed for any agent, plus any GitHub skill repo, as find_skills / open_skill tools and skill:// resources via MCP.",
+      "version": "0.3.0",
+      "homepage": "https://github.com/noteflowai/dsh-skills-anywhere",
+      "license": "MIT",
+      "keywords": ["skills", "agent-skills", "mcp"],
+      "category": "productivity"
+    }
+  ]
+}

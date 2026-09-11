@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Claude Code plugin.** The repository now carries `.claude-plugin/plugin.json`
+  and `marketplace.json`, so `claude plugin marketplace add noteflowai/dsh-skills-anywhere`
+  followed by `claude plugin install dsh-skills-anywhere@noteflowai` wires the
+  MCP server into Claude Code with no manual `claude mcp add`. The manifest pins
+  the release tarball; bump it together with the README URLs on each release.
+
 ## [0.3.0] - 2026-09-10
 
 ### Added

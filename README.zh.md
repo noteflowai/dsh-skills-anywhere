@@ -171,11 +171,14 @@ dsh-skills-anywhere mcp                       通过 stdio 把同一批技能提
 
 技能同时以 `skill://<名称>` 资源（带自动补全）暴露，方便支持 @ 引用资源的客户端。frontmatter 设置了 `disable-model-invocation: true` 的技能永远不会被列出或打开。该服务器完全不需要安装 dsh。
 
-**Claude Code**
+**Claude Code**（作为插件安装；本仓库同时也是一个插件市场）
 
 ```sh
-claude mcp add skills-anywhere -- npx -y dsh-skills-anywhere mcp
+claude plugin marketplace add noteflowai/dsh-skills-anywhere
+claude plugin install dsh-skills-anywhere@noteflowai
 ```
+
+也可以只注册裸服务器：`claude mcp add skills-anywhere -- npx -y dsh-skills-anywhere mcp`。两种方式都需要重启一次 Claude Code 才会连接。
 
 **Cursor**（`.cursor/mcp.json` 或 `~/.cursor/mcp.json`）
 
@@ -191,7 +194,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-npm 发布前，把这些命令里的 `dsh-skills-anywhere` 换成 release tarball 的 URL（`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`）。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
+npm 发布前，把手动命令里的 `dsh-skills-anywhere` 换成 release tarball 的 URL（插件清单里已经是这个 URL）（`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`）。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
 
 ## 配置
 
