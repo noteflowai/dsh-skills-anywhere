@@ -30,7 +30,7 @@ Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但�
 
 ```sh
 # 尚未发布到 npm；先安装 release 里的构建产物 tarball（无需构建，也不需要 git）。
-PKG=https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz
+PKG=https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.1/dsh-skills-anywhere-0.3.1.tgz
 
 # 1. 安装到你使用的 dsh profile（web 是默认的 UI profile）
 dsh plugin --profile web add $PKG
@@ -196,7 +196,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-npm 发布前，把手动命令里的 `dsh-skills-anywhere` 换成 release tarball 的 URL（插件清单里已经是这个 URL）（`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.0/dsh-skills-anywhere-0.3.0.tgz mcp`）。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
+npm 发布前，把手动命令里的 `dsh-skills-anywhere` 换成 release tarball 的 URL（插件清单里已经是这个 URL）（`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.1/dsh-skills-anywhere-0.3.1.tgz mcp`）。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
 
 ## 配置
 
