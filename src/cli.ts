@@ -7,7 +7,7 @@
  */
 
 import { parseArgs } from 'node:util'
-import { relative } from 'node:path'
+import { isAbsolute, relative, sep } from 'node:path'
 import { AGENTS } from './agents.ts'
 import { projectSourcesFile, resolveConfig, type ResolvedConfig } from './config.ts'
 import { findProjectRoot, type DiscoveryReport } from './discover.ts'
@@ -140,8 +140,10 @@ async function collectWithSources(cli: Cli, config: ResolvedConfig): Promise<{ r
 
 /** `~`-shortened path, or the path inside its git source checkout (the FROM column already names the repo). */
 function displayPath(path: string, config: ResolvedConfig, sourceDirs: readonly string[]): string {
-  const dir = sourceDirs.filter(candidate => path.startsWith(`${candidate}/`)).sort((a, b) => b.length - a.length)[0]
-  return dir === undefined ? shorten(path, config.home) : relative(dir, path)
+  const inside = sourceDirs.map(dir => relative(dir, path))
+    .filter(rel => rel !== '' && !rel.startsWith('..') && !isAbsolute(rel))
+    .toSorted((a, b) => a.length - b.length)[0]
+  return inside ?? shorten(path, config.home)
 }
 
 function originLabel(skill: { origin: { kind: string; agent?: string; scope?: string; repo?: string; marketplace?: string; plugin?: string } }): string {
@@ -409,8 +411,9 @@ async function mcp(cli: Cli): Promise<number> {
 
 function shorten(path: string, home: string): string {
   if (path === home) return '~'
-  if (path.startsWith(`${home}/`)) return `~/${relative(home, path)}`
-  return path
+  const rel = relative(home, path)
+  if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) return path
+  return `~${sep}${rel}`
 }
 
 const invokedDirectly = (() => {

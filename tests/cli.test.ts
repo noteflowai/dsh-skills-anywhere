@@ -119,7 +119,7 @@ describe('cli', () => {
     expect(out.join('\n')).toContain('alpha')
     expect(out.join('\n')).toContain(`source ${repo}`)
     // Skills inside a source checkout are shown repo-relative; the FROM column already names the repo.
-    expect(out.join('\n')).not.toContain('skills-anywhere/cache/')
+    expect(out.join('\n')).not.toMatch(/skills-anywhere[\\/]cache[\\/]/)
     expect(out.join('\n')).toMatch(/^alpha\s+source .+?\s+skills[\\/]alpha[\\/]SKILL\.md$/m)
     out.length = 0
 
