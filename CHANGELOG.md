@@ -13,6 +13,13 @@ All notable changes to this project are documented here. The format follows
   followed by `claude plugin install dsh-skills-anywhere@noteflowai` wires the
   MCP server into Claude Code with no manual `claude mcp add`. The manifest pins
   the release tarball; bump it together with the README URLs on each release.
+- Animated demo in the README (`docs/demo.gif`).
+
+### Changed
+
+- `list` shows skills that come from a git source with their path inside the
+  repository (`skills/pdf/SKILL.md`) instead of the full cache path; the FROM
+  column already names the repository.
 
 ## [0.3.0] - 2026-09-10
 

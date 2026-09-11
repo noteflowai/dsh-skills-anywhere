@@ -1,6 +1,6 @@
 # dsh-skills-anywhere
 
-**你的技能，随处可用。** 面向 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）的实时 [Agent Skills](https://agentskills.io) 提供器。
+**你的技能，随处可用。** [Agent Skill](https://agentskills.io) 装一次，所有 Agent 都能用：既是 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）的实时技能提供器，也是 Claude Code、Cursor、Codex 等的 MCP 服务器。
 
 [English](README.md) | 中文
 
@@ -9,9 +9,11 @@
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-你手上已经有很多技能了：`~/.claude/skills`、`~/.codex/skills`、`~/.cursor/skills`、Claude Code 插件市场里的技能，以及 `anthropics/skills` 这样的 GitHub 仓库。而 DeepSeek Harness 只会扫描 `.dsh/skills` 和 `.agents/skills`。
+Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但每个 Agent 都只看自己的目录，于是你给 Claude Code 装的技能 Codex、Cursor 和 DeepSeek Harness 看不见，反过来也一样。`dsh-skills-anywhere` 直接从这些目录原地读取，然后把它们送到所有地方：在 dsh 里是一个实时的技能提供器，在 Claude Code、Cursor、Codex 等任何 MCP 客户端里是一个 MCP 服务器。
 
-`dsh-skills-anywhere` 在内置的 `ctx.skills` 注册表上多注册一个提供器，模型原有的 `skill` 工具和 `/name` 调用方式不变，只是能看到更多技能：
+<p align="center"><img src="docs/demo.gif" alt="dsh-skills-anywhere list 找到来自 Claude Code、Codex、Cursor、Gemini CLI、Goose、Windsurf、Kiro 的技能，再从 GitHub 加入 anthropics/skills" width="880"></p>
+
+在 dsh 里，它在内置的 `ctx.skills` 注册表上多注册一个提供器，模型原有的 `skill` 工具和 `/name` 调用方式不变，只是能看到更多技能：
 
 - **其他 Agent 的技能目录。** 开箱支持 60+ 个 Agent：Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose、OpenCode、Roo、Cline、Qwen Code、Trae 等，项目级与用户级都覆盖。
 - **Claude Code 插件市场。** 嵌套在 `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` 里的技能，包括 Anthropic 官方市场。

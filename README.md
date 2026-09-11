@@ -1,6 +1,6 @@
 # dsh-skills-anywhere
 
-**Your skills, anywhere.** A live [Agent Skills](https://agentskills.io) provider for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`).
+**Your skills, anywhere.** Install an [Agent Skill](https://agentskills.io) once, use it in every agent: a live skill provider for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) and an MCP server for Claude Code, Cursor, Codex and friends.
 
 English | [中文](README.zh.md)
 
@@ -9,9 +9,11 @@ English | [中文](README.zh.md)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-You already have skills. They live in `~/.claude/skills`, `~/.codex/skills`, `~/.cursor/skills`, inside Claude Code plugin marketplaces, and in GitHub repositories like `anthropics/skills`. DeepSeek Harness only looks in `.dsh/skills` and `.agents/skills`.
+Agent Skills are portable by design: a folder with a `SKILL.md`. Every agent still looks only in its own folder, so a skill you install for Claude Code is invisible to Codex, Cursor and DeepSeek Harness, and the ones you wrote for them are invisible back. `dsh-skills-anywhere` reads all of those folders where they live and serves them everywhere: as a live skill provider inside dsh, and as an MCP server for Claude Code, Cursor, Codex and any other MCP client.
 
-`dsh-skills-anywhere` registers one extra provider on the built-in `ctx.skills` registry, so the model's normal `skill` tool and `/name` invocation simply see more skills:
+<p align="center"><img src="docs/demo.gif" alt="dsh-skills-anywhere list finds skills from Claude Code, Codex, Cursor, Gemini CLI, Goose, Windsurf and Kiro, then adds anthropics/skills from GitHub" width="880"></p>
+
+Inside dsh, it registers one extra provider on the built-in `ctx.skills` registry, so the model's normal `skill` tool and `/name` invocation simply see more skills:
 
 - **Every other agent's skill directories.** 60+ agents out of the box: Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose, OpenCode, Roo, Cline, Qwen Code, Trae and more. Project-level and user-level.
 - **Claude Code plugin marketplaces.** The skills nested inside `~/.claude/plugins/marketplaces/*/plugins/*/skills/*`, including the official Anthropic marketplace.

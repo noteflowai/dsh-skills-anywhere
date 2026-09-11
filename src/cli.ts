@@ -122,13 +122,26 @@ function logger() {
 }
 
 async function collect(cli: Cli, config: ResolvedConfig): Promise<DiscoveryReport> {
+  return (await collectWithSources(cli, config)).report
+}
+
+/** One discovery pass plus the resolved git sources, so paths inside a source checkout can be shown repo-relative. */
+async function collectWithSources(cli: Cli, config: ResolvedConfig): Promise<{ report: DiscoveryReport; sourceDirs: readonly string[] }> {
   const provider = new SkillsAnywhereProvider(config, logger())
   try {
     await provider.list({ cwd: cli.cwd })
-    return provider.report() ?? { skills: [], dropped: [], invalid: [], roots: [], complete: true }
+    const report = provider.report() ?? { skills: [], dropped: [], invalid: [], roots: [], complete: true }
+    const sourceDirs = (await provider.sources(cli.cwd)).map(source => source.dir)
+    return { report, sourceDirs }
   } finally {
     await provider.dispose()
   }
+}
+
+/** `~`-shortened path, or the path inside its git source checkout (the FROM column already names the repo). */
+function displayPath(path: string, config: ResolvedConfig, sourceDirs: readonly string[]): string {
+  const dir = sourceDirs.filter(candidate => path.startsWith(`${candidate}/`)).sort((a, b) => b.length - a.length)[0]
+  return dir === undefined ? shorten(path, config.home) : relative(dir, path)
 }
 
 function originLabel(skill: { origin: { kind: string; agent?: string; scope?: string; repo?: string; marketplace?: string; plugin?: string } }): string {
@@ -148,7 +161,7 @@ function table(rows: readonly (readonly string[])[]): string {
 }
 
 async function list(cli: Cli, config: ResolvedConfig): Promise<number> {
-  const report = await collect(cli, config)
+  const { report, sourceDirs } = await collectWithSources(cli, config)
   if (cli.json) {
     console.log(JSON.stringify({
       skills: report.skills.map(skill => ({
@@ -166,7 +179,7 @@ async function list(cli: Cli, config: ResolvedConfig): Promise<number> {
   } else {
     console.log(table([
       ['NAME', 'FROM', 'PATH'],
-      ...report.skills.map(skill => [skill.name, originLabel(skill), shorten(skill.path, config.home)]),
+      ...report.skills.map(skill => [skill.name, originLabel(skill), displayPath(skill.path, config, sourceDirs)]),
     ]))
   }
   if (cli.all && report.dropped.length > 0) {
