@@ -1,45 +1,109 @@
 name: Release
 
-# Publishes to npm when a tag like v0.1.0 is pushed. Requires an NPM_TOKEN
-# repository secret with publish rights; the job is skipped without one.
+# Runs when a tag like v0.3.2 is pushed. Three jobs, each with the least
+# privilege it needs:
+#
+#   release       check + pack, attach the tarball to a GitHub release
+#   npm           publish the same tarball to npm with provenance
+#   mcp-registry  register the release in the official MCP registry
+#
+# npm uses trusted publishing (OIDC) when the package has a trusted publisher
+# configured on npmjs.com for this workflow file; NPM_TOKEN is only a fallback
+# for the very first publish. The MCP registry accepts GitHub OIDC for the
+# io.github.noteflowai/* namespace, so it needs no secret at all.
+# See docs/RELEASING.md.
 
 on:
   push:
     tags: ['v*']
 
-permissions:
-  contents: write
-  id-token: write
+permissions: {}
 
 jobs:
-  publish:
+  release:
+    name: GitHub release
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
-          registry-url: https://registry.npmjs.org
       - run: git config --global user.name ci && git config --global user.email ci@example.com
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm run check
-      - name: Check the tag matches package.json
+      - name: Check the tag matches every version file
+        id: version
         run: |
           PKG=$(node -p "require('./package.json').version")
-          test "v$PKG" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != v$PKG"; exit 1; }
-      - name: Publish to npm
-        if: env.NPM_TOKEN != ''
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ env.NPM_TOKEN }}
+          test "v$PKG" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != package.json v$PKG"; exit 1; }
+          node scripts/sync-version.mjs --check
+          echo "version=$PKG" >> "$GITHUB_OUTPUT"
       - name: Pack tarball
         run: pnpm pack
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: tarball
+          path: dsh-skills-anywhere-*.tgz
+          if-no-files-found: error
       - name: GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           generate_release_notes: true
           files: dsh-skills-anywhere-*.tgz
+
+  npm:
+    name: Publish to npm
+    needs: release
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+      - name: Use an npm that supports trusted publishing (>= 11.5.1)
+        run: npm install -g npm@latest && npm --version
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: tarball
+      - name: Publish (trusted publishing when configured, NPM_TOKEN otherwise)
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > ~/.npmrc
+            echo "publishing with NPM_TOKEN"
+          else
+            echo "publishing with OIDC trusted publishing"
+          fi
+          npm publish ./dsh-skills-anywhere-*.tgz --access public --provenance
+      - name: Verify
+        run: |
+          sleep 15
+          npm view dsh-skills-anywhere@${{ needs.release.outputs.version }} version
+
+  mcp-registry:
+    name: Publish to the MCP registry
+    needs: [release, npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Install mcp-publisher
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher --help >/dev/null
+      - name: Authenticate with GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+      - name: Publish server.json
+        run: ./mcp-publisher publish

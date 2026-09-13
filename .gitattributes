@@ -1,0 +1,4 @@
+# Normalise line endings so Windows checkouts match CI and the version-sync check.
+* text=auto eol=lf
+*.gif binary
+*.tgz binary

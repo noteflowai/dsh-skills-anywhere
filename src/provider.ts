@@ -62,6 +62,11 @@ export class SkillsAnywhereProvider implements SkillProvider {
   private readonly watchedProjects: string[] = []
   private syncTimer: NodeJS.Timeout | undefined
   private syncing: Promise<SyncResult[]> | undefined
+  private syncQueued: Promise<SyncResult[]> | undefined
+  /** Project roots the most recent sync run read sources for. */
+  private lastSyncProjects = new Set<string>()
+  /** Aborts git processes of in-flight syncs on dispose (or when dsh aborts the provider). */
+  private readonly abort = new AbortController()
   private readonly syncedProjects = new Set<string>()
   private disposed = false
   private invalidateTimer: NodeJS.Timeout | undefined
@@ -169,11 +174,15 @@ export class SkillsAnywhereProvider implements SkillProvider {
 
   /** Every configured source (config + files) for a cwd. */
   async sources(cwd?: string): Promise<ResolvedSource[]> {
+    return this.collectSources(cwd === undefined ? [] : [await findProjectRoot(cwd)])
+  }
+
+  /** Config- and user-level sources plus the project files of `projectRoots`. */
+  private async collectSources(projectRoots: Iterable<string>): Promise<ResolvedSource[]> {
     const specs: (string | SourceSpec)[] = [...this.config.sources]
     if (this.config.sourcesFiles) {
       specs.push(...await this.readSources(this.config.userSourcesFile))
-      if (cwd !== undefined) {
-        const projectRoot = await findProjectRoot(cwd)
+      for (const projectRoot of new Set(projectRoots)) {
         specs.push(...await this.readSources(projectSourcesFile(projectRoot)))
       }
     }
@@ -193,16 +202,42 @@ export class SkillsAnywhereProvider implements SkillProvider {
     return resolved
   }
 
-  /** Clone or refresh every source; concurrent calls share one run. */
+  /**
+   * Clone or refresh every source. Concurrent calls share one run; a call that
+   * names a project (or forces) while a run is in flight queues one follow-up
+   * run, because the in-flight run read its source list before this request.
+   */
   syncAll(cwd?: string, options: { force?: boolean } = {}): Promise<SyncResult[]> {
-    if (this.syncing !== undefined) return this.syncing
+    if (this.syncing !== undefined) {
+      if (cwd === undefined && options.force !== true) return this.syncing
+      this.syncQueued ??= this.syncing
+        .catch((): SyncResult[] => [])
+        .then(async (results) => {
+          this.syncQueued = undefined
+          if (this.disposed) return results
+          // Only re-run when the in-flight run could not have covered this
+          // request: a project the run did not know about, with sources of its own.
+          if (cwd !== undefined && options.force !== true) {
+            const projectRoot = await findProjectRoot(cwd)
+            if (this.lastSyncProjects.has(projectRoot)) return results
+            if ((await this.readSources(projectSourcesFile(projectRoot))).length === 0) return results
+          }
+          return this.syncAll(cwd, options)
+        })
+      return this.syncQueued
+    }
     this.syncing = this.runSync(cwd, options).finally(() => { this.syncing = undefined })
     return this.syncing
   }
 
   private async runSync(cwd: string | undefined, options: { force?: boolean }): Promise<SyncResult[]> {
     if (this.disposed) return []
-    const sources = await this.sources(cwd)
+    // Every project seen so far stays in the sync set, so the interval timer
+    // and the sources-file poller (which have no cwd) refresh project sources too.
+    const projectRoots = new Set(this.syncedProjects)
+    if (cwd !== undefined) projectRoots.add(await findProjectRoot(cwd))
+    this.lastSyncProjects = projectRoots
+    const sources = await this.collectSources(projectRoots)
     if (sources.length === 0) return []
     const lock: LockFile = await readLock(this.config.lockFile)
     const results: SyncResult[] = []
@@ -212,13 +247,13 @@ export class SkillsAnywhereProvider implements SkillProvider {
       const result = await syncSource(source, {
         ...(options.force !== undefined ? { force: options.force } : {}),
         timeoutMs: this.config.syncTimeoutMs,
-        ...(this.control?.signal !== undefined ? { signal: this.control.signal } : {}),
+        signal: this.abort.signal,
         log: message => this.log.info(message),
       })
       results.push(result)
       if (result.status === 'cloned' || result.status === 'updated') changed = true
       if (result.sha !== undefined) {
-        lock[source.id] = {
+        lock[source.key] = {
           url: source.url,
           ...(source.ref !== undefined ? { ref: source.ref } : {}),
           sha: result.sha,
@@ -247,6 +282,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
         if (agent.project === undefined || config.excludeAgents.has(agent.id)) continue
         roots.push({
           path: join(projectRoot, agent.project),
+          project: projectRoot,
           source: 'anywhere-project',
           rank: config.ranks.project,
           mode: 'flat',
@@ -259,6 +295,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
       for (const dir of config.extraProjectDirs) {
         roots.push({
           path: join(projectRoot, dir),
+          project: projectRoot,
           source: 'anywhere-project',
           rank: config.ranks.project,
           mode: 'flat',
@@ -339,7 +376,10 @@ export class SkillsAnywhereProvider implements SkillProvider {
     this.polledFiles.clear()
     const closing = [...this.watchers.values()].map(watcher => watcher.close().catch(() => undefined))
     this.watchers.clear()
-    await Promise.all(closing)
+    // No git process may outlive the provider: kill in-flight syncs and wait
+    // for them to settle, so callers can remove the cache right after dispose.
+    this.abort.abort()
+    await Promise.all([...closing, this.syncing?.catch(() => undefined), this.syncQueued?.catch(() => undefined)])
   }
 
   // --- internals ------------------------------------------------------------
@@ -371,7 +411,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
     for (const root of roots) {
       if (root.mode !== 'flat') continue
       if (this.watchers.has(root.path)) continue
-      if (root.origin.scope === 'project' && !this.admitProject(root.path)) continue
+      if (root.origin.scope === 'project' && !this.admitProject(root.project ?? root.path)) continue
       try {
         const watcher = chokidar.watch(root.path, {
           depth: 1,
@@ -395,10 +435,11 @@ export class SkillsAnywhereProvider implements SkillProvider {
     }
   }
 
-  private admitProject(path: string): boolean {
-    if (this.watchedProjects.includes(path)) return true
+  /** Bound the number of *projects* (not directories) whose roots are watched. */
+  private admitProject(project: string): boolean {
+    if (this.watchedProjects.includes(project)) return true
     if (this.watchedProjects.length >= MAX_WATCHED_PROJECTS) return false
-    this.watchedProjects.push(path)
+    this.watchedProjects.push(project)
     return true
   }
 

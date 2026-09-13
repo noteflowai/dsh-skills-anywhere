@@ -82,7 +82,7 @@ allowBuilds:
 <details>
 <summary>环境要求</summary>
 
-- DeepSeek Harness `0.1.5-rc.1` 及以上，且 profile 挂载了 `@deepseek-ai/dsh-skill`（自带的 `web`、`acp`、`headless`、`sdk` profile 都满足）
+- DeepSeek Harness `0.1.5-rc.1` 及以上（测试套件在 `0.1.5-rc.1` 和 `0.1.5-rc.2` 上通过），且 profile 挂载了 `@deepseek-ai/dsh-skill`（自带的 `web`、`acp`、`headless`、`sdk` profile 都满足）
 - Node.js 22.19+ 或 24+
 - git 源需要 `PATH` 中有 `git`（其余功能不依赖 git）
 
@@ -121,7 +121,7 @@ npx dsh-skills-anywhere add o/r --ref 3f2a9c1 --rank 300           # 锁定提�
 
 源来自三个地方，按顺序合并：插件配置 `config.sources`、用户文件 `~/.dsh/skills-anywhere/sources.json`、项目文件 `<project>/.dsh/skills-anywhere.json`（提交到仓库即可与团队共享）。CLI 负责编辑后两者。
 
-每个仓库只浅克隆一次到 `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>`，在 dsh 启动时、每隔 `syncIntervalMs`（默认 6 小时）以及源文件变化时刷新。每个源解析出的提交写入 `~/.dsh/skills-anywhere/lock.json`。发现过程只读缓存，因此刷新失败意味着"昨天的技能"，而不是空目录。刷新带来变化时立即使目录失效；dsh 永远不等待网络。
+每个仓库只浅克隆一次到 `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>`（指定了分支、标签或提交时为 `<repo>@<ref>`，同一仓库的多个 ref 不会共用一个检出），在 dsh 启动时、每隔 `syncIntervalMs`（默认 6 小时）以及源文件变化时刷新。每个源解析出的提交写入 `~/.dsh/skills-anywhere/lock.json`。发现过程只读缓存，因此刷新失败意味着"昨天的技能"，而不是空目录。刷新带来变化时立即使目录失效；dsh 永远不等待网络。
 
 ## 目录预算与 `find_skills` / `open_skill` 工具
 
@@ -233,7 +233,7 @@ npm 发布前，把手动命令里的 `dsh-skills-anywhere` 换成 release tarba
 | `dedupe` | `true` | 折叠软链接与字节相同的重复项 |
 | `lenient` | `true` | 修复可恢复的 frontmatter 而不是跳过 |
 | `watch` | `true` | 监视本地根目录，变化时刷新目录 |
-| `excludeSkills` | `[]` | 要隐藏的技能名 |
+| `excludeSkills` | `[]` | 要隐藏的技能名（原始 frontmatter 名或 `list` 显示的发布名均可） |
 | `ranks` | `{ project: 250, user: 550, claudePlugins: 580, sources: 700 }` | 各组优先级 |
 | `catalog.limit` | `50` | 本提供器进入模型目录的技能数；`0` = 不限制 |
 | `catalog.pin` | `[]` | 始终列出的名称 |

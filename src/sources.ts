@@ -11,7 +11,7 @@
 import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
-import { dirname, isAbsolute, join, resolve } from 'node:path'
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
@@ -30,8 +30,10 @@ export interface SourceSpec {
 }
 
 export interface ResolvedSource extends SourceSpec {
-  /** Stable identifier used for the cache directory and lock entry. */
+  /** Stable repository identifier (`github.com/owner/repo`); shared by every ref. */
   readonly id: string
+  /** `id` plus the ref when one is set; keys the cache directory and lock entry. */
+  readonly key: string
   /** Clone URL handed to git. */
   readonly url: string
   /** Absolute cache directory holding the checkout. */
@@ -131,20 +133,44 @@ export function resolveSource(input: string | SourceSpec, cacheDir: string): Res
     if (parts.length > 2) subpath ??= parts.slice(2).join('/')
   }
 
-  const dir = join(cacheDir, ...id.split('/'))
+  // The id becomes a directory path under the cache and `syncSource` deletes a
+  // stale checkout before cloning, so every segment must be a plain name: no
+  // empty, `.` or `..` segments and no separators smuggled in through a URL or
+  // a project-level sources file.
+  const segments = id.split('/')
+  if (segments.some(segment => !isPlainSegment(segment))) {
+    throw new Error(`skills-anywhere: cannot parse source "${spec.repo}" (invalid path segment in ${id})`)
+  }
+  // One checkout per (repository, ref): two refs of one repository must not
+  // fight over a single working tree.
+  if (ref !== undefined) segments[segments.length - 1] = `${segments[segments.length - 1]}@${ref.replace(/[^\w.-]+/g, '_')}`
+  const dir = join(cacheDir, ...segments)
+  if (!isInside(cacheDir, dir)) throw new Error(`skills-anywhere: source "${spec.repo}" resolves outside the cache directory`)
   const scanDir = subpath !== undefined && subpath.length > 0 ? join(dir, ...subpath.split('/')) : dir
-  if (!scanDir.startsWith(dir)) throw new Error(`skills-anywhere: source path escapes the repository: ${subpath}`)
+  if (scanDir !== dir && !isInside(dir, scanDir)) throw new Error(`skills-anywhere: source path escapes the repository: ${subpath}`)
+  const key = ref !== undefined ? `${id}@${ref}` : id
   return {
     repo: spec.repo,
     ...(ref !== undefined ? { ref } : {}),
     ...(subpath !== undefined ? { path: subpath } : {}),
     ...(spec.rank !== undefined ? { rank: spec.rank } : {}),
     id,
+    key,
     url,
     dir,
     scanDir,
     display: subpath !== undefined ? `${display}/${subpath}` : display,
   }
+}
+
+function isPlainSegment(segment: string): boolean {
+  return segment.length > 0 && segment !== '.' && segment !== '..' && !/[\\/\0]/.test(segment)
+}
+
+/** Whether `child` is strictly inside `parent` (both absolute), separator-aware. */
+export function isInside(parent: string, child: string): boolean {
+  const rel = relative(parent, child)
+  return rel.length > 0 && !rel.startsWith('..') && !isAbsolute(rel)
 }
 
 function parseSourceString(input: string): SourceSpec {

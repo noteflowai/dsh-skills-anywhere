@@ -82,7 +82,7 @@ Pin a commit (`github:noteflowai/dsh-skills-anywhere#<sha>`) if you want the ins
 <details>
 <summary>Requirements</summary>
 
-- DeepSeek Harness `0.1.5-rc.1` or newer, any profile that mounts `@deepseek-ai/dsh-skill` (the shipped `web`, `acp`, `headless` and `sdk` profiles all do)
+- DeepSeek Harness `0.1.5-rc.1` or newer (the suite runs against `0.1.5-rc.1` and `0.1.5-rc.2`), any profile that mounts `@deepseek-ai/dsh-skill` (the shipped `web`, `acp`, `headless` and `sdk` profiles all do)
 - Node.js 22.19+ or 24+
 - `git` on `PATH` for git sources (everything else works without it)
 
@@ -121,7 +121,7 @@ npx dsh-skills-anywhere add o/r --ref 3f2a9c1 --rank 300           # pin a commi
 
 Sources come from three places, merged in this order: the plugin `config.sources`, the user file `~/.dsh/skills-anywhere/sources.json`, and the project file `<project>/.dsh/skills-anywhere.json` (commit it to share skills with your team). The CLI edits the last two.
 
-Each repository is shallow-cloned once into `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>` and refreshed when dsh starts, every `syncIntervalMs` (6 hours by default), and whenever a sources file changes. The resolved commit of every source is written to `~/.dsh/skills-anywhere/lock.json`. Discovery only ever reads the cache, so a failed refresh means yesterday's skills, never an empty catalog. The catalog is invalidated as soon as a refresh brings changes; dsh never waits on the network.
+Each repository is shallow-cloned once into `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>` (`<repo>@<ref>` when a branch, tag or commit is set, so several refs of one repository never share a checkout) and refreshed when dsh starts, every `syncIntervalMs` (6 hours by default), and whenever a sources file changes. The resolved commit of every source is written to `~/.dsh/skills-anywhere/lock.json`. Discovery only ever reads the cache, so a failed refresh means yesterday's skills, never an empty catalog. The catalog is invalidated as soon as a refresh brings changes; dsh never waits on the network.
 
 ## Catalog budget and the `find_skills` / `open_skill` tools
 
@@ -233,7 +233,7 @@ Override the row in your profile's `cordis.patch.yml`. A patch replaces the whol
 | `dedupe` | `true` | Collapse symlinked and byte-identical duplicates |
 | `lenient` | `true` | Repair recoverable frontmatter instead of skipping |
 | `watch` | `true` | Watch local roots and refresh the catalog on change |
-| `excludeSkills` | `[]` | Skill names to hide |
+| `excludeSkills` | `[]` | Skill names to hide (raw frontmatter name or the published name shown by `list`) |
 | `ranks` | `{ project: 250, user: 550, claudePlugins: 580, sources: 700 }` | Precedence per group |
 | `catalog.limit` | `50` | Skills from this provider listed in the model catalog; `0` = unlimited |
 | `catalog.pin` | `[]` | Names always listed |

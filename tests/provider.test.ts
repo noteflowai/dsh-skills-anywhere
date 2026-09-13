@@ -191,6 +191,31 @@ describe('SkillsAnywhereProvider inside the dsh registry', () => {
     await provider.dispose()
   })
 
+  it('syncs project-level sources requested while a cwd-less sync is in flight, and keeps them in later runs', async () => {
+    const { home, project } = await fixture()
+    const userRepo = await makeSkillRepo([{ path: 'alpha', name: 'alpha' }])
+    const projectRepo = await makeSkillRepo([{ path: 'delta', name: 'delta' }])
+    const dshHome = join(home, '.dsh')
+    await writeSourcesFile(join(project, '.dsh', 'skills-anywhere.json'), [projectRepo])
+
+    const provider = new SkillsAnywhereProvider(resolveConfig({ home, dshHome, watch: false, sync: true, syncOnStart: true, syncIntervalMs: 0, sources: [userRepo] }), quietLogger())
+    // The constructor's startup run (no cwd) is in flight; the first project lookup arrives now.
+    const first = provider.list({ cwd: project })
+    const startup = await provider.syncAll()
+    expect(startup.map(result => result.source.url)).toEqual([userRepo])
+    await first
+    const both = await waitFor(async () => {
+      const candidates = await provider.list({ cwd: project })
+      return (Array.isArray(candidates) ? candidates : candidates.candidates).map(skill => skill.name).toSorted()
+    }, names => names.length === 2)
+    expect(both).toEqual(['alpha', 'delta'])
+
+    // A later cwd-less run (interval timer, sources-file poller) still covers the project.
+    const later = await provider.syncAll()
+    expect(later.map(result => result.source.url).toSorted()).toEqual([projectRepo, userRepo].toSorted())
+    await provider.dispose()
+  })
+
   it('invalidates the registry when a background sync brings new skills', async () => {
     const { home, project } = await fixture()
     const repo = await makeSkillRepo([{ path: 'skills/alpha', name: 'alpha' }])

@@ -102,12 +102,13 @@ describe('discover (nested roots)', () => {
     expect(report.skills.map(skill => skill.name).toSorted()).toEqual(['one', 'two'])
   })
 
-  it('treats a SKILL.md at the root itself as a skill only when depth allows', async () => {
+  it('treats a root that is itself a skill directory as a skill and still walks below it', async () => {
+    // `add o/r/skills/pdf` points a source straight at one skill directory.
     const root = await tempDir()
     await writeFile(join(root, 'SKILL.md'), skillMarkdown('root-skill', 'x'))
+    await writeSkill(join(root, 'more'), 'nested-skill')
     const report = await discover([nestedRoot(root)])
-    // depth 0 is the root: a repository that *is* a single skill is not a skill collection
-    expect(report.skills).toEqual([])
+    expect(report.skills.map(skill => skill.name).toSorted()).toEqual(['nested-skill', 'root-skill'])
   })
 
   it('fills marketplace and plugin names for Claude Code plugin roots', async () => {
@@ -165,6 +166,16 @@ describe('discover (precedence and deduplication)', () => {
     await writeSkill(b, 'copy', 'same', { body: 'same body' })
     const report = await discover([flatRoot(a, 100), flatRoot(b, 200)], { dedupe: false })
     expect(report.skills).toHaveLength(2)
+  })
+
+  it('excludes by the published name after a collision rename as well as by the raw name', async () => {
+    const market = await tempDir('market')
+    await writeSkill(join(market, 'official', 'external_plugins', 'discord', 'skills'), 'access', 'discord', { body: 'discord body' })
+    await writeSkill(join(market, 'official', 'external_plugins', 'telegram', 'skills'), 'access', 'telegram', { body: 'telegram body' })
+    const claudeRoot: SkillRoot = { path: market, source: 's', rank: 580, mode: 'nested', maxDepth: 7, origin: { kind: 'claude-plugins' }, label: 'claude' }
+    const report = await discover([claudeRoot], { excludeSkills: ['telegram-access'] })
+    expect(report.skills.map(skill => skill.name)).toEqual(['discord-access'])
+    expect(report.dropped.map(entry => [entry.skill.name, entry.reason])).toEqual([['telegram-access', 'excluded']])
   })
 
   it('drops excluded names and reports them', async () => {
@@ -227,6 +238,19 @@ describe('discover (name collisions)', () => {
     const report = await discover([claudeRoot])
     expect(report.skills.map(skill => skill.name)).toEqual(['discord-access', 'telegram-access', 'solo-skill'])
     expect(report.skills.every(skill => skill.name !== 'access')).toBe(true)
+  })
+
+  it('terminates when the prefixed name exceeds the length limit', async () => {
+    const market = await tempDir('market')
+    const long = 'generate-comprehensive-documentation-for-typescript-projects' // 58 chars, valid on its own
+    await writeSkill(join(market, 'official', 'plugins', 'docs-tools', 'skills'), long, 'one', { body: 'one' })
+    await writeSkill(join(market, 'official', 'plugins', 'docs-tools-extra', 'skills'), long, 'two', { body: 'two' })
+    const claudeRoot: SkillRoot = { path: market, source: 's', rank: 580, mode: 'nested', maxDepth: 7, origin: { kind: 'claude-plugins' }, label: 'claude' }
+    const report = await discover([claudeRoot])
+    const names = report.skills.map(skill => skill.name)
+    expect(names).toHaveLength(2)
+    expect(new Set(names).size).toBe(2)
+    for (const name of names) expect(name.length).toBeLessThanOrEqual(64)
   })
 
   it('never renames onto an existing name', async () => {

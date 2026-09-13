@@ -13,7 +13,7 @@ import { projectSourcesFile, resolveConfig, type ResolvedConfig } from './config
 import { findProjectRoot, type DiscoveryReport } from './discover.ts'
 import { SkillsAnywhereProvider } from './provider.ts'
 import {
-  hasGit, readLock, readSourcesFile, resolveSource, sameRepository, writeSourcesFile, type SourceSpec,
+  hasGit, readLock, readSourcesFile, resolveSource, sameRepository, writeSourcesFile, type ResolvedSource, type SourceSpec,
 } from './sources.ts'
 
 const HELP = `dsh-skills-anywhere — your skills, anywhere.
@@ -241,7 +241,7 @@ async function sources(cli: Cli, config: ResolvedConfig): Promise<number> {
     const resolved = await provider.sources(cli.cwd)
     const lock = await readLock(config.lockFile)
     if (cli.json) {
-      console.log(JSON.stringify(resolved.map(source => ({ ...source, lock: lock[source.id] ?? null })), null, 2))
+      console.log(JSON.stringify(resolved.map(source => ({ ...source, lock: lock[source.key] ?? null })), null, 2))
       return 0
     }
     if (resolved.length === 0) {
@@ -251,7 +251,7 @@ async function sources(cli: Cli, config: ResolvedConfig): Promise<number> {
     console.log(table([
       ['SOURCE', 'REF', 'SYNCED COMMIT', 'CACHE'],
       ...resolved.map(source => [
-        source.display, source.ref ?? '(default)', lock[source.id]?.sha.slice(0, 12) ?? '(never)', shorten(source.dir, config.home),
+        source.display, source.ref ?? '(default)', lock[source.key]?.sha.slice(0, 12) ?? '(never)', shorten(source.dir, config.home),
       ]),
     ]))
     console.log(`\nuser file:    ${shorten(config.userSourcesFile, config.home)}`)
@@ -287,7 +287,7 @@ async function add(cli: Cli, config: ResolvedConfig): Promise<number> {
   }
   const file = await targetFile(cli, config)
   const existing = await readSourcesFile(file)
-  if (existing.some(entry => sameRepository(entry, spec, config.cacheDir) && (typeof entry === 'string' ? undefined : entry.path) === resolved.path)) {
+  if (existing.some(entry => sameSourcePath(entry, resolved, config.cacheDir))) {
     console.log(`${resolved.display} is already in ${shorten(file, config.home)}`)
     return 0
   }
@@ -314,6 +314,16 @@ async function add(cli: Cli, config: ResolvedConfig): Promise<number> {
 async function collectWith(provider: SkillsAnywhereProvider, cli: Cli): Promise<DiscoveryReport> {
   await provider.list({ cwd: cli.cwd })
   return provider.report() ?? { skills: [], dropped: [], invalid: [], roots: [], complete: true }
+}
+
+/** Same repository and same sub-path, comparing resolved values so `o/r/sub` and `{ repo: 'o/r', path: 'sub' }` match. */
+function sameSourcePath(entry: string | SourceSpec, resolved: ResolvedSource, cacheDir: string): boolean {
+  try {
+    const other = resolveSource(entry, cacheDir)
+    return other.id === resolved.id && (other.path ?? '') === (resolved.path ?? '')
+  } catch {
+    return false
+  }
 }
 
 async function remove(cli: Cli, config: ResolvedConfig): Promise<number> {

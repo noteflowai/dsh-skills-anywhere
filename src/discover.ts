@@ -13,7 +13,7 @@
 import { createHash } from 'node:crypto'
 import { readdir, readFile, realpath, stat } from 'node:fs/promises'
 import { basename, dirname, join, relative, sep } from 'node:path'
-import { normalizeSkillName, parseSkillMarkdown, type ParsedSkill } from './frontmatter.ts'
+import { MAX_NAME_LENGTH, normalizeSkillName, parseSkillMarkdown, type ParsedSkill } from './frontmatter.ts'
 
 export type OriginKind = 'agent' | 'claude-plugins' | 'source' | 'custom'
 
@@ -33,6 +33,8 @@ export interface SkillOrigin {
 export interface SkillRoot {
   /** Absolute directory to scan. */
   readonly path: string
+  /** Project root this root belongs to (project-scope roots only). */
+  readonly project?: string
   /** `SkillSource` label reported to dsh. */
   readonly source: string
   /** Lower ranks win duplicate names inside the dsh registry layer. */
@@ -188,7 +190,14 @@ export async function discover(roots: readonly SkillRoot[], options: DiscoverOpt
     skills.push(skill)
   }
 
-  return { skills: disambiguate(skills), dropped, invalid, roots: rootReports, complete }
+  // `excludeSkills` matches the raw frontmatter name above and the published
+  // name here, so the names shown by `list` are always valid exclusions.
+  const published: DiscoveredSkill[] = []
+  for (const skill of disambiguate(skills)) {
+    if (excluded.has(skill.name)) dropped.push({ skill, winner: skill, reason: 'excluded' })
+    else published.push(skill)
+  }
+  return { skills: published, dropped, invalid, roots: rootReports, complete }
 }
 
 /**
@@ -215,10 +224,15 @@ function disambiguate(skills: readonly DiscoveredSkill[]): DiscoveredSkill[] {
     if (allThirdParty) taken.delete(name)
     for (const skill of toRename) {
       const prefix = collisionPrefix(skill)
-      let candidate = normalizeSkillName(`${prefix}-${name}`) ?? name
+      const stem = `${prefix}-${name}`
+      let candidate = normalizeSkillName(stem) ?? name
       let counter = 2
       while (taken.has(candidate)) {
-        candidate = normalizeSkillName(`${prefix}-${name}-${counter}`) ?? `${name}-${counter}`
+        // Make room for the suffix before normalising: a stem longer than
+        // MAX_NAME_LENGTH would otherwise truncate the suffix away and loop.
+        const suffix = `-${counter}`
+        const base = stem.slice(0, Math.max(1, MAX_NAME_LENGTH - suffix.length))
+        candidate = normalizeSkillName(`${base}${suffix}`) ?? `${name.slice(0, MAX_NAME_LENGTH - suffix.length)}${suffix}`
         counter += 1
       }
       taken.add(candidate)
@@ -296,9 +310,11 @@ async function listNested(root: string, maxDepth: number, signal?: AbortSignal):
     visited.add(real)
 
     const skillFile = join(dir, 'SKILL.md')
-    if (depth > 0 && await isFile(skillFile)) {
+    if (await isFile(skillFile)) {
       files.push({ path: skillFile, directory: dir, fallbackName: basename(dir) })
-      return // a skill directory is a leaf
+      // A nested skill directory is a leaf. The root itself may be a single
+      // skill (`add o/r/skills/pdf`) and still hold a collection below it.
+      if (depth > 0) return
     }
     if (depth >= maxDepth) return
     let entries
