@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.1] - 2026-09-13
+
+### Fixed
+
+- The release workflow's npm version assertion read `process.versions.npm`,
+  which does not exist, so the v0.5.0 npm publish never ran (the GitHub
+  release did). It now reads `npm --version`. Package contents are otherwise
+  identical to 0.5.0, which was not published to npm.
+
 ## [0.5.0] - 2026-09-13
 
 ### Showcase
