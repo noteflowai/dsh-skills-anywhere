@@ -17,6 +17,16 @@ FILES = {
 INJECTION = re.compile(
     rb'(?<=<head>)<script>window\.huggingface=\{variables:\{"SPACE_CREATOR_USER_ID":"[0-9a-f]{24}"\}\};</script>'
 )
+# Hub-generated static starter observed on 2026-09-13. A different page must
+# never be treated as disposable merely because its name is index.html.
+STARTER_INDEX_BLOB = "b0c4b3666032a737f3903db53e6a8a9272483e28"
+
+
+def verify_starter(files):
+    if set(files) - {"README.md", ".gitattributes", "style.css", "index.html"}:
+        raise ValueError("Refusing to overwrite an unrelated Space")
+    if "index.html" in files and files["index.html"] != STARTER_INDEX_BLOB:
+        raise ValueError("Refusing to overwrite a customized starter page")
 
 
 def verify_bundle(folder, expected_commit):
@@ -91,20 +101,20 @@ def publish(folder, expected_commit):
     if api.whoami()["name"] != REPO.split("/")[0]:
         raise ValueError("Unexpected publishing account")
     try:
-        info = api.space_info(REPO)
+        info = api.space_info(REPO, files_metadata=True)
     except RepositoryNotFoundError:
         api.create_repo(REPO, repo_type="space", space_sdk="static", private=False)
-        info = api.space_info(REPO)
+        info = api.space_info(REPO, files_metadata=True)
     if info.private or info.sdk != "static":
         raise ValueError("Refusing to replace a private or non-static Space")
-    previous_files = set(api.list_repo_files(REPO, repo_type="space", revision=info.sha))
+    previous_files = {item.rfilename: item.blob_id for item in info.siblings}
     if "manifest.json" in previous_files:
         from huggingface_hub import hf_hub_download
         previous = json.loads(Path(hf_hub_download(REPO, "manifest.json", repo_type="space", revision=info.sha)).read_text())
         if previous.get("schema") != record["schema"]:
             raise ValueError("Existing Space is not this managed showcase")
-    elif previous_files - {"README.md", ".gitattributes", "style.css"}:
-        raise ValueError("Refusing to overwrite an unrelated Space")
+    else:
+        verify_starter(previous_files)
     result = api.upload_folder(
         repo_id=REPO, repo_type="space", folder_path=folder, parent_commit=info.sha,
         commit_message=f"Publish Skills Anywhere showcase from {expected_commit[:12]}",
