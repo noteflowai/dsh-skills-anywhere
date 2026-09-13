@@ -266,6 +266,9 @@ export function firstParagraph(body: string): string | undefined {
     .replace(/```[\s\S]*?(?:```|$)/g, '')
     .replace(/~~~[\s\S]*?(?:~~~|$)/g, '')
     .replace(/<!--[\s\S]*?-->/g, '')
+    // An unterminated comment runs to the end of the document; never let it
+    // leak into a description.
+    .replace(/<!--[\s\S]*$/, '')
   const blocks = stripped.split(/\r?\n\s*\r?\n/)
   for (const block of blocks) {
     const lines = block.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0)

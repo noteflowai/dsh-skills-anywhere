@@ -167,4 +167,14 @@ describe('firstParagraph', () => {
   it('returns undefined for an empty body', () => {
     expect(firstParagraph('\n\n# Only heading\n')).toBeUndefined()
   })
+
+  it('drops an unterminated HTML comment instead of leaking it into the description', () => {
+    const parsed = parseSkillMarkdown('---\nname: x\n---\n\nReal paragraph.\n\n<!-- draft notes\nstill inside the comment', { fallbackName: 'x', lenient: true })
+    expect(parsed.ok).toBe(true)
+    if (parsed.ok) {
+      expect(parsed.skill.description).toBe('Real paragraph.')
+      expect(parsed.skill.description).not.toContain('draft notes')
+    }
+  })
+
 })
