@@ -30,6 +30,7 @@ Commands
   remove <source>      Remove a git source
   sync                 Clone or refresh every source now
   doctor               Explain skipped, repaired, and duplicate skills
+  check <files...>      Check explicit Markdown files locally (strict by default)
   mcp                  Serve the same skills to any MCP client over stdio
 
 Options
@@ -41,6 +42,8 @@ Options
   --force              sync: refresh even when pinned to a commit
   --all                list: include dropped duplicates
   --json               Machine-readable output
+  --lenient            check: accept repairs made by the provider
+  --fail-on-repair      check: fail if the selected mode needs any repairs
   -h, --help           Show this help
 `
 
@@ -73,6 +76,8 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
         path: { type: 'string' },
         rank: { type: 'string' },
         help: { type: 'boolean', short: 'h', default: false },
+        lenient: { type: 'boolean', default: false },
+        'fail-on-repair': { type: 'boolean', default: false },
       },
     })
   } catch (error) {
@@ -85,6 +90,39 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     return 0
   }
   const [command = 'list', ...positional] = parsed.positionals
+  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'])) {
+    console.error('--lenient and --fail-on-repair are only available for check.')
+    return 2
+  }
+  if (command === 'check') {
+    if (positional.length === 0) {
+      console.error('usage: dsh-skills-anywhere check <files...> [--lenient] [--fail-on-repair] [--json]')
+      return 2
+    }
+    const { checkFiles } = await import('./check-files.ts')
+    const result = await checkFiles(positional, {
+      cwd: parsed.values.cwd ?? process.cwd(),
+      lenient: parsed.values.lenient ?? false,
+      failOnRepair: parsed.values['fail-on-repair'] ?? false,
+    })
+    if (parsed.values.json) {
+      console.log(JSON.stringify(result, null, 2))
+    } else {
+      // JSON-escape input-derived strings, including terminal control sequences.
+      for (const file of result.files) {
+        console.log(`${file.status.toUpperCase()} ${JSON.stringify(file.path)}`)
+        if (file.status === 'input_error') console.log(`  ${JSON.stringify(file.error)}`)
+        else {
+          const selected = file.report[result.mode]
+          if (!selected.ok) console.log(`  ${JSON.stringify(selected.reason)}`)
+          else for (const warning of selected.warnings) console.log(`  Repair: ${JSON.stringify(warning)}`)
+        }
+      }
+      console.log(`\n${result.counts.passed} passed, ${result.counts.failed} failed, ${result.counts.inputErrors} input errors (${result.mode}).`)
+      console.log(result.scope)
+    }
+    return result.exitCode
+  }
   const cli: Cli = {
     command,
     positional,

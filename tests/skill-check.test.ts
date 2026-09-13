@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkSkill, MAX_SKILL_BYTES } from '../huggingface/skill-check.ts'
+import { checkSkill, MAX_SKILL_BYTES } from '../src/skill-check.ts'
 
 describe('local skill check', () => {
   it('shows strict rejection and the provider repairs side by side', () => {

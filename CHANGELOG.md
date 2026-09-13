@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-13
+
+### Added
+
+- Check explicit local Markdown files from the CLI and CI, using the same strict
+  and lenient parser comparison as the browser. Include file hashes and all
+  results in JSON, with distinct parser-failure and input-error exit codes.
+- Bound file reads, reject invalid UTF-8 and non-files, escape terminal output,
+  and keep discovery, synchronization and skill execution out of this command.
+- Add a documented CI gate and smoke-test the checker from an installed tarball.
+
 ### Showcase
 
 - Check a visitor-selected `SKILL.md` locally with the provider's real strict

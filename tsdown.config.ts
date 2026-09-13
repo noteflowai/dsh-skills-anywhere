@@ -61,7 +61,7 @@ export default defineConfig([
     // The plugin face is declared by hand in `types/client.d.ts`.
     dts: false,
     clean: false,
-    external: PLATFORM_MODULES,
+    deps: { neverBundle: PLATFORM_MODULES },
     outputOptions: {
       banner: `window.__ModuleLoader__.load({ id: ${JSON.stringify(pkg.name)}, factory: (require) => { var module = { exports: {} }; var exports = module.exports;`,
       footer: 'return module.exports; } });',

@@ -29,6 +29,8 @@ Hide control. The budget counts skills, not tokens.
 The slider uses small values to make the example visible. The installed
 provider's default is still 50. Zero means unlimited. Source checkout changes
 under Unreleased are not a claim that the npm release already contains them.
+The 0.6.0 release adds the shared comparison to the `check` CLI; see
+[local checks and CI](CHECKING.md).
 
 ## Check your own file
 
