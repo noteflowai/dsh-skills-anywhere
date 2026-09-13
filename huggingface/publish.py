@@ -77,6 +77,23 @@ def verify_live(folder, host, timeout=120):
     return 6
 
 
+def check_existing_space(previous_files, previous_manifest, record):
+    """Only overwrite a Space this publisher manages or a fresh one.
+
+    A Space created from Hugging Face's static template carries README.md,
+    .gitattributes, index.html and style.css; every one of those is a managed
+    file name here, so a Space whose files are all managed names is treated as
+    empty. Anything else (a manifest from another schema, or files we do not
+    manage) is refused rather than overwritten.
+    """
+    if previous_manifest is not None:
+        if previous_manifest.get("schema") != record["schema"]:
+            raise ValueError("Existing Space is not this managed showcase")
+        return
+    if set(previous_files) - FILES:
+        raise ValueError("Refusing to overwrite an unrelated Space")
+
+
 def publish(folder, expected_commit):
     from huggingface_hub import HfApi, SpaceCard
     from huggingface_hub.errors import RepositoryNotFoundError
@@ -98,13 +115,11 @@ def publish(folder, expected_commit):
     if info.private or info.sdk != "static":
         raise ValueError("Refusing to replace a private or non-static Space")
     previous_files = set(api.list_repo_files(REPO, repo_type="space", revision=info.sha))
+    previous_manifest = None
     if "manifest.json" in previous_files:
         from huggingface_hub import hf_hub_download
-        previous = json.loads(Path(hf_hub_download(REPO, "manifest.json", repo_type="space", revision=info.sha)).read_text())
-        if previous.get("schema") != record["schema"]:
-            raise ValueError("Existing Space is not this managed showcase")
-    elif previous_files - {"README.md", ".gitattributes", "style.css"}:
-        raise ValueError("Refusing to overwrite an unrelated Space")
+        previous_manifest = json.loads(Path(hf_hub_download(REPO, "manifest.json", repo_type="space", revision=info.sha)).read_text())
+    check_existing_space(previous_files, previous_manifest, record)
     result = api.upload_folder(
         repo_id=REPO, repo_type="space", folder_path=folder, parent_commit=info.sha,
         commit_message=f"Publish Skills Anywhere showcase from {expected_commit[:12]}",

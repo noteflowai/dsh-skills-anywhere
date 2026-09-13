@@ -68,8 +68,10 @@ a PR artifact and skips a main commit that has already been superseded.
 The repository secret `HF_TOKEN` is used only in the publication step.
 The publisher validates the static Space card, exact file allowlist, sizes,
 hashes and source commit; uploads with a parent-commit guard; then verifies
-all ten Hub objects and six public app files anonymously. Unexpected files
-already in the remote Space are preserved and reported.
+all ten Hub objects and six public app files anonymously. A Space that only
+holds the Hugging Face static template files (or a previous publication with
+this manifest schema) is overwritten; a Space holding anything else is refused.
+Unexpected files already in the remote Space are preserved and reported.
 
 HF inserts a documented `window.huggingface.variables` script into HTML.
 Readback permits only the specific creator-ID assignment; all other bytes

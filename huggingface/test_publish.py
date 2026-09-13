@@ -53,6 +53,16 @@ class BundleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "file list"):
             module.verify_bundle(self.root, self.commit)
 
+    def test_existing_space_guard(self):
+        template = {"README.md", ".gitattributes", "index.html", "style.css"}
+        module.check_existing_space(template, None, self.record)
+        module.check_existing_space(set(), None, self.record)
+        module.check_existing_space(module.FILES | {"manifest.json"}, {"schema": self.record["schema"]}, self.record)
+        with self.assertRaisesRegex(ValueError, "unrelated"):
+            module.check_existing_space(template | {"app.py"}, None, self.record)
+        with self.assertRaisesRegex(ValueError, "not this managed"):
+            module.check_existing_space(module.FILES | {"manifest.json"}, {"schema": "something-else"}, self.record)
+
     def test_only_known_static_injection_is_normalized(self):
         valid = b'<head><script>window.huggingface={variables:{"SPACE_CREATOR_USER_ID":"' + b"a" * 24 + b'"}};</script></head>'
         self.assertEqual(module.INJECTION.sub(b"", valid), b"<head></head>")
