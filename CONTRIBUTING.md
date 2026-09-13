@@ -29,6 +29,16 @@ built-in dsh provider already scans them. Mention the source of the paths
 - Update `README.md` and `README.zh.md` together when behaviour changes.
 - Follow the existing code style; `oxlint` is the linter.
 
+## The web card
+
+`src/client/` is the browser half (React, built to `lib/client.js`). It talks
+to the host through the `skills-anywhere` settings namespace (dsh's settings
+scope) and the exact route `POST /api/skills-anywhere/report` (`src/web.ts`).
+Keep it free of Node imports and of any module the dsh shell does not provide
+(see `PLATFORM_MODULES` in `tsdown.config.ts`); dictionaries live in
+`src/client/locale.ts` and must stay complete in both languages
+(`tests/client.test.tsx` checks).
+
 ## Trying a change inside dsh
 
 ```sh

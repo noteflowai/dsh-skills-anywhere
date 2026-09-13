@@ -6,7 +6,26 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Web UI card (#3).** Settings → Plugins → *Plugin configuration* in the dsh
+  web UI gains a *Skills Anywhere* card: every discovered skill grouped by
+  where it lives (agent directories, Claude Code plugins, git sources), its
+  catalog state (listed / not listed / author disabled), renames, and
+  per-skill **Pin**, **Hide** and **Exclude** actions plus the catalog budget.
+  Edits persist through dsh's settings document and apply to the model
+  catalog immediately. The package now ships a browser half
+  (`dsh-skills-anywhere/client`, `dsh.client` in `package.json`).
+- The catalog budget, pins, hides and `excludeSkills` are a runtime settings
+  namespace (`skills-anywhere`) layered over the composition config; the
+  `POST /api/skills-anywhere/report` route serves the discovery report to the
+  browser. Both attach only when the dsh services exist, so headless and sdk
+  profiles are unchanged.
+
 ### Changed
+
+- The CLI's FROM column labels git sources `git owner/repo` (was
+  `source owner/repo`), matching the MCP server and the web card.
 
 - Install instructions and the Claude Code plugin manifest use the npm package
   (`dsh-skills-anywhere`, published with provenance) instead of the release

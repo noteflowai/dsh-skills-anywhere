@@ -195,6 +195,14 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 
 The server is also listed in the [official MCP registry](https://registry.modelcontextprotocol.io) as `io.github.noteflowai/dsh-skills-anywhere`, so registry-aware clients can install it by name. Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
 
+## Browse and toggle skills in the dsh web UI
+
+In `dsh web`, open **Settings → Plugins → Plugin configuration**. The **Skills Anywhere** card lists every skill the provider found, grouped by where it lives (agent directories, Claude Code plugins, git sources), with its catalog state — *listed* for the model, *not listed* (kept out by the budget or by you) or *author disabled* — and the name it was renamed to when it collided. Each row offers **Pin** (always listed), **Hide** (out of the model catalog, still `/name`- and `find_skills`-reachable) and **Exclude** (dropped from the provider); the catalog budget is editable in place, and a filter box searches names, descriptions and origins.
+
+<p align="center"><img src="docs/web-card.png" alt="The Skills Anywhere card in dsh web settings: skills grouped by origin with listed / not listed / author disabled states, renames, and Pin, Hide, Exclude actions" width="720"></p>
+
+Edits are written to the profile's dsh settings document as the `skills-anywhere` namespace, layered over `catalog` and `excludeSkills` from `cordis.patch.yml`, and the model catalog follows immediately: no restart, no file editing. The card only appears in profiles that mount dsh's settings service and web server (the shipped `web` profile does); everywhere else the provider behaves exactly as composed.
+
 ## Configuration
 
 Override the row in your profile's `cordis.patch.yml`. A patch replaces the whole `config` block, so restate every key you care about:
@@ -230,7 +238,7 @@ Override the row in your profile's `cordis.patch.yml`. A patch replaces the whol
 | `dedupe` | `true` | Collapse symlinked and byte-identical duplicates |
 | `lenient` | `true` | Repair recoverable frontmatter instead of skipping |
 | `watch` | `true` | Watch local roots and refresh the catalog on change |
-| `excludeSkills` | `[]` | Skill names to hide (raw frontmatter name or the published name shown by `list`) |
+| `excludeSkills` | `[]` | Skill names to hide (raw frontmatter name or the published name shown by `list`); editable at runtime from the web card |
 | `ranks` | `{ project: 250, user: 550, claudePlugins: 580, sources: 700 }` | Precedence per group |
 | `catalog.limit` | `50` | Skills from this provider listed in the model catalog; `0` = unlimited |
 | `catalog.pin` | `[]` | Names always listed |

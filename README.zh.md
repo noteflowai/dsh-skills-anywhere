@@ -195,6 +195,14 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 
 服务器也已登记在 [MCP 官方目录](https://registry.modelcontextprotocol.io)，名称为 `io.github.noteflowai/dsh-skills-anywhere`，支持该目录的客户端可以按名字安装。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
 
+## 在 dsh web 界面里浏览和开关技能
+
+在 `dsh web` 中打开 **设置 → 插件 → 插件配置**，**Skills Anywhere** 卡片会列出提供器找到的全部技能，按所在位置分组（Agent 目录、Claude Code 插件、git 源），并标出目录状态——*已列出*给模型、*未列出*（被预算或你挡在目录外）或*作者禁用*——以及重名时被改成的名字。每一行提供 **置顶**（始终列出）、**隐藏**（不进模型目录，但 `/名称` 和 `find_skills` 仍可达）和 **排除**（从提供器中彻底去掉）；目录预算可以就地修改，筛选框按名称、描述和来源搜索。
+
+<p align="center"><img src="docs/web-card.png" alt="dsh web 设置中的 Skills Anywhere 卡片：技能按来源分组，标出已列出 / 未列出 / 作者禁用状态与改名，并提供置顶、隐藏、排除操作" width="720"></p>
+
+修改会作为 `skills-anywhere` 命名空间写入 profile 的 dsh 设置文档，叠加在 `cordis.patch.yml` 的 `catalog` 和 `excludeSkills` 之上，模型目录立即跟随变化：无需重启，无需手改文件。卡片只在挂载了 dsh 设置服务和 web 服务器的 profile 中出现（自带的 `web` profile 满足）；其他场合提供器的行为与组合配置完全一致。
+
 ## 配置
 
 在 profile 的 `cordis.patch.yml` 中覆盖该行。patch 会替换整个 `config` 块，因此需要写全所有你关心的键：
@@ -230,7 +238,7 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 | `dedupe` | `true` | 折叠软链接与字节相同的重复项 |
 | `lenient` | `true` | 修复可恢复的 frontmatter 而不是跳过 |
 | `watch` | `true` | 监视本地根目录，变化时刷新目录 |
-| `excludeSkills` | `[]` | 要隐藏的技能名（原始 frontmatter 名或 `list` 显示的发布名均可） |
+| `excludeSkills` | `[]` | 要隐藏的技能名（原始 frontmatter 名或 `list` 显示的发布名均可）；可在 web 卡片中运行时修改 |
 | `ranks` | `{ project: 250, user: 550, claudePlugins: 580, sources: 700 }` | 各组优先级 |
 | `catalog.limit` | `50` | 本提供器进入模型目录的技能数；`0` = 不限制 |
 | `catalog.pin` | `[]` | 始终列出的名称 |

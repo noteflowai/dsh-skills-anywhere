@@ -57,8 +57,13 @@ export interface ReportView {
 
 /** Settings namespace the host registers and the card edits. */
 export const SETTINGS_NAMESPACE = 'skills-anywhere'
-/** Remote name the host serves and the card calls. */
-export const REPORT_REMOTE = 'skills-anywhere/report'
+/**
+ * Exact Fetch route the host registers on the dsh connection's shared `/api`
+ * channel (the public seam for feature packages; it inherits the browser-trust
+ * fence and authentication) and the card POSTs to. Body: `ReportRequest` JSON;
+ * response: `RpcResult<ReportView>` JSON.
+ */
+export const REPORT_PATH = '/api/skills-anywhere/report'
 
 /** The runtime-editable part of the plugin config. */
 export interface CatalogSettings {

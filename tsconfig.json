@@ -3,8 +3,14 @@
     "target": "ES2024",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2024"],
-    "types": ["node"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ],
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
@@ -17,7 +23,13 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src", "tests", "tsdown.config.ts", "vitest.config.ts"]
+  "include": [
+    "src",
+    "tests",
+    "tsdown.config.ts",
+    "vitest.config.ts"
+  ]
 }

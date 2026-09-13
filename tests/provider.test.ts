@@ -231,7 +231,7 @@ describe('SkillsAnywhereProvider inside the dsh registry', () => {
     expect(before.listed).toBe(1)
     expect(before.skills[0]).toMatchObject({ origin: 'codex (user)', group: 'User skill directories', pinned: false, hidden: false })
     expect(before.catalog).toEqual({ limit: 1, pin: [], hide: [] })
-    expect(before.roots.some(root => root.exists && root.count === 3)).toBe(true)
+    expect(before.roots.some(entry => entry.exists && entry.count === 3)).toBe(true)
 
     provider.reconfigure({ catalog: { limit: 0, pin: ['beta'], hide: ['alpha'] }, excludeSkills: [] })
     expect(provider.currentConfig.catalog.limit).toBe(0)

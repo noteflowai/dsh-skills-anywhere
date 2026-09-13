@@ -145,7 +145,8 @@ export class SkillsAnywhereProvider implements SkillProvider {
     // Catalog states were computed under the old settings; `snapshot()` and
     // `catalogState()` must not serve them until the next `list()`.
     this.catalogStates.clear()
-    this.invalidate()
+    // An explicit settings change is not a burst of file events: invalidate now.
+    this.invalidate(true)
   }
 
   /**
@@ -462,9 +463,14 @@ export class SkillsAnywhereProvider implements SkillProvider {
     }
   }
 
-  private invalidate(): void {
+  private invalidate(immediately = false): void {
     if (this.disposed || this.control === undefined) return
     if (this.invalidateTimer !== undefined) clearTimeout(this.invalidateTimer)
+    if (immediately) {
+      this.invalidateTimer = undefined
+      this.control.invalidate()
+      return
+    }
     this.invalidateTimer = setTimeout(() => {
       this.invalidateTimer = undefined
       this.control?.invalidate()
