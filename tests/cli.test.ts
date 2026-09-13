@@ -117,10 +117,10 @@ describe('cli', () => {
 
     expect(await run('list')).toBe(0)
     expect(out.join('\n')).toContain('alpha')
-    expect(out.join('\n')).toContain(`source ${repo}`)
+    expect(out.join('\n')).toContain(`git ${repo}`)
     // Skills inside a source checkout are shown repo-relative; the FROM column already names the repo.
     expect(out.join('\n')).not.toMatch(/skills-anywhere[\\/]cache[\\/]/)
-    expect(out.join('\n')).toMatch(/^alpha\s+source .+?\s+skills[\\/]alpha[\\/]SKILL\.md$/m)
+    expect(out.join('\n')).toMatch(/^alpha\s+git .+?\s+skills[\\/]alpha[\\/]SKILL\.md$/m)
     out.length = 0
 
     expect(await run('remove', repo)).toBe(0)

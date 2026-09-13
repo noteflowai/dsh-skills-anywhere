@@ -23,6 +23,8 @@ import type {
 import { AGENTS } from './agents.ts'
 import { projectSourcesFile, type ResolvedConfig } from './config.ts'
 import { discover, findProjectRoot, type DiscoveredSkill, type DiscoveryReport, type SkillRoot } from './discover.ts'
+import { originGroup, originLabel } from './origin.ts'
+import type { CatalogSettings, ReportView, SkillView } from './web-protocol.ts'
 import { parseSkillMarkdown } from './frontmatter.ts'
 import {
   readLock,
@@ -76,7 +78,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
   private readonly catalogStates = new Map<string, Map<string, CatalogState>>()
 
   constructor(
-    private readonly config: ResolvedConfig,
+    private config: ResolvedConfig,
     private readonly log: ProviderLogger,
     private readonly control?: SkillProviderControl,
   ) {
@@ -118,6 +120,71 @@ export class SkillsAnywhereProvider implements SkillProvider {
     this.catalogStates.set(options.cwd === undefined ? '' : await findProjectRoot(options.cwd), states)
     const candidates = report.skills.map(skill => toCandidate(skill, this.name, states.get(skill.name) ?? 'visible'))
     return report.complete ? candidates : { candidates, complete: false }
+  }
+
+  /** The configuration currently in force (runtime settings applied). */
+  get currentConfig(): ResolvedConfig {
+    return this.config
+  }
+
+  /**
+   * Replace the runtime-editable part of the configuration (catalog budget,
+   * pins, hides, exclusions) and invalidate the catalog so the next `list()`
+   * applies it. Everything else (roots, sync, watchers) stays as composed.
+   */
+  reconfigure(settings: CatalogSettings): void {
+    this.config = {
+      ...this.config,
+      excludeSkills: [...settings.excludeSkills],
+      catalog: {
+        limit: Math.max(0, Math.floor(settings.catalog.limit)),
+        pin: new Set(settings.catalog.pin),
+        hide: new Set(settings.catalog.hide),
+      },
+    }
+    // Catalog states were computed under the old settings; `snapshot()` and
+    // `catalogState()` must not serve them until the next `list()`.
+    this.catalogStates.clear()
+    this.invalidate()
+  }
+
+  /**
+   * Everything the web card shows: the latest discovery report for the
+   * project containing `cwd` (running one when none exists yet) with the
+   * catalog state of every skill and the runtime settings in force.
+   */
+  async snapshot(cwd?: string): Promise<ReportView> {
+    const key = cwd === undefined ? '' : await findProjectRoot(cwd)
+    if (this.lastReport === undefined || !this.catalogStates.has(key)) await this.list(cwd === undefined ? {} : { cwd })
+    const report = this.lastReport
+    const states = this.catalogStates.get(key) ?? this.catalogStates.get('') ?? new Map<string, CatalogState>()
+    const { catalog, excludeSkills } = this.config
+    const skills: SkillView[] = (report?.skills ?? []).map((skill) => {
+      const extra = skill.metadata.skillsAnywhere as { renamedFrom?: string } | undefined
+      return {
+        name: skill.name,
+        description: skill.description,
+        origin: originLabel(skill.origin),
+        group: originGroup(skill.origin),
+        path: skill.path,
+        state: states.get(skill.name) ?? 'visible',
+        authorDisabled: !skill.invocation.modelInvocable,
+        ...(extra?.renamedFrom !== undefined ? { renamedFrom: extra.renamedFrom } : {}),
+        pinned: catalog.pin.has(skill.name),
+        hidden: catalog.hide.has(skill.name),
+        warnings: skill.warnings,
+      }
+    })
+    return {
+      skills,
+      dropped: (report?.dropped ?? []).map(entry => ({ name: entry.skill.name, path: entry.skill.path, reason: entry.reason, winner: entry.winner.name })),
+      invalid: (report?.invalid ?? []).map(entry => ({ path: entry.path, reason: entry.reason })),
+      roots: (report?.roots ?? []).map(entry => ({ label: entry.root.label, path: entry.root.path, exists: entry.exists, count: entry.count })),
+      complete: report?.complete ?? true,
+      catalog: { limit: catalog.limit, pin: [...catalog.pin], hide: [...catalog.hide] },
+      excludeSkills: [...excludeSkills],
+      listed: skills.filter(skill => skill.state === 'visible').length,
+    }
   }
 
   /**

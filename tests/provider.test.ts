@@ -216,6 +216,38 @@ describe('SkillsAnywhereProvider inside the dsh registry', () => {
     await provider.dispose()
   })
 
+  it('snapshot() reports catalog state per skill and reconfigure() applies runtime catalog settings', async () => {
+    const { home, project } = await fixture()
+    const root = join(home, '.codex', 'skills')
+    await writeSkill(root, 'alpha', 'Alpha')
+    await writeSkill(root, 'beta', 'Beta')
+    await writeSkill(root, 'gamma', 'Gamma', { frontmatter: { 'disable-model-invocation': 'true' } })
+    const provider = new SkillsAnywhereProvider(resolveConfig({ home, dshHome: join(home, '.dsh'), watch: false, sync: false, catalog: { limit: 1 } }), quietLogger())
+
+    const before = await provider.snapshot(project)
+    expect(before.skills.map(skill => [skill.name, skill.state, skill.authorDisabled])).toEqual([
+      ['alpha', 'visible', false], ['beta', 'hidden', false], ['gamma', 'disabled', true],
+    ])
+    expect(before.listed).toBe(1)
+    expect(before.skills[0]).toMatchObject({ origin: 'codex (user)', group: 'User skill directories', pinned: false, hidden: false })
+    expect(before.catalog).toEqual({ limit: 1, pin: [], hide: [] })
+    expect(before.roots.some(root => root.exists && root.count === 3)).toBe(true)
+
+    provider.reconfigure({ catalog: { limit: 0, pin: ['beta'], hide: ['alpha'] }, excludeSkills: [] })
+    expect(provider.currentConfig.catalog.limit).toBe(0)
+    const after = await provider.snapshot(project)
+    expect(after.skills.map(skill => [skill.name, skill.state])).toEqual([['alpha', 'hidden'], ['beta', 'visible'], ['gamma', 'disabled']])
+    expect(after.skills.find(skill => skill.name === 'beta')?.pinned).toBe(true)
+    expect(after.skills.find(skill => skill.name === 'alpha')?.hidden).toBe(true)
+
+    provider.reconfigure({ catalog: { limit: 0, pin: [], hide: [] }, excludeSkills: ['gamma'] })
+    const excluded = await provider.snapshot(project)
+    expect(excluded.skills.map(skill => skill.name)).toEqual(['alpha', 'beta'])
+    expect(excluded.dropped).toEqual([{ name: 'gamma', path: join(root, 'gamma', 'SKILL.md'), reason: 'excluded', winner: 'gamma' }])
+    expect(excluded.excludeSkills).toEqual(['gamma'])
+    await provider.dispose()
+  })
+
   it('invalidates the registry when a background sync brings new skills', async () => {
     const { home, project } = await fixture()
     const repo = await makeSkillRepo([{ path: 'skills/alpha', name: 'alpha' }])

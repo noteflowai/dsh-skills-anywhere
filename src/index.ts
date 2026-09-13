@@ -32,6 +32,9 @@ export {
 } from './sources.ts'
 export type { SourceSpec, ResolvedSource, SyncResult, SyncStatus, LockEntry, LockFile } from './sources.ts'
 export { SkillsAnywhereProvider, applyCatalogBudget, type ProviderLogger, type CatalogState } from './provider.ts'
+export { originLabel, originGroup } from './origin.ts'
+export type { ReportView, SkillView, SkillState, CatalogSettings } from './web-protocol.ts'
+export { SETTINGS_NAMESPACE, REPORT_REMOTE } from './web-protocol.ts'
 
 /** Register the skills-anywhere provider on `ctx.skills`. */
 export function apply(ctx: Context, config: Config = {}): void {

@@ -11,6 +11,7 @@ import { isAbsolute, relative, sep } from 'node:path'
 import { AGENTS } from './agents.ts'
 import { projectSourcesFile, resolveConfig, type ResolvedConfig } from './config.ts'
 import { findProjectRoot, type DiscoveryReport } from './discover.ts'
+import { originLabel } from './origin.ts'
 import { SkillsAnywhereProvider } from './provider.ts'
 import {
   hasGit, readLock, readSourcesFile, resolveSource, sameRepository, writeSourcesFile, type ResolvedSource, type SourceSpec,
@@ -146,15 +147,6 @@ function displayPath(path: string, config: ResolvedConfig, sourceDirs: readonly 
   return inside ?? shorten(path, config.home)
 }
 
-function originLabel(skill: { origin: { kind: string; agent?: string; scope?: string; repo?: string; marketplace?: string; plugin?: string } }): string {
-  const { origin } = skill
-  switch (origin.kind) {
-    case 'agent': return `${origin.agent ?? 'agent'} (${origin.scope ?? '?'})`
-    case 'claude-plugins': return `claude plugin ${origin.plugin ?? '?'}${origin.marketplace !== undefined ? ` @ ${origin.marketplace}` : ''}`
-    case 'source': return `source ${origin.repo ?? '?'}`
-    default: return `custom (${origin.scope ?? '?'})`
-  }
-}
 
 function table(rows: readonly (readonly string[])[]): string {
   if (rows.length === 0) return ''
@@ -181,7 +173,7 @@ async function list(cli: Cli, config: ResolvedConfig): Promise<number> {
   } else {
     console.log(table([
       ['NAME', 'FROM', 'PATH'],
-      ...report.skills.map(skill => [skill.name, originLabel(skill), displayPath(skill.path, config, sourceDirs)]),
+      ...report.skills.map(skill => [skill.name, originLabel(skill.origin), displayPath(skill.path, config, sourceDirs)]),
     ]))
   }
   if (cli.all && report.dropped.length > 0) {
