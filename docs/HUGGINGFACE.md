@@ -71,6 +71,11 @@ hashes and source commit; uploads with a parent-commit guard; then verifies
 all ten Hub objects and six public app files anonymously. Unexpected files
 already in the remote Space are preserved and reported.
 
+On first publication, only an empty Space or the allowed starter files are
+accepted. If `index.html` exists, its Git blob must match the exact known
+Hugging Face static starter; a customized page or unrelated file is refused.
+Later publications require the existing showcase manifest schema.
+
 HF inserts a documented `window.huggingface.variables` script into HTML.
 Readback permits only the specific creator-ID assignment; all other bytes
 must match. The entry HTML uses ASCII entities because the static service has
