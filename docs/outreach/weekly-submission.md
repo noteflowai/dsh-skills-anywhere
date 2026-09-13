@@ -6,6 +6,11 @@ Harness，各自的 `SKILL.md` 通常散落在不同目录。本工具直接读�
 
 ![Skills Anywhere 的技能目录与管理界面](https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/web-card.png)
 
+[Hugging Face 在线试玩](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)：
+无需安装即可查看示例技能的来源、去重和重名处理，调整目录预算并搜索未列出的技能。
+样例由真实 provider 处理，浏览器复用项目的预算与搜索代码；页面不读取访客电脑，
+不执行技能或调用模型。
+
 主要功能：
 
 - 内置 60 多种 Agent 的项目级、用户级技能目录定义，并发现 Claude Code

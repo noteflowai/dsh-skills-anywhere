@@ -47,6 +47,10 @@ npx -y dsh-skills-anywhere@0.4.0 mcp
 
 ### 截图或演示视频
 
+[Hugging Face 交互演示](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)：
+无需安装，可操作来源检查、去重与重名场景、目录预算和按需搜索。
+演示采用虚构示例文件并复用项目逻辑，不读取访客电脑、不执行技能或调用模型。
+
 ![按来源浏览技能与调整目录预算](https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/web-card.png)
 
 CLI 演示：https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/demo.gif
