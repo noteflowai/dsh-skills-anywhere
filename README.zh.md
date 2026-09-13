@@ -29,20 +29,17 @@ Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但�
 ## 快速开始
 
 ```sh
-# 尚未发布到 npm；先安装 release 里的构建产物 tarball（无需构建，也不需要 git）。
-PKG=https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz
-
 # 1. 安装到你使用的 dsh profile（web 是默认的 UI profile）
-dsh plugin --profile web add $PKG
+dsh plugin --profile web add dsh-skills-anywhere
 
 # 2. 不启动 dsh，直接查看模型将看到的技能
-npx -y $PKG list
+npx dsh-skills-anywhere list
 
 # 3. 添加一整个技能仓库
-npx -y $PKG add anthropics/skills
+npx dsh-skills-anywhere add anthropics/skills
 ```
 
-npm 发布后，下文所有命令中的 `$PKG` 直接换成 `dsh-skills-anywhere` 即可（本文其余部分按 npm 包名书写）。
+已发布到 [npm](https://www.npmjs.com/package/dsh-skills-anywhere)，带构建来源（provenance）签名；每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 也附带同一个 tarball。
 
 照常启动 dsh。技能目录里现在包含了上面所有内容；用 `skill` 工具或 `/技能名` 加载，与之前完全一样。
 
@@ -59,9 +56,9 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 ```
 
 <details>
-<summary>从 git 检出安装（不用 tarball）</summary>
+<summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL，推荐这种方式。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -196,7 +193,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-npm 发布前，把手动命令里的 `dsh-skills-anywhere` 换成 release tarball 的 URL（插件清单里已经是这个 URL）（`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz mcp`）。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
+服务器也已登记在 [MCP 官方目录](https://registry.modelcontextprotocol.io)，名称为 `io.github.noteflowai/dsh-skills-anywhere`，支持该目录的客户端可以按名字安装。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
 
 ## 配置
 

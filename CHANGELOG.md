@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Install instructions and the Claude Code plugin manifest use the npm package
+  (`dsh-skills-anywhere`, published with provenance) instead of the release
+  tarball URL; the MCP registry listing is documented.
+
 ## [0.3.2] - 2026-09-13
 
 ### Added

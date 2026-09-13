@@ -16,6 +16,9 @@ const check = process.argv.includes('--check')
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const version = pkg.version
 const tarball = `https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v${version}/dsh-skills-anywhere-${version}.tgz`
+// The Claude Code plugin manifest pins the npm package to the released version.
+const npmPin = `dsh-skills-anywhere@${version}`
+const npmPinPattern = /dsh-skills-anywhere@\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/g
 const tarballPattern = /https:\/\/github\.com\/noteflowai\/dsh-skills-anywhere\/releases\/download\/v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?\/dsh-skills-anywhere-\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?\.tgz/g
 
 /** @type {{ file: string, apply: (text: string) => string }[]} */
@@ -25,7 +28,7 @@ const targets = [
     apply: text => {
       const json = JSON.parse(text)
       json.version = version
-      return `${JSON.stringify(json, null, 2)}\n`.replace(tarballPattern, tarball)
+      return `${JSON.stringify(json, null, 2)}\n`.replace(tarballPattern, tarball).replace(npmPinPattern, npmPin)
     },
   },
   {

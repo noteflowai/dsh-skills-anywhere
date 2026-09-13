@@ -72,18 +72,12 @@ Watch the three jobs of the *Release* run. If the `npm` job fails, the GitHub
 release and its tarball are already published, so the tag is still usable;
 fix the npm side and re-run only the failed jobs from the Actions UI.
 
-## After the first npm release
+## Install instructions and the plugin manifest
 
-Once `npm view dsh-skills-anywhere version` answers, switch the install
-instructions from the release tarball to the package name in the same commit:
-
-- `README.md` / `README.zh.md`: the *Quick start* block and the sentence in
-  *Use as an MCP server* that mentions the tarball URL.
-- `.claude-plugin/plugin.json`: `mcpServers.skills-anywhere.args` becomes
-  `["-y", "dsh-skills-anywhere", "mcp", "--cwd", "${CLAUDE_PROJECT_DIR}"]`.
-
-`scripts/sync-version.mjs` keeps rewriting any tarball URL that remains, so
-leaving one behind is harmless, just slower to install.
+`README.md`, `README.zh.md` and `.claude-plugin/plugin.json` install from npm.
+The plugin manifest pins `dsh-skills-anywhere@<version>` so Claude Code users
+get exactly the released build; `scripts/sync-version.mjs` bumps that pin (and
+any remaining tarball URL) together with `package.json`.
 
 ## Compatibility with DeepSeek Harness
 

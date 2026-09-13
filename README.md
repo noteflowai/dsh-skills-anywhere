@@ -29,20 +29,17 @@ It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI
 ## Quick start
 
 ```sh
-# The package is not on npm yet; install the release tarball (no build step, no git needed).
-PKG=https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz
-
 # 1. Install into the dsh profile you use (web is the default UI profile)
-dsh plugin --profile web add $PKG
+dsh plugin --profile web add dsh-skills-anywhere
 
 # 2. See what the model will get, without booting dsh
-npx -y $PKG list
+npx dsh-skills-anywhere list
 
 # 3. Add a whole repository of skills
-npx -y $PKG add anthropics/skills
+npx dsh-skills-anywhere add anthropics/skills
 ```
 
-Once the npm release is out, `dsh-skills-anywhere` replaces `$PKG` everywhere below, which is how the rest of this README writes the commands.
+Published on [npm](https://www.npmjs.com/package/dsh-skills-anywhere) with build provenance; every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) also carries the same tarball.
 
 Start dsh as usual. The skill catalog now includes everything above; load a skill with the `skill` tool or `/skill-name` exactly as before.
 
@@ -59,9 +56,9 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 ```
 
 <details>
-<summary>Install from a git checkout instead of the tarball</summary>
+<summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly. Prefer that. If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -196,7 +193,7 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-Until the npm release lands, replace `dsh-skills-anywhere` in the manual commands with the release tarball URL (the plugin manifest already does this) (`npx -y https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz mcp`). Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
+The server is also listed in the [official MCP registry](https://registry.modelcontextprotocol.io) as `io.github.noteflowai/dsh-skills-anywhere`, so registry-aware clients can install it by name. Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
 
 ## Configuration
 
