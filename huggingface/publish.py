@@ -12,7 +12,7 @@ from urllib.request import Request, urlopen
 REPO = "glayguo/dsh-skills-anywhere"
 FILES = {
     "README.md", ".gitattributes", "LICENSE", "index.html", "style.css",
-    "app.js", "data.js", "workspace.json", "thumbnail.png",
+    "app.js", "data.js", "workspace.json", "thumbnail.png", "THIRD_PARTY_NOTICES.txt",
 }
 INJECTION = re.compile(
     rb'(?<=<head>)<script>window\.huggingface=\{variables:\{"SPACE_CREATOR_USER_ID":"[0-9a-f]{24}"\}\};</script>'

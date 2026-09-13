@@ -6,6 +6,13 @@ English | [中文](README.zh.md)
 
 **[Try the interactive Hugging Face playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)** — explore an example workspace, resolve name clashes, and search beyond the catalog budget. No installation or model API needed. [How it works](docs/HUGGINGFACE.md).
 
+**Bring your own `SKILL.md`.** Compare the provider's strict and lenient parsing
+locally: inspect repairs, invocation settings and a downloadable check report.
+Your file stays in the browser. This is a parser check, not a security audit or
+a guarantee of compatibility with every client.
+
+<a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere"><img src="docs/skill-check.png" width="880" alt="Actual local SKILL.md check: strict mode rejects an invalid name, while lenient mode explains the name and description repairs."></a>
+
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)

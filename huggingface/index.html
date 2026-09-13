@@ -13,7 +13,7 @@
   <div class="shell">
     <header class="topbar">
       <a class="brand" href="#top" aria-label="Skills Anywhere home"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></a>
-      <nav aria-label="Project links"><a href="#install">Install</a><a href="https://github.com/noteflowai/dsh-skills-anywhere" target="_blank" rel="noopener noreferrer">Source &#8599;</a></nav>
+      <nav aria-label="Project links"><a href="#check">Check a skill</a><a href="#install">Install</a><a href="https://github.com/noteflowai/dsh-skills-anywhere" target="_blank" rel="noopener noreferrer">Source &#8599;</a></nav>
     </header>
     <main id="top">
       <section class="hero">
@@ -42,7 +42,7 @@
       </section>
       <section class="lab" id="workspace">
         <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2>A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
-        <p class="section-intro">These fictional files were scanned by the real provider at build time. Budget and search run the project's shared code in your browser. This page cannot read your computer or run a skill.</p>
+        <p class="section-intro">These fictional files were scanned by the real provider at build time. Budget and search run the project's shared code in your browser. This example does not scan your computer or run a skill.</p>
         <div class="scenarios" aria-label="Guided examples">
           <button type="button" data-scenario="default" class="active">01 <span>Follow the sources</span></button>
           <button type="button" data-scenario="collision">02 <span>Untangle a name clash</span></button>
@@ -74,6 +74,24 @@
         <div class="lab-actions"><button type="button" id="share">Copy this view</button><button type="button" id="download">Download sample workspace</button><a href="manifest.json" download>Build manifest &#8595;</a><span id="action-status" role="status"></span></div>
         <input id="share-fallback" class="share-fallback" aria-label="Copy this view address" readonly hidden>
         <details class="diagnostics"><summary>What happened during discovery? <span id="diagnostic-count"></span></summary><div id="diagnostics"></div></details>
+      </section>
+      <section class="local-check" id="check" aria-labelledby="check-title">
+        <div class="eyebrow">BRING ONE FILE. SEE BOTH MODES.</div>
+        <h2 id="check-title">How will your skill be read?</h2>
+        <p class="section-intro">Paste or open a SKILL.md and compare the actual provider's strict and lenient parsing. See rejected fields, repairs and invocation settings before installing. Files stay in this page; checking does not run instructions.</p>
+        <div class="check-inputs">
+          <label for="check-directory">Skill directory name <input id="check-directory" value="my-skill" maxlength="128" autocomplete="off" spellcheck="false"></label>
+          <label for="check-file">Open one Markdown file <input id="check-file" type="file" accept=".md,.markdown,text/markdown,text/plain"></label>
+        </div>
+        <label for="check-input">SKILL.md content &middot; up to 128 KiB</label>
+        <textarea id="check-input" rows="10" spellcheck="false" autocomplete="off" placeholder="---&#10;name: my-skill&#10;description: Describe when to use this skill.&#10;---&#10;&#10;Instructions go here."></textarea>
+        <div class="lab-actions"><button id="check-run" type="button">Check SKILL.md</button><button id="check-example" type="button">Load repair example</button><button id="check-clear" type="button">Clear local input</button><button id="check-download" type="button" disabled>Download check report</button></div>
+        <p id="check-status" class="muted" role="status">Ready to check. Your text stays in this page.</p>
+        <div id="check-results" class="check-results" hidden>
+          <article><h3>Provider strict mode <span id="check-strict-state"></span></h3><pre id="check-strict-details" tabindex="0"></pre></article>
+          <article><h3>Provider lenient mode <span id="check-lenient-state"></span></h3><pre id="check-lenient-details" tabindex="0"></pre></article>
+        </div>
+        <p class="muted">This checks provider parsing, not complete specification conformance, script safety, resources or compatibility with every client. Unknown metadata can be preserved without being acted on. Input is not added to share links, saved in browser storage or sent to a service.</p>
       </section>
       <section class="install-section" id="install">
         <div><div class="eyebrow">BRING YOUR OWN SKILLS</div><h2>Take it into your workflow.</h2><p>Install the published package on your machine to use real skill directories. Your client controls what a loaded skill can do.</p><a href="https://github.com/noteflowai/dsh-skills-anywhere#quick-start" target="_blank" rel="noopener noreferrer">Read the setup guide &#8599;</a></div>

@@ -39,8 +39,8 @@ The Space cannot read visitors' files, execute skills or host an MCP endpoint.
 
 | Entry | Verified state |
 | --- | --- |
-| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.4.0 and a provenance attestation. |
-| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.4.0, active/latest, npm package over stdio. |
+| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.5.1 and a provenance attestation. |
+| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.5.1, active/latest, npm package over stdio. |
 | [DeepSeek — Show Your Plugins!](https://github.com/deepseek-ai/deepseek-harness/discussions/6193) | Existing bilingual community showcase, including the web UI card. Reuse this thread for relevant follow-up. |
 | [Glama](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere) | Public entry exists, but the fetched page still showed old 0.3.1 tarball instructions and “not on npm yet.” Current npm/main are newer. Directory refresh and quality evaluation remain follow-up work. |
 
@@ -53,7 +53,7 @@ npm exec --yes --package=dsh-skills-anywhere@0.4.0 -- \
 
 It returned **68 agent directory definitions**. This does not mean 68 complete
 agent integrations were tested. The current-source `pnpm run check` also
-passed version checks, typechecking, lint, **125 tests**, and the build.
+passed version checks, typechecking, lint, **129 tests**, and the build.
 The Space also has browser checks and seven publisher regression/guard tests.
 
 ## Repository-side work done on September 13, 2026
@@ -146,3 +146,16 @@ dsh-skills-anywhere 帮助开发者在多个编程助手之间复用现有 Agent
 v0.4.0 已发布到 npm 和官方 MCP Registry，提供来源检查、去重、
 重名处理、目录预算及网页管理，减少跨工具维护技能副本的工作。
 这是 MIT 许可的独立社区项目；实际技能执行仍取决于客户端能力与权限。
+
+
+## Local parser comparison update
+
+The Space now accepts explicitly selected or pasted Markdown for a local comparison
+of the real provider's strict and lenient parsing. The maintained HF and Agent Skills
+showcase text includes this workflow and its limits; the Chinese submission bodies
+include the same feature. Reuse the existing threads and collection. This update adds
+no compatibility certification, client endorsement or measured growth claim.
+
+External releases 0.5.0 and 0.5.1 were reviewed during this update. Release 0.5.1
+fixes the npm-version assertion; npm and the official MCP Registry both report
+0.5.1. The historical 0.4.0 example above remains a record of the original check.
