@@ -32,6 +32,16 @@ const targets = [
     },
   },
   {
+    // Agent Plugins manifest (Cursor and other open-plugin clients) at the repo root.
+    file: 'plugin.json',
+    apply: text => {
+      const json = JSON.parse(text)
+      json.version = version
+      return `${JSON.stringify(json, null, 2)}\n`
+    },
+  },
+  { file: 'mcp.json', apply: text => text.replace(npmPinPattern, npmPin) },
+  {
     file: '.claude-plugin/marketplace.json',
     apply: text => {
       const json = JSON.parse(text)
