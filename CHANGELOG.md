@@ -16,6 +16,8 @@ All notable changes to this project are documented here. The format follows
   the tarball URLs in both READMEs in step with `package.json`; `pnpm version`
   runs it, and `pnpm run check` / CI fail on drift.
 
+- `tests/server-json.test.ts` pins the MCP registry invariants (name equals
+  `mcpName`, description within 100 characters, version equals `package.json`).
 - Dependabot keeps the pinned GitHub Actions and the npm dev dependencies
   current (weekly, grouped); `.gitattributes` normalises checkouts to LF.
 
