@@ -36,13 +36,13 @@ https://github.com/noteflowai/dsh-skills-anywhere
 无需启动 dsh 或配置模型 API：
 
 ```sh
-npx -y dsh-skills-anywhere@0.4.0 agents
+npx -y dsh-skills-anywhere@0.6.0 agents
 ```
 
 独立 MCP 服务启动命令，供 MCP 客户端按 README 配置：
 
 ```sh
-npx -y dsh-skills-anywhere@0.4.0 mcp
+npx -y dsh-skills-anywhere@0.6.0 mcp
 ```
 
 ### 截图或演示视频
@@ -55,6 +55,10 @@ npx -y dsh-skills-anywhere@0.4.0 mcp
 
 CLI 演示：https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/demo.gif
 
-中文说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/v0.4.0/README.zh.md
+中文说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/v0.6.0/README.zh.md
 
 交互功能更新：在线演示可粘贴或选择自己的 `SKILL.md`，在浏览器中比较严格／宽容解析结果并下载报告。输入不上传，不执行技能；检查范围是本项目解析器的行为。
+
+0.6.0 发布更新：相同的本地解析检查现已提供 CLI 和 CI 用法，可批量检查明确指定的文件，输出工具版本、文件 SHA-256、完整诊断及退出码。支持严格／宽容模式与“有修复即失败”的提交门禁，不修改文件、不执行技能。npm 和官方 MCP Registry 均已发布。
+
+CI 示例与检查范围：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md

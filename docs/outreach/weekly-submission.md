@@ -27,22 +27,26 @@ Harness，各自的 `SKILL.md` 通常散落在不同目录。本工具直接读�
 使用 Node.js 22.19+ 或 24+，先查看支持的目录：
 
 ```sh
-npx -y dsh-skills-anywhere@0.4.0 agents
+npx -y dsh-skills-anywhere@0.6.0 agents
 ```
 
 接入已有的 dsh：
 
 ```sh
-dsh plugin --profile web add dsh-skills-anywhere@0.4.0
+dsh plugin --profile web add dsh-skills-anywhere@0.6.0
 ```
 
 也可以按 README 为 MCP 客户端配置
-`npx -y dsh-skills-anywhere@0.4.0 mcp`。
+`npx -y dsh-skills-anywhere@0.6.0 mcp`。
 
 仓库：https://github.com/noteflowai/dsh-skills-anywhere
 
-项目采用 MIT 许可，npm 包和官方 MCP Registry 条目均已发布 v0.4.0。
+项目采用 MIT 许可，npm 包和官方 MCP Registry 条目均已发布 v0.6.0。
 这是独立维护的社区项目，与 AI 结对开发，不代表 DeepSeek 或其他客户端官方。
 技能内容会作为模型指令使用；添加 Git 来源前应检查内容，按需固定提交版本。
 
 交互功能更新：在线演示可粘贴或选择自己的 `SKILL.md`，在浏览器中比较严格／宽容解析结果并下载报告。输入不上传，不执行技能；检查范围是本项目解析器的行为。
+
+0.6.0 发布更新：相同的本地解析检查现已提供 CLI 和 CI 用法，可批量检查明确指定的文件，输出工具版本、文件 SHA-256、完整诊断及退出码。支持严格／宽容模式与“有修复即失败”的提交门禁，不修改文件、不执行技能。npm 和官方 MCP Registry 均已发布。
+
+CI 示例与检查范围：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md

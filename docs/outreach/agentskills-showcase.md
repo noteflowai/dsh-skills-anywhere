@@ -18,3 +18,5 @@ This is a discovery/inspection tool, not a new Skills client or a proposal to ch
 [Method and reproduction guide](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/HUGGINGFACE.md). Code and authored fixtures are MIT licensed.
 
 I'd appreciate implementation feedback on preserving useful origin information when the same skill is installed through multiple tools, and on presenting name collisions without making either skill unreachable.
+
+**Use the same check in CI (0.6.0).** The published CLI now checks explicit local Markdown files using the same two parser modes. Run `npx -y dsh-skills-anywhere@0.6.0 check skills/example/SKILL.md --fail-on-repair --json` with your own file path. Reports include the package version and file SHA-256; exit codes distinguish parser failures from unreadable inputs. Files are not rewritten, discovered elsewhere or executed. [Copy the CI recipe and read the scope](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md). Reports may contain descriptions and diagnostic excerpts.

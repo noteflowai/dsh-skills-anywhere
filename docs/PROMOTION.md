@@ -159,3 +159,17 @@ no compatibility certification, client endorsement or measured growth claim.
 External releases 0.5.0 and 0.5.1 were reviewed during this update. Release 0.5.1
 fixes the npm-version assertion; npm and the official MCP Registry both report
 0.5.1. The historical 0.4.0 example above remains a record of the original check.
+
+
+## Release 0.6.0 distribution follow-up
+
+The published npm package and official MCP Registry both report 0.6.0. The CLI
+adds explicit-file checks, strict/lenient gates, repair policy, file hashes,
+package identity and automation exit codes. The release pipeline smoke-tests
+the actual packed CLI outside the checkout before publishing it with provenance.
+135 tests pass; the Windows run skips the POSIX-only FIFO check.
+
+The maintained HF, Agent Skills and Chinese submission bodies now include the
+[CI guide](CHECKING.md) and current install commands. Existing threads are reused;
+editorial submissions remain pending review. The older version examples above
+record the original publication checks.
