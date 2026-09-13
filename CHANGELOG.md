@@ -16,8 +16,12 @@ All notable changes to this project are documented here. The format follows
   the tarball URLs in both READMEs in step with `package.json`; `pnpm version`
   runs it, and `pnpm run check` / CI fail on drift.
 
+- Dependabot keeps the pinned GitHub Actions and the npm dev dependencies
+  current (weekly, grouped); `.gitattributes` normalises checkouts to LF.
+
 ### Changed
 
+- Every GitHub Action in the workflows is pinned to a commit SHA.
 - The release workflow is split into `release` (GitHub release + tarball), `npm`
   (trusted publishing with provenance, `NPM_TOKEN` only as a first-publish
   fallback) and `mcp-registry` jobs, each with least-privilege permissions.

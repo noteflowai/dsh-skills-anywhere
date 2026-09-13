@@ -1,0 +1,25 @@
+# Keeps the pinned GitHub Actions SHAs and the npm dependencies current.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dsh:
+        patterns: ['@deepseek-ai/*']
+      dev:
+        dependency-type: development
+        exclude-patterns: ['@deepseek-ai/*']
+    ignore:
+      # Major bumps of the runtime dependencies are reviewed by hand.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
