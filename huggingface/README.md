@@ -7,7 +7,7 @@ sdk: static
 app_file: index.html
 fullWidth: true
 header: default
-short_description: Explore a shared Agent Skills workspace
+short_description: Check SKILL.md locally and explore shared agent skills.
 license: mit
 tags:
   - agent-skills
@@ -15,6 +15,7 @@ tags:
   - deepseek-harness
   - developer-tools
   - interactive-demo
+  - skill-validation
 thumbnail: https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/resolve/main/thumbnail.png
 ---
 
@@ -29,6 +30,12 @@ provider for DeepSeek Harness and an MCP server for coding clients.
 2. Inspect two different `configure` skills after their names are disambiguated.
 3. Reduce the catalog budget, search for a skill that is no longer listed,
    inspect its instructions, and pin it into the catalog.
+
+**Bring your own SKILL.md.** Paste or open one file (up to 128 KiB) to compare
+the provider's strict and lenient modes. Inspect repairs, author invocation
+settings and metadata keys, then download a report. Input stays in this page
+and is not added to share links or browser storage. This checks parsing only,
+not script safety, resources or complete client/specification compatibility.
 
 The fixture uses nine fictional Markdown files. The real filesystem provider
 discovers, parses, deduplicates and renames them at build time. The browser

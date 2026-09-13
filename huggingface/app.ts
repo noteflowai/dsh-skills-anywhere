@@ -1,6 +1,7 @@
 import { applyCatalogBudget } from '../src/catalog.ts'
 import { searchSkills } from '../src/search.ts'
 import type { DemoData, DemoSkill } from './types.ts'
+import { installSkillCheck } from './skill-check-ui.ts'
 
 declare global {
   interface Window {
@@ -221,3 +222,4 @@ window.addEventListener('hashchange', () => { loadFragment(); render(false) })
 loadFragment()
 showInstall('cli')
 render(false)
+installSkillCheck(data.inputs.find(input => input.path.includes('/incident-summary/'))!.markdown, build)

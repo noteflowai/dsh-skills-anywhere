@@ -4,6 +4,12 @@
 
 [English](README.md) | 中文
 
+**检查自己的 `SKILL.md`。** Hugging Face 演示现可在浏览器中并排检查严格模式与宽容模式，
+查看字段修复、调用设置并下载检查报告。文件不会上传；检查范围是本项目的解析行为，
+不代表安全审计或所有客户端的兼容认证。
+
+<a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere"><img src="docs/skill-check.png" width="880" alt="真实本地检查界面：严格模式拒绝无效名称，宽容模式解释名称和描述的修复。"></a>
+
 **[体验 Hugging Face 交互演示](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)**：在示例工作区中查看技能来源、处理重名、调整目录预算，并搜索未列出的技能。无需安装或模型 API。[演示原理](docs/HUGGINGFACE.md)。
 
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)

@@ -3,7 +3,7 @@
 [Open Skills Anywhere](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere).
 
 This static Space demonstrates a sample workspace without a model service,
-local filesystem access or a running MCP endpoint. It complements the installed
+automatic local directory access or a running MCP endpoint. It complements the installed
 provider; it does not replace installing the package.
 
 ## What is real in the demo
@@ -29,6 +29,24 @@ Hide control. The budget counts skills, not tokens.
 The slider uses small values to make the example visible. The installed
 provider's default is still 50. Zero means unlimited. Source checkout changes
 under Unreleased are not a claim that the npm release already contains them.
+
+## Check your own file
+
+Paste or open one Markdown file (128 KiB maximum) in **How will your skill be
+read?** The browser imports the same `src/frontmatter.ts` parser used by the
+installed provider, including its bundled YAML parser, and runs both strict
+and lenient modes. The directory-name field supplies the fallback name.
+Accepted fields, repairs, invocation settings and metadata keys are shown as
+plain text. The JSON report includes these diagnostics and source commit,
+but omits the raw Markdown body. Descriptions and repair messages may still
+contain text from the input, so review the downloaded report before sharing.
+
+The check is explicit and local. Input is not sent over the network, put in
+the URL, or written to browser storage. Editing invalidates the previous
+result; clearing removes both input and results. It does not scan directories,
+resolve referenced files, execute instructions, or certify security or full
+specification/client compatibility. In particular, provider strict mode still
+accepts some coercions and truncates an overlong description with a warning.
 
 ## Reproduce and inspect
 
@@ -68,7 +86,8 @@ a PR artifact and skips a main commit that has already been superseded.
 The repository secret `HF_TOKEN` is used only in the publication step.
 The publisher validates the static Space card, exact file allowlist, sizes,
 hashes and source commit; uploads with a parent-commit guard; then verifies
-all ten Hub objects and six public app files anonymously. Unexpected files
+all eleven Hub objects (including the bundled YAML library's license notice)
+and six public app files anonymously. Unexpected files
 already in the remote Space are preserved and reported.
 
 On first publication, only an empty Space or the allowed starter files are
