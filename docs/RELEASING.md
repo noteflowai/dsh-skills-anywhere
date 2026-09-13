@@ -105,3 +105,13 @@ pnpm install && pnpm run check
 
 Add the version to `dshReleases` when the suite passes, and mention the tested
 range in the *Requirements* section of both READMEs if the minimum changes.
+
+
+## Recover a missed homepage deployment
+
+If merging a release does not create a main-branch CI run, use
+`gh workflow run ci.yml --ref main`. This repeats all existing validation jobs
+and creates the tested Space artifact. Successful current-main CI triggers
+`Hugging Face Space`; its publisher still checks the source revision and anonymous
+readback. A release or PR run alone cannot publish a Space. Do not bypass these
+checks by uploading a local build.
