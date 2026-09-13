@@ -57,6 +57,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Discovery scans roots concurrently, reads `SKILL.md` files and stats
+  directory entries with bounded concurrency, and only resolves real paths
+  once a content hash repeats. Results are unchanged; a 700-skill catalog
+  refresh takes about a third less time.
 - Every GitHub Action in the workflows is pinned to a commit SHA.
 - The release workflow is split into `release` (GitHub release + tarball), `npm`
   (trusted publishing with provenance, `NPM_TOKEN` only as a first-publish
