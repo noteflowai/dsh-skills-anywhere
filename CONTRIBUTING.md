@@ -39,6 +39,14 @@ Keep it free of Node imports and of any module the dsh shell does not provide
 `src/client/locale.ts` and must stay complete in both languages
 (`tests/client.test.tsx` checks).
 
+## Package checks
+
+`npx publint` and `npx @arethetypeswrong/cli --pack .` are worth running before
+a release. One publint warning is expected: `lib/client.js` is the dsh browser
+bundle (a classic script that registers on `window.__ModuleLoader__`), kept at
+`.js` because that is the convention every dsh client plugin follows; it is not
+meant to be imported by Node.
+
 ## Trying a change inside dsh
 
 ```sh
