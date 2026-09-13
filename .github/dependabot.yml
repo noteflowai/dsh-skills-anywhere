@@ -8,11 +8,15 @@ updates:
     groups:
       actions:
         patterns: ['*']
+  # Dependabot's updater ships pnpm 11 and cannot rewrite this pnpm 12 lockfile
+  # (version updates for zod fail with unknown_error), so npm is limited to
+  # security updates until Dependabot supports pnpm 12. Bump dev dependencies
+  # by hand with `pnpm update --latest` and `pnpm run check`.
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 0
     groups:
       dsh:
         patterns: ['@deepseek-ai/*']
