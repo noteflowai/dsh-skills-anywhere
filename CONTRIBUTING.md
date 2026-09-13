@@ -65,3 +65,9 @@ keeps every version file in step; pushing the tag does the rest.
 Please include the output of `npx dsh-skills-anywhere doctor --json`, your dsh
 version (`dsh --version`), and the relevant `SKILL.md` if a skill is skipped or
 mis-parsed.
+
+## Sharing the project
+
+See [publication and community submissions](docs/PROMOTION.md) for existing
+threads, reviewed channel rules and version-specific introduction material.
+Check that record before opening a new directory or newsletter submission.
