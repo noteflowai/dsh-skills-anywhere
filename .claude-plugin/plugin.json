@@ -4,11 +4,22 @@
   "displayName": "Skills Anywhere",
   "version": "0.3.1",
   "description": "Every skill you have installed for any agent (Claude Code, Codex, Cursor, Gemini CLI, DeepSeek Harness and 60+ more), plus any GitHub skill repo, served as find_skills / open_skill tools and skill:// resources. Zero copies, zero symlinks.",
-  "author": { "name": "Note Flow AI", "email": "admin@noteflowai.com", "url": "https://github.com/noteflowai" },
+  "author": {
+    "name": "Note Flow AI",
+    "email": "admin@noteflowai.com",
+    "url": "https://github.com/noteflowai"
+  },
   "homepage": "https://github.com/noteflowai/dsh-skills-anywhere",
   "repository": "https://github.com/noteflowai/dsh-skills-anywhere",
   "license": "MIT",
-  "keywords": ["skills", "agent-skills", "mcp", "deepseek-harness", "codex", "cursor"],
+  "keywords": [
+    "skills",
+    "agent-skills",
+    "mcp",
+    "deepseek-harness",
+    "codex",
+    "cursor"
+  ],
   "mcpServers": {
     "skills-anywhere": {
       "command": "npx",

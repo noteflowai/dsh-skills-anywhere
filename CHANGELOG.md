@@ -4,6 +4,26 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `server.json` for the official MCP registry (`io.github.noteflowai/dsh-skills-anywhere`);
+  the release workflow registers every version there after the npm publish.
+- `docs/RELEASING.md`: one-time npm trusted-publishing setup and the per-release
+  steps.
+- `scripts/sync-version.mjs` keeps `.claude-plugin/*.json`, `server.json` and
+  the tarball URLs in both READMEs in step with `package.json`; `pnpm version`
+  runs it, and `pnpm run check` / CI fail on drift.
+
+### Changed
+
+- The release workflow is split into `release` (GitHub release + tarball), `npm`
+  (trusted publishing with provenance, `NPM_TOKEN` only as a first-publish
+  fallback) and `mcp-registry` jobs, each with least-privilege permissions.
+- Tested against DeepSeek Harness `0.1.5-rc.2`; `dsh.compatibility.dshReleases`
+  now lists both `0.1.5-rc.1` and `0.1.5-rc.2`.
+
 ## [0.3.1] - 2026-09-11
 
 ### Added

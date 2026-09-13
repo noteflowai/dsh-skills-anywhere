@@ -37,6 +37,11 @@ dsh plugin --profile <name> add ./dsh-skills-anywhere-*.tgz
 npx dsh-skills-anywhere doctor
 ```
 
+## Releasing
+
+Maintainers: see [docs/RELEASING.md](docs/RELEASING.md). `pnpm version <bump>`
+keeps every version file in step; pushing the tag does the rest.
+
 ## Reporting bugs
 
 Please include the output of `npx dsh-skills-anywhere doctor --json`, your dsh

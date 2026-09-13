@@ -1,0 +1,38 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.noteflowai/dsh-skills-anywhere",
+  "title": "Skills Anywhere",
+  "description": "Every Agent Skill installed for any coding agent, plus GitHub skill repos, as find_skills / open_skill tools and skill:// resources.",
+  "version": "0.3.1",
+  "websiteUrl": "https://github.com/noteflowai/dsh-skills-anywhere#use-as-an-mcp-server",
+  "repository": {
+    "url": "https://github.com/noteflowai/dsh-skills-anywhere",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "dsh-skills-anywhere",
+      "version": "0.3.1",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp",
+          "description": "Start the MCP server on stdio"
+        },
+        {
+          "type": "named",
+          "name": "--cwd",
+          "valueHint": "dir",
+          "description": "Project directory whose project-level skills and .dsh/skills-anywhere.json should be included (default: the working directory the client starts the server in)",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

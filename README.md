@@ -82,7 +82,7 @@ Pin a commit (`github:noteflowai/dsh-skills-anywhere#<sha>`) if you want the ins
 <details>
 <summary>Requirements</summary>
 
-- DeepSeek Harness `0.1.5-rc.1` or newer, any profile that mounts `@deepseek-ai/dsh-skill` (the shipped `web`, `acp`, `headless` and `sdk` profiles all do)
+- DeepSeek Harness `0.1.5-rc.1` or newer (the suite runs against `0.1.5-rc.1` and `0.1.5-rc.2`), any profile that mounts `@deepseek-ai/dsh-skill` (the shipped `web`, `acp`, `headless` and `sdk` profiles all do)
 - Node.js 22.19+ or 24+
 - `git` on `PATH` for git sources (everything else works without it)
 

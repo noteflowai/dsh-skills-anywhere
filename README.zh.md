@@ -82,7 +82,7 @@ allowBuilds:
 <details>
 <summary>环境要求</summary>
 
-- DeepSeek Harness `0.1.5-rc.1` 及以上，且 profile 挂载了 `@deepseek-ai/dsh-skill`（自带的 `web`、`acp`、`headless`、`sdk` profile 都满足）
+- DeepSeek Harness `0.1.5-rc.1` 及以上（测试套件在 `0.1.5-rc.1` 和 `0.1.5-rc.2` 上通过），且 profile 挂载了 `@deepseek-ai/dsh-skill`（自带的 `web`、`acp`、`headless`、`sdk` profile 都满足）
 - Node.js 22.19+ 或 24+
 - git 源需要 `PATH` 中有 `git`（其余功能不依赖 git）
 
