@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Documentation
+
+- Record published distribution entries, community submissions and channel
+  rules, with Chinese project introductions for the weekly newsletter and
+  HelloGitHub.
+
 ### Added
 
 - Agent Plugins manifest (`plugin.json` + `mcp.json` at the repository root,
