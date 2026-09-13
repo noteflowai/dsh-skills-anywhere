@@ -29,6 +29,13 @@ All notable changes to this project are documented here. The format follows
   functions 82, lines 90) so `pnpm run test:coverage` fails on regressions;
   tests for origin labels and the agents table.
 
+### Fixed
+
+- Two CodeQL findings: a source string with a very long run of `/` could make
+  parsing quadratic (linear trimming now), and an unterminated `<!--` comment
+  in a skill body could leak into a derived description (dropped to the end of
+  the document).
+
 ## [0.4.0] - 2026-09-13
 
 ### Added

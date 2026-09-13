@@ -120,7 +120,7 @@ export function resolveSource(input: string | SourceSpec, cacheDir: string): Res
     display = cleaned
   } else {
     // owner/repo[/sub/path] with optional github: / gh: prefix
-    const bare = repo.replace(/^(?:github|gh):/, '').replace(/^\/+|\/+$/g, '')
+    const bare = trimSlashes(repo.replace(/^(?:github|gh):/, ''))
     const parts = bare.split('/')
     if (parts.length < 2 || parts[0]?.length === 0 || parts[1]?.length === 0) {
       throw new Error(`skills-anywhere: cannot parse source "${spec.repo}" (expected owner/repo, a git URL, or a local path)`)
@@ -161,6 +161,15 @@ export function resolveSource(input: string | SourceSpec, cacheDir: string): Res
     scanDir,
     display: subpath !== undefined ? `${display}/${subpath}` : display,
   }
+}
+
+/** Strip leading and trailing `/` in linear time (a regex alternation here is quadratic on long runs). */
+function trimSlashes(value: string): string {
+  let start = 0
+  let end = value.length
+  while (start < end && value.charCodeAt(start) === 47) start += 1
+  while (end > start && value.charCodeAt(end - 1) === 47) end -= 1
+  return value.slice(start, end)
 }
 
 function isPlainSegment(segment: string): boolean {

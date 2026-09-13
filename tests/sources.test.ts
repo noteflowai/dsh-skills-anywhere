@@ -64,6 +64,14 @@ describe('resolveSource', () => {
     expect(resolveSource(pathToFileURL(path).href, CACHE).id).toBe(local.id)
   })
 
+  it('trims surrounding slashes in linear time', () => {
+    // (A bare leading `/` means a local path; the trimming applies after the github: prefix.)
+    expect(resolveSource('github:///o/r///', CACHE).id).toBe('github.com/o/r')
+    const started = performance.now()
+    expect(() => resolveSource(`github:${'/'.repeat(200_000)}o`, CACHE)).toThrow(/cannot parse source/)
+    expect(performance.now() - started).toBeLessThan(500)
+  })
+
   it('object specs override parsed values and carry rank', () => {
     const source = resolveSource({ repo: 'o/r', ref: 'dev', path: 'skills', rank: 42 }, CACHE)
     expect(source).toMatchObject({ ref: 'dev', path: 'skills', rank: 42, display: 'o/r/skills' })
