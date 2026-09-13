@@ -33,7 +33,8 @@ so no long-lived token has to live in the repository.
    and disallow tokens*. Trusted publishing keeps working.
 
 From then on the `npm` job authenticates with the workflow's OIDC token and
-npm generates the provenance attestation automatically.
+npm generates the provenance attestation automatically. The job relies on the
+npm bundled with Node 24 (11.x) and fails early if it is older than 11.5.1.
 
 ### MCP registry
 
