@@ -63,6 +63,10 @@ export class SkillsAnywhereProvider implements SkillProvider {
   private syncTimer: NodeJS.Timeout | undefined
   private syncing: Promise<SyncResult[]> | undefined
   private syncQueued: Promise<SyncResult[]> | undefined
+  /** Project roots the most recent sync run read sources for. */
+  private lastSyncProjects = new Set<string>()
+  /** Aborts git processes of in-flight syncs on dispose (or when dsh aborts the provider). */
+  private readonly abort = new AbortController()
   private readonly syncedProjects = new Set<string>()
   private disposed = false
   private invalidateTimer: NodeJS.Timeout | undefined
@@ -207,9 +211,17 @@ export class SkillsAnywhereProvider implements SkillProvider {
     if (this.syncing !== undefined) {
       if (cwd === undefined && options.force !== true) return this.syncing
       this.syncQueued ??= this.syncing
-        .catch(() => [])
-        .then(() => {
+        .catch((): SyncResult[] => [])
+        .then(async (results) => {
           this.syncQueued = undefined
+          if (this.disposed) return results
+          // Only re-run when the in-flight run could not have covered this
+          // request: a project the run did not know about, with sources of its own.
+          if (cwd !== undefined && options.force !== true) {
+            const projectRoot = await findProjectRoot(cwd)
+            if (this.lastSyncProjects.has(projectRoot)) return results
+            if ((await this.readSources(projectSourcesFile(projectRoot))).length === 0) return results
+          }
           return this.syncAll(cwd, options)
         })
       return this.syncQueued
@@ -224,6 +236,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
     // and the sources-file poller (which have no cwd) refresh project sources too.
     const projectRoots = new Set(this.syncedProjects)
     if (cwd !== undefined) projectRoots.add(await findProjectRoot(cwd))
+    this.lastSyncProjects = projectRoots
     const sources = await this.collectSources(projectRoots)
     if (sources.length === 0) return []
     const lock: LockFile = await readLock(this.config.lockFile)
@@ -234,7 +247,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
       const result = await syncSource(source, {
         ...(options.force !== undefined ? { force: options.force } : {}),
         timeoutMs: this.config.syncTimeoutMs,
-        ...(this.control?.signal !== undefined ? { signal: this.control.signal } : {}),
+        signal: this.abort.signal,
         log: message => this.log.info(message),
       })
       results.push(result)
@@ -363,7 +376,10 @@ export class SkillsAnywhereProvider implements SkillProvider {
     this.polledFiles.clear()
     const closing = [...this.watchers.values()].map(watcher => watcher.close().catch(() => undefined))
     this.watchers.clear()
-    await Promise.all(closing)
+    // No git process may outlive the provider: kill in-flight syncs and wait
+    // for them to settle, so callers can remove the cache right after dispose.
+    this.abort.abort()
+    await Promise.all([...closing, this.syncing?.catch(() => undefined), this.syncQueued?.catch(() => undefined)])
   }
 
   // --- internals ------------------------------------------------------------
