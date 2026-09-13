@@ -104,6 +104,29 @@ export interface DiscoverOptions {
 }
 
 const DEFAULT_NESTED_DEPTH = 5
+const ROOT_CONCURRENCY = 8
+const FILE_CONCURRENCY = 16
+
+interface RootScan {
+  readonly report: RootReport
+  readonly skills: DiscoveredSkill[]
+  readonly invalid: InvalidSkill[]
+  readonly ok: boolean
+}
+
+/** Map with at most `limit` calls in flight; results keep input order. */
+async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = Array.from({ length: items.length })
+  let next = 0
+  const worker = async (): Promise<void> => {
+    while (next < items.length) {
+      const index = next++
+      results[index] = await fn(items[index]!)
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return results
+}
 const SKIP_DIRS = new Set(['.git', 'node_modules', '.hg', '.svn', '__pycache__', '.venv', 'venv', 'dist', 'build'])
 const FLAT_IGNORED_FILES = new Set(['README.md', 'README.zh.md', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', 'LICENSE.md', 'CHANGELOG.md', 'CONTRIBUTING.md'])
 
@@ -117,16 +140,22 @@ export async function discover(roots: readonly SkillRoot[], options: DiscoverOpt
   const rootReports: RootReport[] = []
   let complete = true
 
-  for (const root of roots) {
+  // Roots are independent, so scan them concurrently (most are absent agent
+  // directories that cost one stat each), and read the SKILL.md files of one
+  // root with bounded concurrency. Reports keep root order.
+  const scans = await mapLimit(roots, ROOT_CONCURRENCY, async (root): Promise<RootScan> => {
     options.signal?.throwIfAborted()
     let exists = true
     let count = 0
+    const skills: DiscoveredSkill[] = []
+    const rejected: InvalidSkill[] = []
+    let ok = true
     try {
       const info = await stat(root.path)
       if (!info.isDirectory()) exists = false
     } catch (error) {
       if (!isAbsent(error)) {
-        complete = false
+        ok = false
         options.warn?.(`skills-anywhere: cannot access ${root.path}: ${String(error)}`)
       }
       exists = false
@@ -136,23 +165,31 @@ export async function discover(roots: readonly SkillRoot[], options: DiscoverOpt
         const files = root.mode === 'flat'
           ? await listFlat(root.path)
           : await listNested(root.path, root.maxDepth ?? DEFAULT_NESTED_DEPTH, options.signal)
-        for (const file of files) {
+        const entries = await mapLimit(files, FILE_CONCURRENCY, async (file) => {
           options.signal?.throwIfAborted()
-          const entry = await readSkill(file, root, lenient)
+          return readSkill(file, root, lenient)
+        })
+        for (const [index, entry] of entries.entries()) {
           if (entry.ok) {
-            found.push(entry.skill)
+            skills.push(entry.skill)
             count += 1
           } else {
-            invalid.push({ path: file.path, root, reason: entry.reason })
+            rejected.push({ path: files[index]!.path, root, reason: entry.reason })
           }
         }
       } catch (error) {
         if (options.signal?.aborted) throw error
-        complete = false
+        ok = false
         options.warn?.(`skills-anywhere: discovery under ${root.path} failed: ${String(error)}`)
       }
     }
-    rootReports.push({ root, exists, count })
+    return { report: { root, exists, count }, skills, invalid: rejected, ok }
+  })
+  for (const scan of scans) {
+    found.push(...scan.skills)
+    invalid.push(...scan.invalid)
+    rootReports.push(scan.report)
+    if (!scan.ok) complete = false
   }
 
   // Stable precedence: rank, then root order, then path.
@@ -164,28 +201,50 @@ export async function discover(roots: readonly SkillRoot[], options: DiscoverOpt
 
   const dropped: DroppedSkill[] = []
   const skills: DiscoveredSkill[] = []
-  const seenFile = new Map<string, DiscoveredSkill>()
+  // Two paths to one file necessarily carry the same content hash, so realpath
+  // is only resolved once a hash has been seen before; in the common case of
+  // no duplicates the loop makes no filesystem calls at all.
+  const keptByHash = new Map<string, DiscoveredSkill[]>()
   const seenContent = new Map<string, DiscoveredSkill>()
+  const realPaths = new Map<string, Promise<string>>()
+  const real = (path: string): Promise<string> => {
+    let resolved = realPaths.get(path)
+    if (resolved === undefined) {
+      resolved = realKey(path)
+      realPaths.set(path, resolved)
+    }
+    return resolved
+  }
   for (const skill of found) {
     if (excluded.has(skill.name)) {
       dropped.push({ skill, winner: skill, reason: 'excluded' })
       continue
     }
     if (dedupe) {
-      const fileKey = await realKey(skill.path)
-      const fileWinner = seenFile.get(fileKey)
-      if (fileWinner !== undefined) {
-        dropped.push({ skill, winner: fileWinner, reason: 'same-file' })
-        continue
+      const sameHash = keptByHash.get(skill.contentHash)
+      if (sameHash !== undefined) {
+        const fileKey = await real(skill.path)
+        let fileWinner: DiscoveredSkill | undefined
+        for (const other of sameHash) {
+          if (await real(other.path) === fileKey) {
+            fileWinner = other
+            break
+          }
+        }
+        if (fileWinner !== undefined) {
+          dropped.push({ skill, winner: fileWinner, reason: 'same-file' })
+          continue
+        }
+        const contentWinner = seenContent.get(`${skill.name}\0${skill.contentHash}`)
+        if (contentWinner !== undefined) {
+          dropped.push({ skill, winner: contentWinner, reason: 'same-content' })
+          continue
+        }
+        sameHash.push(skill)
+      } else {
+        keptByHash.set(skill.contentHash, [skill])
       }
-      const contentKey = `${skill.name}\0${skill.contentHash}`
-      const contentWinner = seenContent.get(contentKey)
-      if (contentWinner !== undefined) {
-        dropped.push({ skill, winner: contentWinner, reason: 'same-content' })
-        continue
-      }
-      seenFile.set(fileKey, skill)
-      seenContent.set(contentKey, skill)
+      seenContent.set(`${skill.name}\0${skill.contentHash}`, skill)
     }
     skills.push(skill)
   }
@@ -279,60 +338,73 @@ interface SkillFile {
 
 async function listFlat(root: string): Promise<SkillFile[]> {
   const entries = await readdir(root, { withFileTypes: true })
-  const files: SkillFile[] = []
-  for (const entry of entries.toSorted((left, right) => left.name.localeCompare(right.name))) {
+  const sorted = entries.toSorted((left, right) => left.name.localeCompare(right.name))
+  // One stat per candidate directory; run them together, keep entry order.
+  const candidates = await mapLimit(sorted, FILE_CONCURRENCY, async (entry): Promise<SkillFile | undefined> => {
     const path = join(root, entry.name)
-    if (entry.name.startsWith('.')) continue
+    if (entry.name.startsWith('.')) return undefined
     if (entry.isDirectory() || entry.isSymbolicLink()) {
       const skillFile = join(path, 'SKILL.md')
-      if (await isFile(skillFile)) files.push({ path: skillFile, directory: path, fallbackName: entry.name })
-      continue
+      return await isFile(skillFile) ? { path: skillFile, directory: path, fallbackName: entry.name } : undefined
     }
     if (entry.isFile() && entry.name.endsWith('.md') && !FLAT_IGNORED_FILES.has(entry.name)) {
-      files.push({ path, directory: root, fallbackName: entry.name.slice(0, -3) })
+      return { path, directory: root, fallbackName: entry.name.slice(0, -3) }
     }
-  }
-  return files
+    return undefined
+  })
+  return candidates.filter((file): file is SkillFile => file !== undefined)
 }
 
 async function listNested(root: string, maxDepth: number, signal?: AbortSignal): Promise<SkillFile[]> {
-  const files: SkillFile[] = []
   const visited = new Set<string>()
-  const walk = async (dir: string, depth: number): Promise<void> => {
+  // `dir` has already been resolved and admitted to `visited` by the caller.
+  const walk = async (dir: string, depth: number): Promise<SkillFile[]> => {
     signal?.throwIfAborted()
-    let real: string
-    try {
-      real = await realpath(dir)
-    } catch {
-      return
-    }
-    if (visited.has(real)) return
-    visited.add(real)
-
+    const files: SkillFile[] = []
     const skillFile = join(dir, 'SKILL.md')
     if (await isFile(skillFile)) {
       files.push({ path: skillFile, directory: dir, fallbackName: basename(dir) })
       // A nested skill directory is a leaf. The root itself may be a single
       // skill (`add o/r/skills/pdf`) and still hold a collection below it.
-      if (depth > 0) return
+      if (depth > 0) return files
     }
-    if (depth >= maxDepth) return
+    if (depth >= maxDepth) return files
     let entries
     try {
       entries = await readdir(dir, { withFileTypes: true })
     } catch {
-      return
+      return files
     }
-    for (const entry of entries.toSorted((left, right) => left.name.localeCompare(right.name))) {
-      if (SKIP_DIRS.has(entry.name)) continue
-      if (!(entry.isDirectory() || entry.isSymbolicLink())) continue
+    const sorted = entries.toSorted((left, right) => left.name.localeCompare(right.name))
+    // Resolve every child together, then admit them in name order so a
+    // directory reachable twice is walked once, and descend concurrently.
+    const resolved = await mapLimit(sorted, FILE_CONCURRENCY, async (entry): Promise<string | undefined> => {
+      if (SKIP_DIRS.has(entry.name)) return undefined
+      if (!(entry.isDirectory() || entry.isSymbolicLink())) return undefined
       const child = join(dir, entry.name)
-      if (entry.isSymbolicLink() && !(await isDirectory(child))) continue
-      await walk(child, depth + 1)
+      if (entry.isSymbolicLink() && !(await isDirectory(child))) return undefined
+      try {
+        return await realpath(child)
+      } catch {
+        return undefined
+      }
+    })
+    const admitted: string[] = []
+    for (const [index, real] of resolved.entries()) {
+      if (real === undefined || visited.has(real)) continue
+      visited.add(real)
+      admitted.push(join(dir, sorted[index]!.name))
     }
+    const nested = await mapLimit(admitted, FILE_CONCURRENCY, child => walk(child, depth + 1))
+    for (const list of nested) files.push(...list)
+    return files
   }
-  await walk(root, 0)
-  return files
+  try {
+    visited.add(await realpath(root))
+  } catch {
+    return []
+  }
+  return walk(root, 0)
 }
 
 async function readSkill(file: SkillFile, root: SkillRoot, lenient: boolean): Promise<{ ok: true; skill: DiscoveredSkill } | { ok: false; reason: string }> {
