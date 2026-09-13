@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Showcase
+
+- Check a visitor-selected `SKILL.md` locally with the provider's real strict
+  and lenient parser, including repairs, invocation settings and JSON reports.
+
 ## [0.5.1] - 2026-09-13
 
 ### Fixed
@@ -17,8 +24,6 @@ All notable changes to this project are documented here. The format follows
 
 ### Showcase
 
-- Check a visitor-selected `SKILL.md` locally with the provider's real strict
-  and lenient parser, including repairs, invocation settings and JSON reports.
 - Add a static Hugging Face playground built from isolated, authored skill
   fixtures, with shared catalog/search logic, inspection, shareable views,
   workspace JSON export and tested artifact publication with anonymous readback.

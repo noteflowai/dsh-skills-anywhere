@@ -39,8 +39,8 @@ The Space cannot read visitors' files, execute skills or host an MCP endpoint.
 
 | Entry | Verified state |
 | --- | --- |
-| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.4.0 and a provenance attestation. |
-| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.4.0, active/latest, npm package over stdio. |
+| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.5.1 and a provenance attestation. |
+| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.5.1, active/latest, npm package over stdio. |
 | [DeepSeek — Show Your Plugins!](https://github.com/deepseek-ai/deepseek-harness/discussions/6193) | Existing bilingual community showcase, including the web UI card. Reuse this thread for relevant follow-up. |
 | [Glama](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere) | Public entry exists, but the fetched page still showed old 0.3.1 tarball instructions and “not on npm yet.” Current npm/main are newer. Directory refresh and quality evaluation remain follow-up work. |
 
@@ -155,3 +155,7 @@ of the real provider's strict and lenient parsing. The maintained HF and Agent S
 showcase text includes this workflow and its limits; the Chinese submission bodies
 include the same feature. Reuse the existing threads and collection. This update adds
 no compatibility certification, client endorsement or measured growth claim.
+
+External releases 0.5.0 and 0.5.1 were reviewed during this update. Release 0.5.1
+fixes the npm-version assertion; npm and the official MCP Registry both report
+0.5.1. The historical 0.4.0 example above remains a record of the original check.
