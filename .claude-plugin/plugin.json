@@ -25,7 +25,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.3.2/dsh-skills-anywhere-0.3.2.tgz",
+        "dsh-skills-anywhere@0.3.2",
         "mcp",
         "--cwd",
         "${CLAUDE_PROJECT_DIR}"
