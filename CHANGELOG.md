@@ -6,12 +6,6 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
-### Documentation
-
-- Record published distribution entries, community submissions and channel
-  rules, with Chinese project introductions for the weekly newsletter and
-  HelloGitHub.
-
 ### Added
 
 - Agent Plugins manifest (`plugin.json` + `mcp.json` at the repository root,
@@ -35,6 +29,12 @@ All notable changes to this project are documented here. The format follows
   parsing quadratic (linear trimming now), and an unterminated `<!--` comment
   in a skill body could leak into a derived description (dropped to the end of
   the document).
+
+### Documentation
+
+- Record published distribution entries, community submissions and channel
+  rules, with Chinese project introductions for the weekly newsletter and
+  HelloGitHub; `docs/PROMOTION.md` also lists the owner-only channels.
 
 ## [0.4.0] - 2026-09-13
 

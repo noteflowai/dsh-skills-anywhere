@@ -36,7 +36,17 @@ npm exec --yes --package=dsh-skills-anywhere@0.4.0 -- \
 
 It returned **68 agent directory definitions**. This does not mean 68 complete
 agent integrations were tested. The current-source `pnpm run check` also
-passed version checks, typechecking, lint, **119 tests**, and the build.
+passed version checks, typechecking, lint, **124 tests**, and the build.
+
+## Repository-side work done on September 13, 2026
+
+| Item | State |
+| --- | --- |
+| DeepSeek showcase [#6193](https://github.com/deepseek-ai/deepseek-harness/discussions/6193) | Title changed to the mandated `DSH \| name \| one-liner` form from the pinned [category guidelines](https://github.com/deepseek-ai/deepseek-harness/discussions/2004); npm install line, test count and the web-card screenshot updated. |
+| DeepSeek Q&A replies | Short, disclosed ("unofficial, I am the author") replies on [#6032](https://github.com/deepseek-ai/deepseek-harness/discussions/6032) (no skills page in the UI) and [#3980](https://github.com/deepseek-ai/deepseek-harness/discussions/3980) (importing local skills). No other threads were posted to. |
+| GitHub topics | 20 of 20 used, including `dsh-plugin`, `dsh-skill`, `dsh-bundle`, `deepseek-harness-plugin`, `mcp-server`, `claude-code-plugin`, `gemini-cli`. Several DSH catalogs crawl these topics daily (yzfly/awesome-dsh-skills and bruc3van/awesome-dsh-plugin already list the project). |
+| `glama.json` | Names the maintainer so the Glama entry can be claimed and refreshed. Claiming needs the owner's GitHub login on the Glama page. |
+| Agent Plugins manifest | `plugin.json` + `mcp.json` at the repository root (spec 1.0.0), the precondition for cursor.directory and other open-plugin clients. |
 
 ## Existing directory applications
 
@@ -69,6 +79,16 @@ No duplicate PR or reminder comment was added.
 | Awesome Claude Code | Defer. Its current rules require 14 days since the first default-branch commit plus continued activity, **or** 100 stars. This project is too young and had one star. The recommendation must also be human-written and submitted through the web form; neither CLI submission nor a discussion workaround is allowed. |
 | Show HN | The owner must write their own submission and comments and be available to discuss the implementation. Current HN rules prohibit generated/AI-edited comments. Use the factual README; do not generate a paste-ready first comment. |
 | Glama | Check the existing entry for a refresh and quality evaluation after its maintainer metadata is processed. The read-only public page is not evidence that its cached README or deploy support is current. |
+| Anthropic community plugin marketplace | Owner-only web form at https://platform.claude.com/plugins/submit (Console login). `claude plugin validate .` passes. Approved plugins are pinned into anthropics/claude-plugins-community and shown on claude.com/plugins. |
+| LobeHub MCP marketplace | Owner-only, interactive: `npx -y @lobehub/market-cli` → `login` → `github connect` → `plugin init --stdio "npx -y dsh-skills-anywhere mcp"` → `plugin publish https://github.com/noteflowai/dsh-skills-anywhere`. |
+| cursor.directory | Owner-only web form https://cursor.directory/plugins/new (GitHub login); the repository now carries the Agent Plugins manifest it expects. |
+| mcpservers.org | Web form https://mcpservers.org/submit (contact e-mail required; free review takes about two weeks). |
+| PulseMCP | Nothing to do: submissions are paused and it ingests the official registry when it resumes. |
+| agentskills.io | Not a fit for the Client Showcase (clients only). Post in Discussions *Show and Tell* or the Discord `#skills-showcase` channel if wanted. |
+| Cursor forum | Showcase category https://forum.cursor.com/c/showcase/9 (owner post). |
+| Reddit | r/mcp (`showcase`/`server` flair), r/ClaudeCode (`Built with Claude`), r/ClaudeAI (needs 50 post karma; free-to-try statement). Confirm each sub's rules page before posting; owner-written text only. |
+| Smithery, Docker MCP catalog | Only with extra artifacts (an `.mcpb` bundle, respectively a `Dockerfile`); not planned. |
+| travisvn/awesome-claude-skills | Defer until the repository has 10 or more stars; the PR must be human-written. |
 
 Check existing issues, PRs and discussions before submitting. Reply on the
 original thread when maintainers request changes. Do not add “featured in”
