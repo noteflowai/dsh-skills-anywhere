@@ -21,6 +21,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod'
 import { resolveConfig, type Config, type ResolvedConfig } from './config.ts'
 import type { DiscoveredSkill, DiscoveryReport } from './discover.ts'
+import { originLabel } from './origin.ts'
 import { isSkillName, parseSkillMarkdown } from './frontmatter.ts'
 import { SkillsAnywhereProvider, type ProviderLogger } from './provider.ts'
 import { searchSkills } from './search.ts'
@@ -142,15 +143,6 @@ export async function openSkill(skill: DiscoveredSkill, lenient: boolean): Promi
   }
 }
 
-function originLabel(skill: DiscoveredSkill): string {
-  const { origin } = skill
-  switch (origin.kind) {
-    case 'agent': return `${origin.agent ?? 'agent'} (${origin.scope ?? '?'})`
-    case 'claude-plugins': return `claude plugin ${origin.plugin ?? '?'}${origin.marketplace !== undefined ? ` @ ${origin.marketplace}` : ''}`
-    case 'source': return `git ${origin.repo ?? '?'}`
-    default: return `custom (${origin.scope ?? '?'})`
-  }
-}
 
 /** Build a server over a standalone provider. Nothing is connected yet. */
 export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnywhereMcp {
@@ -207,11 +199,11 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     const page = skills.slice(start, start + clampLimit(limit, maxLimit))
     const structured = {
       total: skills.length,
-      skills: page.map(skill => ({ name: skill.name, description: skill.description, source: originLabel(skill) })),
+      skills: page.map(skill => ({ name: skill.name, description: skill.description, source: originLabel(skill.origin) })),
     }
     const text = skills.length === 0
       ? 'No skills found. Add a git source with `dsh-skills-anywhere add owner/repo` or install skills for any supported agent.'
-      : [`${page.length} of ${skills.length} skills:`, ...page.map(skill => `- ${skill.name} — ${skill.description} [${originLabel(skill)}]`)].join('\n')
+      : [`${page.length} of ${skills.length} skills:`, ...page.map(skill => `- ${skill.name} — ${skill.description} [${originLabel(skill.origin)}]`)].join('\n')
     return { content: [{ type: 'text', text }], structuredContent: structured }
   })
 
@@ -231,7 +223,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     if (trimmed.length === 0) throw new Error('query must not be empty')
     const skills = modelSkills(await refresh())
     const matches = searchSkills(
-      skills.map(skill => ({ ...skill, source: originLabel(skill), provider: 'skills-anywhere' })),
+      skills.map(skill => ({ ...skill, source: originLabel(skill.origin), provider: 'skills-anywhere' })),
       trimmed,
       clampLimit(limit, findLimit),
     )

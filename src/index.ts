@@ -12,6 +12,7 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { Config, resolveConfig } from './config.ts'
 import { SkillsAnywhereProvider } from './provider.ts'
+import { installWeb, settingsInForce } from './web.ts'
 
 /** Cordis plugin name; stable across releases. */
 export const name = 'skills-anywhere'
@@ -32,19 +33,32 @@ export {
 } from './sources.ts'
 export type { SourceSpec, ResolvedSource, SyncResult, SyncStatus, LockEntry, LockFile } from './sources.ts'
 export { SkillsAnywhereProvider, applyCatalogBudget, type ProviderLogger, type CatalogState } from './provider.ts'
+export { originLabel, originGroup } from './origin.ts'
+export type { ReportView, SkillView, SkillState, CatalogSettings } from './web-protocol.ts'
+export { SETTINGS_NAMESPACE, REPORT_PATH } from './web-protocol.ts'
+export { installWeb, handleReport, settingsEntry, SettingsSchema, type ReportRequest, type RpcResult } from './web.ts'
 
-/** Register the skills-anywhere provider on `ctx.skills`. */
+/**
+ * Register the skills-anywhere provider on `ctx.skills`, plus the runtime
+ * settings namespace and the web report endpoint when their services exist.
+ */
 export function apply(ctx: Context, config: Config = {}): void {
   const resolved = resolveConfig(config)
-  let provider!: SkillsAnywhereProvider
+  let provider: SkillsAnywhereProvider | undefined
+  const log = {
+    info: (message: string) => ctx.logger.info(message),
+    warn: (message: string) => ctx.logger.warn(message),
+    debug: (message: string) => ctx.logger.debug(message),
+  }
+  installWeb(ctx, () => provider, resolved, log)
   ctx.skills.registerProvider((control) => {
-    provider = new SkillsAnywhereProvider(resolved, {
-      info: message => ctx.logger.info(message),
-      warn: message => ctx.logger.warn(message),
-      debug: message => ctx.logger.debug(message),
-    }, control)
+    provider = new SkillsAnywhereProvider(resolved, log, control)
+    // Settings committed before the provider existed (or the composition
+    // entry) apply to the very first catalog.
+    const settings = settingsInForce(ctx)
+    if (settings !== undefined) provider.reconfigure(settings)
     return provider
   })
-  ctx.effect(() => () => { void provider.dispose() }, 'skills-anywhere provider')
+  ctx.effect(() => () => { void provider?.dispose() }, 'skills-anywhere provider')
   ctx.logger.info(`skills-anywhere: provider "${resolved.providerName}" registered (agents=${resolved.agents}, claudePlugins=${resolved.claudePlugins}, sources=${resolved.sources.length}${resolved.sourcesFiles ? '+files' : ''})`)
 }

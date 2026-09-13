@@ -79,6 +79,18 @@ The plugin manifest pins `dsh-skills-anywhere@<version>` so Claude Code users
 get exactly the released build; `scripts/sync-version.mjs` bumps that pin (and
 any remaining tarball URL) together with `package.json`.
 
+## The browser bundle
+
+`lib/client.js` is the dsh web UI half, built by the second tsdown entry in
+`tsdown.config.ts` in the client module system's lazy-CJS factory format
+(`window.__ModuleLoader__.load({ id, factory })`). It may `require` only the
+platform modules the dsh shell provides (React, Cordis, the `dsh-client-*`
+UI libraries listed in the config); anything else is inlined. `pnpm run build`
+produces it together with the host entries, and the tarball ships it, so no
+release step changes. The `dsh.compatibility` table applies to the browser
+half too: a dsh release that changes its platform module table needs a new
+entry.
+
 ## Compatibility with DeepSeek Harness
 
 `package.json` → `dsh.compatibility.dshReleases` lists the dsh releases the test
