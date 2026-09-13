@@ -59,6 +59,21 @@ class BundleTests(unittest.TestCase):
         extra = b'<head><script>alert("unexpected")</script></head>'
         self.assertEqual(module.INJECTION.sub(b"", extra), extra)
 
+    def test_hub_static_starter_is_accepted(self):
+        module.verify_starter({
+            ".gitattributes": "a6344aac8c09253b3b630fb776ae94478aa0275b",
+            "README.md": "2229f248379889134de81afecf979d78a879e3ba",
+            "index.html": "b0c4b3666032a737f3903db53e6a8a9272483e28",
+            "style.css": "114adf441e9032febb46bc056b2a8bb651075f0d",
+        })
+        module.verify_starter({})
+
+    def test_custom_page_and_unrelated_files_are_preserved(self):
+        with self.assertRaisesRegex(ValueError, "customized"):
+            module.verify_starter({"index.html": "f" * 40})
+        with self.assertRaisesRegex(ValueError, "unrelated"):
+            module.verify_starter({"other-project.txt": "f" * 40})
+
 
 if __name__ == "__main__":
     unittest.main()
