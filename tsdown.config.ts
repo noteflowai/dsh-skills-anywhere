@@ -58,6 +58,7 @@ export default defineConfig([
     // A `"type": "module"` package would otherwise get `.cjs`; the client
     // module system serves `exports["./client"]` as a classic script, so `.js`.
     outExtensions: () => ({ js: '.js' }),
+    // The plugin face is declared by hand in `types/client.d.ts`.
     dts: false,
     clean: false,
     external: PLATFORM_MODULES,

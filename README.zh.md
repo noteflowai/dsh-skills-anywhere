@@ -7,6 +7,7 @@
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/noteflowai/dsh-skills-anywhere/badge)](https://scorecard.dev/viewer/?uri=github.com/noteflowai/dsh-skills-anywhere)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但每个 Agent 都只看自己的目录，于是你给 Claude Code 装的技能 Codex、Cursor 和 DeepSeek Harness 看不见，反过来也一样。`dsh-skills-anywhere` 直接从这些目录原地读取，然后把它们送到所有地方：在 dsh 里是一个实时的技能提供器，在 Claude Code、Cursor、Codex 等任何 MCP 客户端里是一个 MCP 服务器。

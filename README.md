@@ -7,6 +7,7 @@ English | [中文](README.zh.md)
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/noteflowai/dsh-skills-anywhere/badge)](https://scorecard.dev/viewer/?uri=github.com/noteflowai/dsh-skills-anywhere)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Agent Skills are portable by design: a folder with a `SKILL.md`. Every agent still looks only in its own folder, so a skill you install for Claude Code is invisible to Codex, Cursor and DeepSeek Harness, and the ones you wrote for them are invisible back. `dsh-skills-anywhere` reads all of those folders where they live and serves them everywhere: as a live skill provider inside dsh, and as an MCP server for Claude Code, Cursor, Codex and any other MCP client.

@@ -13,6 +13,15 @@ All notable changes to this project are documented here. The format follows
   server from the repository URL; `scripts/sync-version.mjs` keeps both in
   step with `package.json`.
 - `glama.json` naming the maintainer for the Glama MCP directory listing.
+- `dsh-skills-anywhere/client` ships a type declaration (`types/client.d.ts`)
+  for its plugin face; `arethetypeswrong` is green for ESM and bundler
+  resolution.
+- OpenSSF Scorecard workflow (weekly and on push to main, results published)
+  with the badge in both READMEs; CodeQL default setup enabled on the
+  repository for JavaScript/TypeScript and Actions.
+- Coverage floors in `vitest.config.ts` (statements 88, branches 78,
+  functions 82, lines 90) so `pnpm run test:coverage` fails on regressions;
+  tests for origin labels and the agents table.
 
 ## [0.4.0] - 2026-09-13
 
