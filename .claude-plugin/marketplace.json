@@ -13,7 +13,7 @@
       "source": "./",
       "displayName": "Skills Anywhere",
       "description": "Every skill you have installed for any agent, plus any GitHub skill repo, as find_skills / open_skill tools and skill:// resources via MCP.",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "homepage": "https://github.com/noteflowai/dsh-skills-anywhere",
       "license": "MIT",
       "keywords": [
