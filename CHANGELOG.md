@@ -52,6 +52,8 @@ All notable changes to this project are documented here. The format follows
   roots after the first 32 agent directories were never watched.
 - `add` appended a duplicate when the existing entry embedded the sub-path in
   the repo string (`o/r/skills` vs `--path skills`).
+- `dispose()` now aborts in-flight git processes and waits for them, so no
+  sync outlives the provider.
 
 ### Changed
 
