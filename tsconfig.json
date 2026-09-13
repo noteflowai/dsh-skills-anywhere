@@ -29,6 +29,7 @@
   "include": [
     "src",
     "tests",
+    "huggingface",
     "tsdown.config.ts",
     "vitest.config.ts"
   ]

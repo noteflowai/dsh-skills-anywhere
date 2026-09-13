@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore a sample Agent Skills workspace. Inspect sources, solve name collisions, and keep the model catalog focused.">
+  <title>Skills Anywhere &middot; A shared home for your skills</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Skills Anywhere home"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></a>
+      <nav aria-label="Project links"><a href="#install">Install</a><a href="https://github.com/noteflowai/dsh-skills-anywhere" target="_blank" rel="noopener noreferrer">Source &#8599;</a></nav>
+    </header>
+    <main id="top">
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span class="live-dot"></span> AGENT SKILLS, WITHOUT THE SILOS</div>
+          <h1>Your skills.<br><span>Everywhere.</span></h1>
+          <p class="lede">One shared pool for your coding agents.<br>Explore how discovery, search and a smaller<br class="wide-only"> model catalog fit together.</p>
+          <a class="primary" href="#workspace">Explore the workspace <span aria-hidden="true">&#8595;</span></a>
+          <p class="hero-note">Open source &middot; MIT &middot; No sign-up</p>
+        </div>
+        <div class="orbit" aria-label="Skills from coding-agent directories and plugin marketplaces flow into a shared pool">
+          <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
+          <div class="source-chip chip-one"><i>C</i> Claude Code <small>project</small></div>
+          <div class="source-chip chip-two"><i>&gt;_</i> Codex <small>user</small></div>
+          <div class="source-chip chip-three"><i>&#8599;</i> Cursor <small>user</small></div>
+          <div class="source-chip chip-four"><i>&#10022;</i> Gemini CLI <small>user</small></div>
+          <div class="source-chip chip-five"><i>+</i> Plugins <small>marketplace</small></div>
+          <div class="orbit-center"><span aria-hidden="true">&#10035;</span><strong>One skill pool</strong><small>dsh + MCP</small></div>
+          <span class="orbit-caption">Read where they live. Load when needed.</span>
+        </div>
+      </section>
+      <section class="facts" aria-label="Project capabilities">
+        <div><strong id="agent-count">68</strong><span>agent directory definitions</span></div>
+        <div><strong>0</strong><span>copies or symlinks to maintain</span></div>
+        <div><strong>On demand</strong><span>search first, load one skill</span></div>
+      </section>
+      <section class="lab" id="workspace">
+        <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2>A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
+        <p class="section-intro">These fictional files were scanned by the real provider at build time. Budget and search run the project's shared code in your browser. This page cannot read your computer or run a skill.</p>
+        <div class="scenarios" aria-label="Guided examples">
+          <button type="button" data-scenario="default" class="active">01 <span>Follow the sources</span></button>
+          <button type="button" data-scenario="collision">02 <span>Untangle a name clash</span></button>
+          <button type="button" data-scenario="budget">03 <span>Find a hidden skill</span></button>
+        </div>
+        <div class="workspace-grid">
+          <aside class="control-panel">
+            <div class="panel-label">MODEL CATALOG</div>
+            <div class="budget-value"><span id="listed-count">3</span><small>skills listed</small></div>
+            <label for="budget">Catalog budget <output id="budget-value" for="budget">3</output></label>
+            <input id="budget" type="range" min="0" max="6" value="3" step="1">
+            <p class="muted">0 means unlimited. Pin a skill to prioritize it; Hide keeps it searchable.</p>
+            <div class="mini-stats"><div><strong id="eligible-count">6</strong><span>available to search</span></div><div><strong id="disabled-count">1</strong><span>author disabled</span></div></div>
+            <div class="note-card" id="scenario-note">Follow each skill back to its source. The identical review copy is collapsed; different configure skills stay reachable.</div>
+            <button id="reset" class="quiet-button" type="button">Reset workspace</button>
+          </aside>
+          <div class="pool-panel">
+            <div class="search-bar"><label for="search">Find a skill</label><input id="search" type="search" maxlength="120" placeholder="Try &quot;test&quot; or &quot;configure&quot;" autocomplete="off"></div>
+            <div class="pool-head"><span id="result-count" aria-live="polite"></span><span>PIN &middot; HIDE &middot; INSPECT</span></div>
+            <div id="skill-list" class="skill-list"></div>
+            <noscript><p>JavaScript enables this interactive sample. You can still read the source and installation instructions below.</p></noscript>
+          </div>
+        </div>
+        <div class="inspector" id="inspector" aria-live="polite">
+          <div class="inspector-heading"><span class="panel-label">ON-DEMAND SKILL INSPECTOR</span><span id="selected-state" class="pill"></span></div>
+          <h3 id="selected-name"></h3><p id="selected-path" class="code-path"></p>
+          <pre id="selected-content" tabindex="0" aria-label="Selected sample skill instructions"></pre>
+        </div>
+        <div class="lab-actions"><button type="button" id="share">Copy this view</button><button type="button" id="download">Download sample workspace</button><a href="manifest.json" download>Build manifest &#8595;</a><span id="action-status" role="status"></span></div>
+        <input id="share-fallback" class="share-fallback" aria-label="Copy this view address" readonly hidden>
+        <details class="diagnostics"><summary>What happened during discovery? <span id="diagnostic-count"></span></summary><div id="diagnostics"></div></details>
+      </section>
+      <section class="install-section" id="install">
+        <div><div class="eyebrow">BRING YOUR OWN SKILLS</div><h2>Take it into your workflow.</h2><p>Install the published package on your machine to use real skill directories. Your client controls what a loaded skill can do.</p><a href="https://github.com/noteflowai/dsh-skills-anywhere#quick-start" target="_blank" rel="noopener noreferrer">Read the setup guide &#8599;</a></div>
+        <div class="install-card"><div class="install-tabs" role="tablist" aria-label="Installation method"><button type="button" role="tab" id="tab-cli" data-install="cli" aria-controls="install-panel" aria-selected="true">Explore CLI</button><button type="button" role="tab" id="tab-dsh" data-install="dsh" aria-controls="install-panel" aria-selected="false" tabindex="-1">DeepSeek Harness</button><button type="button" role="tab" id="tab-mcp" data-install="mcp" aria-controls="install-panel" aria-selected="false" tabindex="-1">MCP clients</button></div><div id="install-panel" role="tabpanel" aria-labelledby="tab-cli"><pre id="install-command" tabindex="0"></pre><p id="install-note"></p><button id="copy-install" type="button">Copy command</button></div><p class="muted">Node.js 22.19+ or 24+ &middot; Git for repository sources</p></div>
+      </section>
+      <footer><div class="brand"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></div><p>Independent community project by Note Flow AI. Example skills are MIT licensed.<br>Directory coverage does not imply every client or skill script has been tested.</p><a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/discussions" target="_blank" rel="noopener noreferrer">Feedback &#8599;</a><p class="build-meta" id="build-meta"></p></footer>
+    </main>
+  </div>
+</body>
+</html>

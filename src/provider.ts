@@ -24,6 +24,7 @@ import { AGENTS } from './agents.ts'
 import { projectSourcesFile, type ResolvedConfig } from './config.ts'
 import { discover, findProjectRoot, type DiscoveredSkill, type DiscoveryReport, type SkillRoot } from './discover.ts'
 import { originGroup, originLabel } from './origin.ts'
+import { applyCatalogBudget, type CatalogState } from './catalog.ts'
 import type { CatalogSettings, ReportView, SkillView } from './web-protocol.ts'
 import { parseSkillMarkdown } from './frontmatter.ts'
 import {
@@ -49,8 +50,7 @@ interface Locator {
   readonly directory: string
 }
 
-/** Where a published skill stands with respect to the model catalog. */
-export type CatalogState = 'visible' | 'hidden' | 'disabled'
+export { applyCatalogBudget, type CatalogState } from './catalog.ts'
 
 const WATCH_DEBOUNCE_MS = 80
 const MAX_WATCHED_PROJECTS = 32
@@ -528,32 +528,7 @@ export class SkillsAnywhereProvider implements SkillProvider {
   }
 }
 
-/**
- * Decide which skills the model catalog lists. Author-disabled skills never
- * count against the budget; pinned names come first; hidden names never show;
- * the rest fill the remaining slots in precedence order.
- */
-export function applyCatalogBudget(
-  skills: readonly DiscoveredSkill[],
-  catalog: ResolvedConfig['catalog'],
-): Map<string, CatalogState> {
-  const states = new Map<string, CatalogState>()
-  const eligible: DiscoveredSkill[] = []
-  for (const skill of skills) {
-    if (!skill.invocation.modelInvocable) states.set(skill.name, 'disabled')
-    else if (catalog.hide.has(skill.name)) states.set(skill.name, 'hidden')
-    else eligible.push(skill)
-  }
-  const ordered = [
-    ...eligible.filter(skill => catalog.pin.has(skill.name)),
-    ...eligible.filter(skill => !catalog.pin.has(skill.name)),
-  ]
-  ordered.forEach((skill, index) => {
-    states.set(skill.name, catalog.limit === 0 || index < catalog.limit ? 'visible' : 'hidden')
-  })
-  return states
-}
-
+/** Preserve author invocation metadata when a catalog budget hides a candidate. */
 function toCandidate(skill: DiscoveredSkill, provider: string, state: CatalogState): SkillCandidate {
   const locator: Locator = { path: skill.path, directory: skill.directory }
   const extra = skill.metadata.skillsAnywhere as Record<string, unknown> | undefined

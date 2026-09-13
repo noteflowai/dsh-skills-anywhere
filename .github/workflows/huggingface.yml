@@ -1,0 +1,89 @@
+name: Hugging Face Space
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      check_run:
+        description: Successful CI run ID for the current main commit
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: huggingface-space
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event != 'pull_request' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Select a successful CI run from current main
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECK_RUN: ${{ inputs.check_run || github.event.workflow_run.id }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          run_id = os.environ["CHECK_RUN"]
+          if not run_id.isdigit():
+              raise ValueError("Expected a numeric CI run ID")
+          repo = os.environ["GITHUB_REPOSITORY"]
+          def get(path):
+              return json.loads(subprocess.check_output(["gh", "api", path], text=True))
+          run = get(f"repos/{repo}/actions/runs/{run_id}")
+          if (run["path"] != ".github/workflows/ci.yml" or run["head_branch"] != "main"
+                  or run["event"] == "pull_request" or run["conclusion"] != "success"
+                  or run["head_repository"]["full_name"] != repo):
+              raise ValueError("Only successful CI runs from this repository's main can publish")
+          current = get(f"repos/{repo}/git/ref/heads/main")["object"]["sha"]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"sha={run['head_sha']}\nrun_id={run_id}\n")
+              output.write(f"current={'true' if current == run['head_sha'] else 'false'}\n")
+          if current != run["head_sha"]:
+              print("Newer main exists; skip the obsolete upload.")
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.source.outputs.current == 'true'
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        if: steps.source.outputs.current == 'true'
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        if: steps.source.outputs.current == 'true'
+        with:
+          name: huggingface-space
+          path: ${{ runner.temp }}/huggingface-space
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Publish the tested artifact and verify public readback
+        if: steps.source.outputs.current == 'true'
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_HUB_DISABLE_PROGRESS_BARS: '1'
+          SOURCE_COMMIT: ${{ steps.source.outputs.sha }}
+        run: |
+          python -m pip install 'huggingface_hub==1.31.0'
+          python huggingface/publish.py \
+            --bundle "$RUNNER_TEMP/huggingface-space" \
+            --expected-commit "$SOURCE_COMMIT" > "$RUNNER_TEMP/space-publication.json"
+          cat "$RUNNER_TEMP/space-publication.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads((Path(os.environ["RUNNER_TEMP"])/"space-publication.json").read_text())
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write(f"Published {result['url']}\n\nSource: `{result['source_commit']}`\n\n")
+              output.write(f"Anonymous readback verified {result['verified_files']} Hub files ")
+              output.write(f"and {result['live_files']} publicly served files.\n")
+          PY

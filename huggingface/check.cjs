@@ -1,0 +1,103 @@
+const assert = require('node:assert/strict')
+const { createServer } = require('node:http')
+const fs = require('node:fs/promises')
+const path = require('node:path')
+const { chromium } = require('playwright')
+
+const root = path.resolve('.dsh-showcase/site')
+const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.png': 'image/png' }
+const server = createServer(async (request, response) => {
+  const route = new URL(request.url, 'http://localhost').pathname
+  if (route === '/frame') {
+    response.setHeader('Content-Type', 'text/html')
+    response.end('<!doctype html><html><body style="margin:0"><iframe title="Space" src="/index.html" style="border:0;width:100vw;height:100vh"></iframe></body></html>')
+    return
+  }
+  const file = path.resolve(root, `.${route === '/' ? '/index.html' : route}`)
+  if (!file.startsWith(root + path.sep)) { response.writeHead(403).end(); return }
+  try { response.setHeader('Content-Type', mime[path.extname(file)] || 'text/plain'); response.end(await fs.readFile(file)) }
+  catch { response.writeHead(404).end() }
+})
+
+;(async () => {
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
+  const origin = `http://127.0.0.1:${server.address().port}`
+  const browser = await chromium.launch({ headless: true })
+  const errors = []
+  try {
+    for (const width of [1440, 390]) {
+      const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' })
+      await context.addInitScript(() => {
+        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('Clipboard denied by embed') } } })
+      })
+      const page = await context.newPage()
+      page.on('pageerror', error => errors.push(String(error)))
+      const requests = []
+      page.on('request', request => requests.push(request.url()))
+      await page.goto(`${origin}/frame`)
+      const frame = page.frameLocator('iframe')
+      await frame.locator('[data-name="review"]').waitFor()
+      assert.equal(await frame.locator('.skill-row').count(), 7)
+      assert.equal(await frame.locator('#listed-count').innerText(), '3')
+      assert(await frame.getByRole('button', { name: 'Inspect manual-deploy', exact: true }).isDisabled())
+      const inner = page.frames().find(item => item.url().includes('/index.html'))
+      assert.equal(await inner.evaluate(() => document.documentElement.scrollWidth > innerWidth), false)
+      await frame.getByRole('button', { name: '03 Find a hidden skill' }).click()
+      assert.equal(await frame.locator('#selected-name').innerText(), 'test-plan')
+      assert.equal(await frame.locator('#selected-state').innerText(), 'on demand')
+      await frame.getByRole('button', { name: 'Pin test-plan', exact: true }).click()
+      assert.equal(await frame.locator('#selected-state').innerText(), 'in catalog')
+      await frame.getByRole('button', { name: 'Hide test-plan', exact: true }).click()
+      assert.equal(await frame.locator('#selected-state').innerText(), 'on demand')
+      assert.equal(await frame.locator('[data-name="test-plan"]').count(), 1)
+      await frame.getByRole('button', { name: 'Copy this view', exact: true }).click()
+      const shared = await frame.locator('#share-fallback').inputValue()
+      assert.match(shared, /budget=1/)
+      assert.match(shared, /pin=test-plan/)
+      await inner.goto(shared)
+      await frame.locator('[data-name="test-plan"]').waitFor()
+      assert.equal(await frame.locator('#selected-state').innerText(), 'on demand')
+      assert.equal(await frame.getByRole('button', { name: 'Hide test-plan', exact: true }).getAttribute('aria-pressed'), 'true')
+      const download = page.waitForEvent('download')
+      await frame.getByRole('button', { name: 'Download sample workspace', exact: true }).click()
+      const received = await download
+      const exported = JSON.parse(await fs.readFile(await received.path(), 'utf8'))
+      assert.equal(exported.files.length, 9)
+      assert.equal(exported.schema, 'skills-anywhere-playground-1')
+      await frame.getByRole('button', { name: '02 Untangle a name clash' }).click()
+      assert.equal(await frame.locator('.skill-row').count(), 2)
+      await frame.locator('#search').fill('manual-deploy')
+      assert.equal(await frame.locator('.skill-row').count(), 0)
+      await frame.locator('#search').fill('<img src=x onerror=alert(1)>')
+      assert.equal(await frame.locator('.skill-row').count(), 0)
+      await frame.getByRole('button', { name: 'Reset workspace' }).click()
+      await frame.getByRole('tab', { name: 'Explore CLI', exact: true }).focus()
+      await page.keyboard.press('ArrowRight')
+      assert.match(await frame.locator('#install-command').innerText(), /^dsh plugin/)
+      await frame.getByRole('tab', { name: 'MCP clients', exact: true }).click()
+      assert.match(await frame.locator('#install-command').innerText(), / mcp$/)
+      await frame.locator('#budget').focus()
+      await page.keyboard.press('Home')
+      assert.equal(await frame.locator('#listed-count').innerText(), '6')
+      await frame.getByRole('button', { name: 'Reset workspace' }).click()
+      assert(requests.every(url => url.startsWith(origin) || url.startsWith('blob:')), 'Unexpected external request')
+      await fs.mkdir('.dsh-showcase/screenshots', { recursive: true })
+      await page.screenshot({ path: `.dsh-showcase/screenshots/embed-${width}.png`, fullPage: true })
+      await context.close()
+    }
+    const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 })
+    page.on('pageerror', error => errors.push(String(error)))
+    await page.goto(`${origin}/`)
+    await page.locator('[data-name="review"]').waitFor()
+    await page.screenshot({ path: path.join(root, 'thumbnail.png') })
+    await page.goto(`file://${path.join(root, 'index.html')}`)
+    await page.locator('[data-name="review"]').waitFor()
+    await page.getByRole('button', { name: '02 Untangle a name clash' }).click()
+    assert.equal(await page.locator('.skill-row').count(), 2)
+    assert.deepEqual(errors, [])
+    console.log('Showcase browser checks passed: desktop/mobile iframe, source fixture, budget/search, disabled skills, share fallback, download, keyboard tabs, offline.')
+  } finally {
+    await browser.close()
+    await new Promise(resolve => server.close(resolve))
+  }
+})().catch(error => { console.error(error); server.close(); process.exitCode = 1 })

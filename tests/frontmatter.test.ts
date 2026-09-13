@@ -175,6 +175,9 @@ describe('firstParagraph', () => {
       expect(parsed.skill.description).toBe('Real paragraph.')
       expect(parsed.skill.description).not.toContain('draft notes')
     }
+    // Without the fix, a comment-only body leaks its second line as prose.
+    expect(firstParagraph('<!-- draft notes\nstill inside the comment')).toBeUndefined()
+    expect(firstParagraph('# Heading\n\n<!-- draft notes\n\nprivate paragraph')).toBeUndefined()
   })
 
 })

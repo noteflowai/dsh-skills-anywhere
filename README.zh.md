@@ -4,6 +4,8 @@
 
 [English](README.md) | 中文
 
+**[体验 Hugging Face 交互演示](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)**：在示例工作区中查看技能来源、处理重名、调整目录预算，并搜索未列出的技能。无需安装或模型 API。[演示原理](docs/HUGGINGFACE.md)。
+
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
 [![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
