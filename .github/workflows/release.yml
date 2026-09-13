@@ -46,6 +46,13 @@ jobs:
           echo "version=$PKG" >> "$GITHUB_OUTPUT"
       - name: Pack tarball
         run: pnpm pack
+      - name: Exercise the packed checker outside the checkout
+        run: |
+          CHECK_DIR="$(mktemp -d)"
+          cd "$CHECK_DIR"
+          npm init -y >/dev/null
+          npm install --ignore-scripts "$GITHUB_WORKSPACE"/dsh-skills-anywhere-*.tgz >/dev/null
+          node "$GITHUB_WORKSPACE/scripts/check-installed.mjs"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tarball

@@ -64,3 +64,10 @@ directory coverage, not a claim that every client and skill script was tested.
 Independent community project by Note Flow AI, developed with AI assistance.
 Code and authored example skills are MIT licensed. No upstream affiliation or
 endorsement is implied.
+
+## Use the same parser in CI
+
+The 0.6.0 command line checks explicitly named local files, supports strict and
+lenient gates, and reports file hashes with exit codes for automation.
+[Copy a working CI example](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md).
+The browser and CLI share the parser comparison; neither executes skill instructions.

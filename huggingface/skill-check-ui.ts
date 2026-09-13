@@ -1,4 +1,4 @@
-import { checkSkill, MAX_SKILL_BYTES, type SkillCheck } from './skill-check.ts'
+import { checkSkill, MAX_SKILL_BYTES, type SkillCheck } from '../src/skill-check.ts'
 
 export function installSkillCheck(example: string, source: { commit: string; dirty: boolean }): void {
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T

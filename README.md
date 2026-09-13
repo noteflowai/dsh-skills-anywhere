@@ -8,8 +8,9 @@ English | [中文](README.zh.md)
 
 **Bring your own `SKILL.md`.** Compare the provider's strict and lenient parsing
 locally: inspect repairs, invocation settings and a downloadable check report.
-Your file stays in the browser. This is a parser check, not a security audit or
-a guarantee of compatibility with every client.
+Your file stays in the browser. The same checks are available in the
+[command line and CI](docs/CHECKING.md), with file hashes and actionable exit codes.
+This is a parser check, not a security audit or a guarantee of compatibility with every client.
 
 <a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere"><img src="docs/skill-check.png" width="880" alt="Actual local SKILL.md check: strict mode rejects an invalid name, while lenient mode explains the name and description repairs."></a>
 
@@ -68,7 +69,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.5.1/dsh-skills-anywhere-0.5.1.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.6.0/dsh-skills-anywhere-0.6.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -155,6 +156,11 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.6.0 check
+skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
+now has batch file checks, JSON reports with file hashes, and CI exit codes.
+Checks read only the named files. [Commands, CI example and scope](docs/CHECKING.md).
+
 ```
 dsh-skills-anywhere list [--all] [--json]     Skills the provider publishes (--all shows hidden duplicates)
 dsh-skills-anywhere agents [--json]           Supported agents and which directories exist here
@@ -163,10 +169,14 @@ dsh-skills-anywhere add <source> [--ref] [--path] [--rank] [--project]
 dsh-skills-anywhere remove <source> [--project]
 dsh-skills-anywhere sync [--force] [--json]   Clone or refresh every source now
 dsh-skills-anywhere doctor [--json]           Repaired, skipped, renamed and duplicate skills, with reasons
+dsh-skills-anywhere check <files...> [--json] Explicit local files; strict parser gate by default
 dsh-skills-anywhere mcp                       Serve the same skills to any MCP client over stdio
 ```
 
-All commands accept `--cwd <dir>` to pick the project. The CLI uses the same code path as the plugin and never needs dsh running.
+All commands accept `--cwd <dir>`. For `check`, it resolves the named files; other
+commands use it to pick the project. `check --lenient` accepts provider repairs;
+`--fail-on-repair` rejects any reported repair in the selected mode.
+The CLI uses the same parsing code as the plugin and never needs dsh running.
 
 ## Use as an MCP server
 

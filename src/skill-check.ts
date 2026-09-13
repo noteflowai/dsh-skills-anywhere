@@ -1,4 +1,4 @@
-import { parseSkillMarkdown, type ParseResult } from '../src/frontmatter.ts'
+import { parseSkillMarkdown, type ParseResult } from './frontmatter.ts'
 
 export const MAX_SKILL_BYTES = 128 * 1024
 const encoder = new TextEncoder()
@@ -8,7 +8,7 @@ function summarize(result: ParseResult) {
   const { name, description, invocation, warnings, metadata, content } = result.skill
   return {
     ok: true as const, name, description, invocation, warnings,
-    metadataKeys: Object.keys(metadata).sort(),
+    metadataKeys: Object.keys(metadata).toSorted(),
     bodyBytes: encoder.encode(content).length,
   }
 }
