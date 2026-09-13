@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Agent Plugins manifest (`plugin.json` + `mcp.json` at the repository root,
+  schema 1.0.0) so Cursor and other open-plugin clients can install the MCP
+  server from the repository URL; `scripts/sync-version.mjs` keeps both in
+  step with `package.json`.
+- `glama.json` naming the maintainer for the Glama MCP directory listing.
+
 ## [0.4.0] - 2026-09-13
 
 ### Added
