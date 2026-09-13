@@ -54,13 +54,16 @@ reads `.claude-plugin/marketplace.json` straight from the default branch.
 ```sh
 git switch main && git pull
 # 1. Move the *Unreleased* section of CHANGELOG.md under the new version and date.
-# 2. Bump. `pnpm version` updates package.json, then the `version` lifecycle
-#    script rewrites .claude-plugin/*.json, server.json and the tarball URLs
-#    in both READMEs, and stages everything.
-pnpm version patch          # or minor / major / 0.4.0-rc.1
-git commit -m "release: v$(node -p "require('./package.json').version")"
+git add CHANGELOG.md && git commit -m "changelog: v0.3.2"
+# 2. Bump. `pnpm version` updates package.json, runs the `version` lifecycle
+#    script (which rewrites .claude-plugin/*.json, server.json and the tarball
+#    URLs in both READMEs and stages them), then commits and tags `v<version>`.
+pnpm version patch --message "release: v%s"     # or minor / major / 0.4.0-rc.1
 git push origin main --follow-tags
 ```
+
+pnpm 12 creates the commit and the tag itself, so there is nothing left to
+commit after the bump; `--follow-tags` pushes the tag that triggers the release.
 
 `pnpm run check` (and CI) fails when any version file drifts from
 `package.json`; `node scripts/sync-version.mjs` repairs it.
