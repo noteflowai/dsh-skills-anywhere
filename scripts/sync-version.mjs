@@ -53,7 +53,9 @@ let drift = 0
 for (const { file, apply } of targets) {
   const path = join(root, file)
   const before = readFileSync(path, 'utf8')
-  const after = apply(before)
+  // Windows checkouts may carry CRLF; compare and write back in the file's own line endings.
+  const eol = before.includes('\r\n') ? '\r\n' : '\n'
+  const after = apply(before.replace(/\r\n/g, '\n')).replace(/\n/g, eol)
   if (before === after) continue
   drift++
   if (check) {
