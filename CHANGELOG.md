@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Showcase
+
+- Add a static Hugging Face playground built from isolated, authored skill
+  fixtures, with shared catalog/search logic, inspection, shareable views,
+  workspace JSON export and tested artifact publication with anonymous readback.
+- Strengthen the unterminated-comment regression test with comment-only inputs.
+
 ### Added
 
 - Agent Plugins manifest (`plugin.json` + `mcp.json` at the repository root,

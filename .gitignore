@@ -5,3 +5,5 @@ coverage/
 .DS_Store
 *.log
 .dsh-e2e/
+.dsh-showcase/
+huggingface/__pycache__/
