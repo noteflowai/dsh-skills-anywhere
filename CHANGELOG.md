@@ -21,6 +21,38 @@ All notable changes to this project are documented here. The format follows
 - Dependabot keeps the pinned GitHub Actions and the npm dev dependencies
   current (weekly, grouped); `.gitattributes` normalises checkouts to LF.
 
+### Fixed
+
+- **Security.** A source string such as `https://github.com/../..` or
+  `github:../..` (for example in a project's `.dsh/skills-anywhere.json`) could
+  resolve its cache directory *outside* the cache, and the sync step deletes a
+  non-checkout directory before cloning. Path segments are now validated and
+  the resolved directory must lie inside the cache; the sub-path check is
+  separator-aware (`path: '../r-private'` no longer passes because the name
+  shares a prefix).
+- Project-level sources were often never cloned: a `list({ cwd })` that arrived
+  while the start-up sync was running reused that run (which had no cwd), and
+  the interval timer and sources-file poller never included project files.
+  Such requests now queue a follow-up run, and every project seen so far stays
+  in the sync set.
+- Two refs of one repository (`o/r@main`, `o/r@v1`) shared a checkout and lock
+  entry and re-checked each other out on every sync. Each ref now has its own
+  directory (`<repo>@<ref>`) and lock key.
+- Collision renaming looped forever when `<prefix>-<name>` exceeded 64
+  characters, because the numeric suffix was truncated away.
+- The dsh `find_skills` tool listed skills whose author set
+  `disable-model-invocation: true` and told the model to load them with
+  `open_skill`, which refuses them. They are no longer returned.
+- `excludeSkills` only matched the raw frontmatter name, so the renamed names
+  shown by `list` (`telegram-access`) had no effect. Both names now match.
+- A git source pointing straight at one skill directory
+  (`add o/r/skills/pdf`) yielded no skills; the root itself is now a skill and
+  the walk below it continues.
+- The watcher cap of 32 counted project *directories* rather than projects, so
+  roots after the first 32 agent directories were never watched.
+- `add` appended a duplicate when the existing entry embedded the sub-path in
+  the repo string (`o/r/skills` vs `--path skills`).
+
 ### Changed
 
 - Every GitHub Action in the workflows is pinned to a commit SHA.

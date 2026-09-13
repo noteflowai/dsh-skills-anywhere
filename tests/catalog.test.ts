@@ -159,6 +159,10 @@ describe('find_skills and open_skill tools', () => {
     const refused = await call(ctx, 'open_skill', { name: 'delta-off' }, project)
     expect(refused.isError).toBe(true)
     expect(textOf(refused)).toContain('not available for model invocation')
+    // find_skills must never point the model at a skill open_skill refuses.
+    const disabled = await call(ctx, 'find_skills', { query: 'author disabled' }, project)
+    expect(disabled.isError).toBe(false)
+    expect(textOf(disabled)).not.toContain('delta-off')
 
     const unknown = await call(ctx, 'open_skill', { name: 'nope' }, project)
     expect(unknown.isError).toBe(true)

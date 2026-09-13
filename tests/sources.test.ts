@@ -72,6 +72,31 @@ describe('resolveSource', () => {
   it('rejects unparsable specs and escaping paths', () => {
     expect(() => resolveSource('just-a-word', CACHE)).toThrow(/cannot parse source/)
     expect(() => resolveSource({ repo: 'o/r', path: '../../etc' }, CACHE)).toThrow(/escapes/)
+    // A sibling directory that merely shares the repository name as a prefix is still outside.
+    expect(() => resolveSource({ repo: 'o/r', path: '../r-private' }, CACHE)).toThrow(/escapes/)
+    expect(() => resolveSource({ repo: 'o/r', path: '..' }, CACHE)).toThrow(/escapes/)
+  })
+
+  it('never resolves a cache directory outside the cache, whatever the source string says', () => {
+    // These would otherwise become `rm -rf` targets when the checkout is missing.
+    // (`../..` alone is a relative *local* path, hashed into `local/<sha>`, and stays allowed.)
+    expect(resolveSource('../..', CACHE).id).toMatch(/^local\//)
+    for (const hostile of ['github:../..', 'https://github.com/../..', 'https://x/../../../..', 'git@h:../../..', 'o/./r', 'o\\r/x']) {
+      expect(() => resolveSource(hostile, CACHE), hostile).toThrow(/cannot parse source|outside the cache/)
+    }
+    expect(resolveSource('o/r', CACHE).dir).toBe(join(CACHE, 'github.com', 'o', 'r'))
+  })
+
+  it('gives every ref of a repository its own checkout directory and lock key', () => {
+    const main = resolveSource('o/r', CACHE)
+    const tag = resolveSource('o/r@v1.0.0', CACHE)
+    const branch = resolveSource({ repo: 'o/r', ref: 'feature/x' }, CACHE)
+    expect(main.key).toBe('github.com/o/r')
+    expect(tag.key).toBe('github.com/o/r@v1.0.0')
+    expect(tag.dir).toBe(join(CACHE, 'github.com', 'o', 'r@v1.0.0'))
+    expect(branch.dir).toBe(join(CACHE, 'github.com', 'o', 'r@feature_x'))
+    expect(new Set([main.dir, tag.dir, branch.dir]).size).toBe(3)
+    expect(tag.id).toBe(main.id)
   })
 
   it('sameRepository ignores ref, path and rank', () => {

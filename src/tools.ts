@@ -98,7 +98,19 @@ export function apply(ctx: Context, config: Config = {}): void {
         const limit = Math.min(findMaxLimit, Math.max(1, Math.floor(args.limit ?? findLimit)))
         const lookup = { cwd: exec.agent?.session.header.cwd, signal: exec.signal, scope: exec.agent }
         const skills = await ctx.skills.list(lookup)
-        const matches = searchSkills(skills, query, limit)
+        // Summaries do not say *why* a skill is outside the catalog, so load the
+        // definition of unlisted matches and drop the ones whose author opted out
+        // of model invocation: find_skills must never point at a skill that
+        // open_skill will refuse.
+        const matches: ReturnType<typeof searchSkills> = []
+        for (const match of searchSkills(skills, query, skills.length)) {
+          if (matches.length >= limit) break
+          if (!match.listed) {
+            const definition = await ctx.skills.get(match.name, lookup)
+            if (definition === undefined || !isOpenable(definition)) continue
+          }
+          matches.push(match)
+        }
         return {
           total: skills.length,
           unlisted: skills.filter(skill => !skill.invocation.modelInvocable).length,
