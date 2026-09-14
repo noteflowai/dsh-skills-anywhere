@@ -41,6 +41,11 @@ Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但�
 
 它还会**去重**软链接和字节级相同的副本（`skills` CLI 会把同一份技能链接到多个 Agent）、**修复**常见的 frontmatter 偏差而不是悄悄丢掉技能，并对**同名冲突**（`discord/configure` 与 `telegram/configure`）自动加前缀，保证每个技能都能被调用。附带一个小 CLI，让你清楚看到 dsh 会看到什么、为什么。
 
+## 0.10.0：有原始证据的研究场景
+
+[查看 27 次真实 GPU 技能评测](https://noteflowai.github.io/evalarc/skill-impact/)，并阅读[完整方法与限制](docs/research-pilots.md)。新增[实景 Blender 编辑](https://noteflowai.github.io/robot-reel/scene-lab/)与[官方 LIBERO-Plus 子集回放](https://noteflowai.github.io/robot-reel/libero-plus/)，把原始记录、技能交付与独立验收连接起来。失败尝试全部保留；不宣称技能提分、完整基准成绩或真机效果。
+
+
 ## 试一个真实的物理 AI 工作流
 
 通过 MCP 加载 Microduck 帧复盘技能，让 Agent 先调用 Robot Reel 校验原始
@@ -101,7 +106,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.9.0/dsh-skills-anywhere-0.9.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.10.0/dsh-skills-anywhere-0.10.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

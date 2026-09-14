@@ -109,3 +109,7 @@ Version 0.9.0 retains legacy and MCP 2026-07-28 stdio connections. Four SDK
 client configurations and the installed npm archive exercise the real server.
 [Compatibility and migration](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/MCP-COMPATIBILITY.md).
 This is a capability of the installed package; this Space does not host MCP.
+
+## Recorded GPU pilot
+
+[Inspect 27 actual model trials](https://noteflowai.github.io/evalarc/skill-impact/): no skill, direct delivery and real MCP, with independent grading and every failure retained. [Composition and public-session handoff records](https://noteflowai.github.io/evalarc/research/) are separate small pilots. No accuracy or memory efficacy gain is claimed.

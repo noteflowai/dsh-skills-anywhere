@@ -100,6 +100,23 @@ export function modelSkills(report: DiscoveryReport): DiscoveredSkill[] {
   return report.skills.filter(skill => skill.invocation.modelInvocable)
 }
 
+/** The same catalog search for direct clients and the MCP tool. */
+export function findModelSkills(report: DiscoveryReport, query: string, limit = 10) {
+  const trimmed = query.trim()
+  if (trimmed.length === 0) throw new Error('query must not be empty')
+  if (!Number.isSafeInteger(limit) || limit < 1) throw new Error('limit must be a positive safe integer')
+  const skills = modelSkills(report)
+  const matches = searchSkills(
+    skills.map(skill => ({ ...skill, source: originLabel(skill.origin), provider: 'skills-anywhere' })),
+    trimmed,
+    limit,
+  )
+  return {
+    total: skills.length,
+    matches: matches.map(match => ({ name: match.name, description: match.description, source: match.source })),
+  }
+}
+
 /** Escape text for an XML attribute value. */
 function escapeAttr(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -233,20 +250,11 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     },
   }, async ({ query, limit }) => {
     const trimmed = query.trim()
-    if (trimmed.length === 0) throw new Error('query must not be empty')
-    const skills = modelSkills(await refresh())
-    const matches = searchSkills(
-      skills.map(skill => ({ ...skill, source: originLabel(skill.origin), provider: 'skills-anywhere' })),
-      trimmed,
-      clampLimit(limit, findLimit),
-    )
-    const structured = {
-      total: skills.length,
-      matches: matches.map(match => ({ name: match.name, description: match.description, source: match.source })),
-    }
+    const structured = findModelSkills(await refresh(), trimmed, clampLimit(limit, findLimit))
+    const { matches, total } = structured
     const text = matches.length === 0
-      ? `No skills matched "${trimmed}". ${skills.length} skills searched; try different keywords or list_skills.`
-      : [`${matches.length} of ${skills.length} skills matched:`, ...matches.map(match => `- ${match.name} — ${match.description} [${match.source}]`)].join('\n')
+      ? `No skills matched "${trimmed}". ${total} skills searched; try different keywords or list_skills.`
+      : [`${matches.length} of ${total} skills matched:`, ...matches.map(match => `- ${match.name} — ${match.description} [${match.source}]`)].join('\n')
     return { content: [{ type: 'text', text }], structuredContent: structured }
   })
 
