@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0] - 2026-09-14
+
+- Migrate the production MCP server to the official split SDK 2.0.0 package.
+- Accept legacy initialization and MCP 2026-07-28 through SDK stdio negotiation;
+  retain tools, resources, exact-file loads and fresh author opt-outs.
+- Close the transport and provider on stdin EOF or termination signals.
+- Exercise four client configurations over real processes, plus legacy and
+  current-protocol clients against the installed npm archive.
+- Document the SDK 2 type/import migration for embedded server consumers.
+
+
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).

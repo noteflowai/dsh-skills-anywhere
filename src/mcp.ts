@@ -17,8 +17,8 @@
 import { createHash } from 'node:crypto'
 import { readSkillBytes } from './skill-input.ts'
 import { createRequire } from 'node:module'
-import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/server'
+import { serveStdio } from '@modelcontextprotocol/server/stdio'
 import { z } from 'zod'
 import { resolveConfig, type Config, type ResolvedConfig } from './config.ts'
 import type { DiscoveredSkill, DiscoveryReport } from './discover.ts'
@@ -320,13 +320,28 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
 /** Serve over stdio until the client disconnects; resolves when closed. */
 export async function runStdio(options: McpOptions = {}): Promise<void> {
   const mcp = createSkillsAnywhereServer(options)
-  const transport = new StdioServerTransport()
-  const closed = new Promise<void>((resolve) => {
-    // The SDK exposes a plain callback property, not an EventTarget.
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener
-    mcp.server.server.onclose = () => { resolve() }
+  let finish!: () => void
+  const closed = new Promise<void>(resolve => { finish = resolve })
+  // The SDK's entry selects the protocol from the opening exchange. A direct
+  // server.connect(transport) would still speak only the legacy protocol.
+  const handle = serveStdio(() => mcp.server, {
+    onerror: error => (options.log ?? stderrLogger()).warn(error.message),
   })
-  await mcp.server.connect(transport)
-  await closed
-  await mcp.provider.dispose()
+  // EOF can arrive before any opening exchange (including a discovery probe).
+  // Release the provider and transport even when no server session was started.
+  process.stdin.once('end', finish)
+  process.once('SIGINT', finish)
+  process.once('SIGTERM', finish)
+  // oxlint-disable-next-line unicorn/prefer-add-event-listener
+  mcp.server.server.onclose = finish
+  try {
+    if (process.stdin.readableEnded || process.stdin.destroyed) finish()
+    await closed
+  } finally {
+    process.stdin.off('end', finish)
+    process.off('SIGINT', finish)
+    process.off('SIGTERM', finish)
+    await handle.close()
+    await mcp.provider.dispose()
+  }
 }
