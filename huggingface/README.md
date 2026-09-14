@@ -59,7 +59,7 @@ not script safety, resources or complete client/specification compatibility.
 File reads show progress and reject invalid UTF-8; clearing local input also
 discards a pending read.
 
-The fixture uses ten authored Markdown files, including the usable Robot Reel review skill. The real filesystem provider
+The discovery fixture uses ten authored Markdown files, including the usable Robot Reel review skill. The real filesystem provider
 discovers, parses, deduplicates and renames them at build time. The browser
 imports the same catalog-selection and search functions used by the package.
 Author-disabled skills stay unavailable through the demo's model controls.
