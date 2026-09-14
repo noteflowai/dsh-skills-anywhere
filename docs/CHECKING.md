@@ -20,6 +20,16 @@ npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --lenien
 npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --fail-on-repair
 ```
 
+Every report also enumerates what the skill reaches for, whether or not it
+passes the parsing gate:
+
+```sh
+# Facts only: external sources and declared tools are reported, never judged.
+npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md
+# Policy: fail a skill that reaches a source it does not pin.
+npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --require-pinned-sources
+```
+
 | Exit | Meaning |
 | --- | --- |
 | `0` | Every named file passes the selected gate. |
@@ -63,6 +73,42 @@ jobs:
 Replace the example path with your own. No model key or DeepSeek Harness
 installation is required. The first `npx` invocation downloads the published
 package; checking after installation is local. Pin the version for repeatable CI.
+
+## External sources and declared tools
+
+A skill that fetches its real instructions at run time is a skill whose reviewed
+bytes are not the bytes that will act. Air Security found 17,822 of 142,836 live
+skills resting on at least one such source. Every check therefore lists the
+hosts the instructions reference, and whether each reference names an immutable
+revision — a 40 or 64 character hex path segment — or a name that can serve
+different content tomorrow.
+
+Reaching a source is not a failure by default, because whether a given host is
+acceptable is a policy this tool has no standing to decide.
+`--require-pinned-sources` enforces the part that is objective: what was
+reviewed is what will arrive. Unpinned hosts are then listed per file in
+`unpinnedSources`.
+
+`allowed-tools` is reported as `declaredTools`. An empty list means the author
+declared no narrowing, which is not a statement that the skill is narrow.
+
+This is deliberately an enumeration and not a verdict. OWASP lists Poor Scanning
+(AST08) as a risk of its own: Trail of Bits bypassed every public skill scanner
+it tested in under an hour, and a tool that answers "clean" mostly produces
+false confidence. Each report names the risks it does not speak to in
+`notAssessed`, so a pass is not read as a clean bill of health.
+
+## Declared tools travel with the skill
+
+When this project serves a skill installed for one agent to a different one, any
+`allowed-tools` the author declared is included with the instructions, both in
+`open_skill`'s structured payload as `declared_tools` and as a
+`<skill_author_declared_tools>` block in the text.
+
+It is reported, not applied: MCP gives a server no way to restrict a client's
+tools. The reason to carry it is that dropping it silently would hand the reader
+a skill that looks unrestricted when its author narrowed it — the metadata loss
+that makes a skill riskier on its second platform than on its first.
 
 ## What the result establishes
 

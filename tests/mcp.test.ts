@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createSkillsAnywhereServer, modelSkills, renderSkill, type SkillsAnywhereMcp } from '../src/mcp.ts'
+import { createSkillsAnywhereServer, modelSkills, openSkill, renderSkill, type SkillsAnywhereMcp } from '../src/mcp.ts'
 import { readBundle } from '../src/skill-bundle.ts'
 import { quietLogger, tempDir, writeSkill } from './helpers.ts'
 
@@ -254,4 +254,35 @@ describe('renderSkill', () => {
     expect(text).toContain('Base directory for this skill: /tmp/&lt;dir&gt;&amp;x')
     expect(text.endsWith('</skill_content>')).toBe(true)
   })
+})
+
+it('carries an author-declared tool restriction across the platform hop', async () => {
+  const cwd = await tempDir('declared-tools')
+  const directory = join(cwd, '.claude', 'skills', 'narrow')
+  await mkdir(directory, { recursive: true })
+  const path = join(directory, 'SKILL.md')
+  await writeFile(path, [
+    '---', 'name: narrow', 'description: Read incident records only.',
+    'allowed-tools: Read Grep', '---', 'Read the records.',
+  ].join('\n'))
+
+  const opened = await openSkill({ name: 'narrow', description: '', directory, path, source: 'anywhere' } as never, false)
+  if (opened === undefined) throw new Error('the skill did not open')
+  // The origin agent enforces this; a second platform that never hears about it
+  // runs the skill with a wider tool set than its author asked for.
+  expect(opened.declaredTools).toEqual(['Read', 'Grep'])
+  const rendered = renderSkill(opened)
+  expect(rendered).toContain('Read, Grep')
+  // Asserted positively as well, so the negative assertion below cannot go
+  // vacuous if the tag is ever renamed.
+  expect(rendered).toContain('<skill_author_declared_tools>')
+  // Stated as the author's declaration, not as something this server applies.
+  expect(rendered).toContain('cannot restrict your tools')
+
+  // A skill that declared nothing must not gain a block implying it is narrow.
+  await writeFile(path, ['---', 'name: narrow', 'description: Read records.', '---', 'Read.'].join('\n'))
+  const plain = await openSkill({ name: 'narrow', description: '', directory, path, source: 'anywhere' } as never, false)
+  if (plain === undefined) throw new Error('the skill did not open')
+  expect(plain.declaredTools).toBeUndefined()
+  expect(renderSkill(plain)).not.toContain('skill_author_declared_tools')
 })

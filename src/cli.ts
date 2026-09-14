@@ -45,6 +45,7 @@ Options
   --json               Machine-readable output
   --lenient            check: accept repairs made by the provider
   --fail-on-repair      check: fail if the selected mode needs any repairs
+  --require-pinned-sources  check: fail if an external source is not pinned to an immutable revision
   --against <file>      bundle: compare with a saved manifest outside the directory
   -h, --help           Show this help
 `
@@ -80,6 +81,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
         help: { type: 'boolean', short: 'h', default: false },
         lenient: { type: 'boolean', default: false },
         'fail-on-repair': { type: 'boolean', default: false },
+        'require-pinned-sources': { type: 'boolean', default: false },
         against: { type: 'string' },
       },
     })
@@ -97,8 +99,8 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     console.error('--against is only available for bundle.')
     return 2
   }
-  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'])) {
-    console.error('--lenient and --fail-on-repair are only available for check.')
+  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'] || parsed.values['require-pinned-sources'])) {
+    console.error('--lenient, --fail-on-repair and --require-pinned-sources are only available for check.')
     return 2
   }
   if (command === 'bundle') {
@@ -115,7 +117,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
   }
   if (command === 'check') {
     if (positional.length === 0) {
-      console.error('usage: dsh-skills-anywhere check <files...> [--lenient] [--fail-on-repair] [--json]')
+      console.error('usage: dsh-skills-anywhere check <files...> [--lenient] [--fail-on-repair] [--require-pinned-sources] [--json]')
       return 2
     }
     const { checkFiles } = await import('./check-files.ts')
@@ -123,6 +125,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
       cwd: parsed.values.cwd ?? process.cwd(),
       lenient: parsed.values.lenient ?? false,
       failOnRepair: parsed.values['fail-on-repair'] ?? false,
+      requirePinnedSources: parsed.values['require-pinned-sources'] ?? false,
     })
     if (parsed.values.json) {
       console.log(JSON.stringify(result, null, 2))
@@ -135,6 +138,16 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
           const selected = file.report[result.mode]
           if (!selected.ok) console.log(`  ${JSON.stringify(selected.reason)}`)
           else for (const warning of selected.warnings) console.log(`  Repair: ${JSON.stringify(warning)}`)
+          // Reported for every file, passing or not: the parsing gate says
+          // nothing about where the instructions come from.
+          const { surface } = file.report
+          for (const source of surface.externalSources) {
+            const pinning = source.pinned ? ' (pinned)' : result.requirePinnedSources ? ' (not pinned: required)' : ' (not pinned)'
+            console.log(`  External source: ${JSON.stringify(source.host)}${pinning}`)
+          }
+          if (surface.declaredTools.length > 0) {
+            console.log(`  Declared tools: ${JSON.stringify(surface.declaredTools.join(', '))}`)
+          }
         }
       }
       console.log(`\n${result.counts.passed} passed, ${result.counts.failed} failed, ${result.counts.inputErrors} input errors (${result.mode}).`)

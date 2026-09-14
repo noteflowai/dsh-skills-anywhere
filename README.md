@@ -13,7 +13,7 @@ keeping catalog choices, or share a view that restores those choices explicitly.
 locally: inspect repairs, invocation settings and a downloadable check report.
 Your file stays in the browser. The same checks are available in the
 [command line and CI](docs/CHECKING.md), with file hashes and actionable exit codes.
-This is a parser check, not a security audit or a guarantee of compatibility with every client.
+Each report also lists the external sources the instructions reference and whether they are pinned, plus the tools the author declared. That is an enumeration, not a security audit, a verdict on intent or a guarantee of compatibility with every client.
 
 <a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere"><img src="docs/skill-check.png" width="880" alt="Actual local SKILL.md check: strict mode rejects an invalid name, while lenient mode explains the name and description repairs."></a>
 
@@ -111,7 +111,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.10.0/dsh-skills-anywhere-0.10.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.0/dsh-skills-anywhere-0.11.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

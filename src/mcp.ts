@@ -62,6 +62,16 @@ export interface OpenedSkill {
   readonly content: string
   /** SHA-256 of the original SKILL.md bytes, including frontmatter. */
   readonly sha256: string
+  /**
+   * Tools the author declared this skill needs, from `allowed-tools`.
+   *
+   * The origin agent may enforce this; MCP gives a server no way to restrict a
+   * client's tools, so it is reported rather than applied. Dropping it silently
+   * would hand the reader a skill that looks unrestricted when its author
+   * narrowed it, which is the metadata loss that makes a skill riskier on the
+   * second platform than on the first.
+   */
+  readonly declaredTools?: readonly string[]
   readonly bundle?: BundleManifest
 }
 
@@ -131,13 +141,25 @@ function escapeText(value: string): string {
  * Render a skill the way dsh hands it to its model, so clients that already
  * understand `<skill_content>` blocks see a familiar shape.
  */
-export function renderSkill(skill: Pick<OpenedSkill, 'name' | 'directory' | 'content'>): string {
+export function renderSkill(skill: Pick<OpenedSkill, 'name' | 'directory' | 'content' | 'declaredTools'>): string {
+  const declared = skill.declaredTools ?? []
   return [
     `<skill_content name="${escapeAttr(skill.name)}">`,
     '<skill_resources>',
     `Base directory for this skill: ${escapeText(skill.directory)}`,
     'Resolve relative paths mentioned by this skill against the base directory before using them. Load referenced resources only as needed.',
     '</skill_resources>',
+    // Stated in the text as well, because a model may act on the instructions
+    // without its client ever reading the structured payload.
+    ...(declared.length > 0
+      ? [
+          '',
+          '<skill_author_declared_tools>',
+          `The author declared this skill needs only: ${escapeText(declared.join(', '))}.`,
+          'This server cannot restrict your tools. Treat anything beyond that list as outside what the author asked for.',
+          '</skill_author_declared_tools>',
+        ]
+      : []),
     '',
     '<skill_instructions>',
     skill.content,
@@ -169,6 +191,9 @@ export async function openSkill(skill: DiscoveredSkill, lenient: boolean, includ
     path: skill.path,
     source: skill.source,
     content: parsed.skill.content,
+    ...(Array.isArray(parsed.skill.metadata.allowedTools) && parsed.skill.metadata.allowedTools.length > 0
+      ? { declaredTools: parsed.skill.metadata.allowedTools as readonly string[] }
+      : {}),
     ...(snapshot ? { bundle: snapshot.manifest } : {}),
   }
 }
@@ -291,6 +316,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       source: z.string(),
       content: z.string().describe('The skill instructions (Markdown body without frontmatter).'),
       sha256: z.string().describe('SHA-256 of original SKILL.md bytes, including frontmatter; not a security or resource verification.'),
+      declared_tools: z.array(z.string()).optional().describe("Tools the author declared this skill needs, from allowed-tools. Reported, not enforced: this server cannot restrict your tools. Absent when the author declared none, which is not a statement that the skill is unrestricted."),
       bundle: z.object({
         schema: z.literal('skills-anywhere-bundle-1'),
         sha256: z.string(),
@@ -302,7 +328,11 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     const skill = await lookup(name, include_bundle === true || expected_bundle_sha256 !== undefined)
     if (expected_sha256 !== undefined && skill.sha256 !== expected_sha256) throw new Error('SKILL.md changed: expected_sha256 does not match; review the current file before loading instructions')
     if (expected_bundle_sha256 !== undefined && skill.bundle?.sha256 !== expected_bundle_sha256) throw new Error('Skill bundle changed: expected_bundle_sha256 does not match; review scripts and resources before loading instructions')
-    return { content: [{ type: 'text', text: renderSkill(skill) }], structuredContent: { ...skill } }
+    const { declaredTools, ...rest } = skill
+    return {
+      content: [{ type: 'text', text: renderSkill(skill) }],
+      structuredContent: { ...rest, ...(declaredTools !== undefined ? { declared_tools: [...declaredTools] } : {}) },
+    }
   })
 
   server.registerResource('skill', new ResourceTemplate('skill://{name}', {

@@ -6,7 +6,7 @@
 
 **检查自己的 `SKILL.md`。** Hugging Face 演示现可在浏览器中并排检查严格模式与宽容模式，
 查看字段修复、调用设置并下载检查报告。文件不会上传；检查范围是本项目的解析行为，
-不代表安全审计或所有客户端的兼容认证。
+每份报告还会列出指令引用的外部来源、它们是否被钉在不可变版本上，以及作者声明的工具范围。这是一份枚举，不代表安全审计、不对意图下判断，也不是所有客户端的兼容认证。
 
 <a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere"><img src="docs/skill-check.png" width="880" alt="真实本地检查界面：严格模式拒绝无效名称，宽容模式解释名称和描述的修复。"></a>
 
@@ -106,7 +106,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.10.0/dsh-skills-anywhere-0.10.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.0/dsh-skills-anywhere-0.11.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

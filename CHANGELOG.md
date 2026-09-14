@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.11.0 — 2026-09-14
+
+- Carry an author-declared `allowed-tools` with the skill when serving it to a
+  different agent, as `declared_tools` in `open_skill` and as a
+  `<skill_author_declared_tools>` block in the text. It was parsed and then
+  dropped at the MCP exit, so a skill its author had narrowed arrived looking
+  unrestricted. Reported, not enforced: MCP gives a server no way to restrict a
+  client's tools.
+- Report what a skill reaches for in every `check`: the hosts its instructions
+  reference, and whether each reference names an immutable revision or a name
+  that can serve different content tomorrow. Add `--require-pinned-sources` to
+  fail on the latter.
+- Name the risks a check does not speak to, so a pass is not read as a clean
+  bill of health. This enumerates sources and declarations; it returns no
+  verdict on intent and does not pattern-match for payloads.
+
 ## 0.10.0 — 2026-09-14
 
 - Export the same model-facing skill search used by MCP for controlled direct/MCP comparisons.
