@@ -5,7 +5,8 @@ import { tempDir } from './helpers.ts'
 import { findModelSkills } from '../src/mcp.ts'
 
 // Exercise the distributed example against the built module and a real child
-// process. This test runs after build in the example-specific verification.
+// process. The check pipeline builds before testing so a fresh clone exercises
+// the same compiled module as the child MCP process.
 it('shared discovery rejects invalid query and limit values', () => {
   const report = { skills: [], dropped: [], invalid: [], roots: [], complete: true }
   expect(() => findModelSkills(report, ' ')).toThrow(/empty/)
