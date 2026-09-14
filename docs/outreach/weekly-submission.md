@@ -27,17 +27,17 @@ Harness，各自的 `SKILL.md` 通常散落在不同目录。本工具直接读�
 使用 Node.js 22.19+ 或 24+，先查看支持的目录：
 
 ```sh
-npx -y dsh-skills-anywhere@0.6.0 agents
+npx -y dsh-skills-anywhere@0.7.0 agents
 ```
 
 接入已有的 dsh：
 
 ```sh
-dsh plugin --profile web add dsh-skills-anywhere@0.6.0
+dsh plugin --profile web add dsh-skills-anywhere@0.7.0
 ```
 
 也可以按 README 为 MCP 客户端配置
-`npx -y dsh-skills-anywhere@0.6.0 mcp`。
+`npx -y dsh-skills-anywhere@0.7.0 mcp`。
 
 仓库：https://github.com/noteflowai/dsh-skills-anywhere
 
@@ -50,3 +50,7 @@ dsh plugin --profile web add dsh-skills-anywhere@0.6.0
 0.6.0 发布更新：相同的本地解析检查现已提供 CLI 和 CI 用法，可批量检查明确指定的文件，输出工具版本、文件 SHA-256、完整诊断及退出码。支持严格／宽容模式与“有修复即失败”的提交门禁，不修改文件、不执行技能。npm 和官方 MCP Registry 均已发布。
 
 CI 示例与检查范围：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md
+
+**0.7.0 交付更新**：MCP `open_skill` 返回原始 SKILL.md 的 SHA-256，可传入 `expected_sha256`，发现文件已变化时不返回新指令。MCP 工具、资源和 dsh 提供器都在加载时重新检查作者禁用标志，覆盖目录缓存与预算隐藏场景。已通过三种操作系统检查及实际 npm 包安装验证。文件哈希不覆盖旁边的脚本，也不构成安全认证。
+
+使用说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/VERIFIED-LOADS.md

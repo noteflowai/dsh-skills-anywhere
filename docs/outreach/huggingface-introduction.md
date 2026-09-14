@@ -28,3 +28,11 @@ What would make shared skill discovery easier to inspect: source precedence, nam
 [Open the local file checker](https://glayguo-dsh-skills-anywhere.static.hf.space/#check). This update was written with AI assistance on the maintainer's behalf.
 
 **Use the same check in CI (0.6.0).** The published CLI now checks explicit local Markdown files using the same two parser modes. Run `npx -y dsh-skills-anywhere@0.6.0 check skills/example/SKILL.md --fail-on-repair --json` with your own file path. Reports include the package version and file SHA-256; exit codes distinguish parser failures from unreadable inputs. Files are not rewritten, discovered elsewhere or executed. [Copy the CI recipe and read the scope](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md). Reports may contain descriptions and diagnostic excerpts.
+
+### Review once, load the same SKILL.md with 0.7
+
+MCP `open_skill` now returns the SHA-256 of the original file bytes. Supply `expected_sha256` from CLI `check --json` or an earlier open: changed bytes produce an error without returning the changed instructions. MCP tools/resources and the dsh provider also recheck author invocation flags at every load, even when discovery is cached or the catalog budget hides a skill.
+
+[Exact-file workflow](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/VERIFIED-LOADS.md) · [Release 0.7.0](https://github.com/noteflowai/dsh-skills-anywhere/releases/tag/v0.7.0)
+
+The release is available on npm and the official MCP Registry. Tests cover Linux, macOS and Windows, plus an actual installed-tarball handoff. Hashes identify SKILL.md bytes, not referenced scripts, author authenticity or instruction safety. The browser playground does not connect to visitors' MCP servers.

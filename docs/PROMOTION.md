@@ -9,14 +9,14 @@ acceptance, and a directory entry is not an upstream endorsement.
 | Channel | Record | Status | Exact submitted text |
 | --- | --- | --- | --- |
 | Hugging Face Space | [Skills Anywhere](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere), [pinned walkthrough](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/discussions/1) | Public and running; desktop/mobile and Hub embed checked | [Walkthrough](outreach/huggingface-introduction.md) |
-| Hugging Face collection | [NoteFlow AI — Open-source playgrounds](https://huggingface.co/collections/glayguo/noteflow-ai-open-source-playgrounds-6aa693c382b0184786eb8856) | Public collection containing Skills Anywhere and Robot Reel; anonymous readback verified | Maintainer-curated collection, not an editorial selection |
+| Hugging Face collection | [NoteFlow AI — Open-source playgrounds](https://huggingface.co/collections/glayguo/noteflow-ai-open-source-playgrounds-6aa693c382b0184786eb8856) | Public collection containing all three project Spaces and two evidence datasets; anonymous readback verified | Maintainer-curated collection, not an editorial selection |
 | Agent Skills — Show and tell | [#557](https://github.com/agentskills/agentskills/discussions/557) | Public implementation showcase; not a client listing or endorsement | [Discussion body](outreach/agentskills-showcase.md) |
 | 科技爱好者周刊 | [#11665](https://github.com/ruanyf/weekly/issues/11665) | Submitted; awaiting editorial selection | [Chinese introduction](outreach/weekly-submission.md) |
 | HelloGitHub | [#3695](https://github.com/521xueweihan/HelloGitHub/issues/3695) | Submitted; awaiting review | [Project recommendation form](outreach/hellogithub-submission.md) |
 | mcpservers.org | [Submission form](https://mcpservers.org/submit) | Free submission received September 14; awaiting review, not yet listed | [Exact fields and confirmation](outreach/mcpservers-submission.md) |
 
 The two Chinese submissions identify the maintainer relationship, independent community status and
-AI-assisted development. They describe version **0.4.0**, link its tagged
+AI-assisted development. They now include **0.7.0**, retain the original tagged
 screenshots and distinguish directory discovery from end-to-end compatibility.
 The four distinct submission links returned HTTP 200, and GitHub readback
 matched the prepared bodies. Public HelloGitHub search returned no matching
@@ -40,8 +40,8 @@ The sample catalog cannot scan visitor directories. The optional browser checker
 
 | Entry | Verified state |
 | --- | --- |
-| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.6.0 and a provenance attestation. |
-| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.6.0, active/latest, npm package over stdio. |
+| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.7.0 and a provenance attestation. |
+| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.7.0, active/latest, npm package over stdio. |
 | [DeepSeek — Show Your Plugins!](https://github.com/deepseek-ai/deepseek-harness/discussions/6193) | Existing bilingual community showcase, including the web UI card. Reuse this thread for relevant follow-up. |
 | [Glama](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere) | Public entry and **maintenance rated A** badge verified. The fetched README still referenced 0.5.1 while npm is 0.6.0. The rating is a maintenance signal, not a security or client-compatibility certification. Refreshing the cached entry remains follow-up work. |
 
@@ -213,3 +213,22 @@ deterministic verification from untested LLM reasoning.
 The maintained HF introduction includes this example. Reuse the existing pinned
 thread; this workflow does not warrant duplicate editorial submissions. The
 free mcpservers.org submission remains pending review.
+
+## Release 0.7.0 · verified handoffs
+
+The GitHub release, npm package and official MCP Registry all report 0.7.0.
+Anonymous downloads verified npm integrity and byte-identical GitHub/npm tarballs:
+`73fd210184831ca1936be345d95e55bbb21d8ee5f1091a397568ddc87fab191f`.
+Release workflow [34811035871](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34811035871)
+completed all three publication jobs; the main CI, CodeQL and HF publication passed.
+
+Validation includes 142 tests, coverage floors, Linux/macOS/Windows, desktop/mobile
+offline and iframe checks, and an installed tarball. MCP can require the reviewed
+SKILL.md hash and refuses newly disabled instructions even when discovery is cached.
+The dsh provider applies the current author policy too, including budget-hidden skills.
+[Exact-file workflow and limits](VERIFIED-LOADS.md).
+
+The existing weekly and HelloGitHub submissions, HF introduction and collection
+note were updated in place and read back exactly. Both editorial submissions
+remain open with no comments; no new submission or claim of editorial acceptance
+was made. The existing directory applications remain pending as recorded above.

@@ -12,9 +12,12 @@ https://github.com/noteflowai/dsh-skills-anywhere
 
 ### 项目描述
 
-这是一个共享 Agent Skills 的 TypeScript 工具，直接发现不同编程助手目录、Claude Code 插件市场和 Git 仓库中的 SKILL.md，通过 DeepSeek Harness 插件或 MCP 提供查找、加载能力，无需复制或软链接。支持去重、重名处理、目录预算和网页管理，适合多工具开发者及团队复用技能。采用 MIT 许可。
+这是一个共享 Agent Skills 的 TypeScript 工具，直接发现编程助手目录、Claude Code 插件市场和 Git 仓库中的 SKILL.md，通过 DeepSeek Harness 或 MCP 提供查找、加载，无需复制。支持去重、重名处理、目录预算和本地解析检查。新版可按文件 SHA-256 锁定已审核指令，作者刚禁用的设置在加载时立即生效。适合多工具开发者与团队复用技能，采用 MIT 许可。
 
 ### 亮点
+
+- **0.7.0 交付更新**：MCP `open_skill` 返回原始 SKILL.md 的 SHA-256，可传入 `expected_sha256`，发现文件已变化时不返回新指令。MCP 工具、资源和 dsh 提供器都在加载时重新检查作者禁用标志，覆盖目录缓存与预算隐藏场景。已通过三种操作系统检查及实际 npm 包安装验证。文件哈希不覆盖旁边的脚本，也不构成安全认证。
+  使用说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/VERIFIED-LOADS.md
 
 - 让已有技能保持原来的存放位置，通过工具查询来源；修改本地技能后，
   加载时读取最新内容。
@@ -36,13 +39,13 @@ https://github.com/noteflowai/dsh-skills-anywhere
 无需启动 dsh 或配置模型 API：
 
 ```sh
-npx -y dsh-skills-anywhere@0.6.0 agents
+npx -y dsh-skills-anywhere@0.7.0 agents
 ```
 
 独立 MCP 服务启动命令，供 MCP 客户端按 README 配置：
 
 ```sh
-npx -y dsh-skills-anywhere@0.6.0 mcp
+npx -y dsh-skills-anywhere@0.7.0 mcp
 ```
 
 ### 截图或演示视频
@@ -55,7 +58,7 @@ npx -y dsh-skills-anywhere@0.6.0 mcp
 
 CLI 演示：https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/demo.gif
 
-中文说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/v0.6.0/README.zh.md
+中文说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/v0.7.0/README.zh.md
 
 交互功能更新：在线演示可粘贴或选择自己的 `SKILL.md`，在浏览器中比较严格／宽容解析结果并下载报告。输入不上传，不执行技能；检查范围是本项目解析器的行为。
 
