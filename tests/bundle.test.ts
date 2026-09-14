@@ -123,7 +123,11 @@ describe('directory content identity', () => {
     execFileSync('mkfifo', [link])
     await expect(readBundle(root)).rejects.toThrow('regular files')
     await fs.unlink(link)
-    await fs.writeFile(Buffer.concat([Buffer.from(root + '/'), Buffer.from([0xff])]), 'unread')
+    // macOS rejects invalid UTF-8 during creation; the literal replacement
+    // character exercises the same reader rejection on that filesystem.
+    const ambiguous = process.platform === 'darwin' ? join(root, '\ufffd')
+      : Buffer.concat([Buffer.from(root + '/'), Buffer.from([0xff])])
+    await fs.writeFile(ambiguous, 'unread')
     await expect(readBundle(root)).rejects.toThrow('relative path')
   })
 
