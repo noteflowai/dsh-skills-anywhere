@@ -6,6 +6,7 @@ import { resolveConfig } from '../src/config.ts'
 import { SkillsAnywhereProvider } from '../src/provider.ts'
 import { originLabel } from '../src/origin.ts'
 import type { DemoData } from './types.ts'
+import { readBundle } from '../src/skill-bundle.ts'
 
 function skill(name: string, description: string, body: string, extra = ''): string {
   return `---\nname: ${name}\ndescription: ${description}\n${extra}---\n\n${body}\n`
@@ -53,8 +54,17 @@ export async function createDemoData(version: string, root = process.cwd()): Pro
     const candidates = Array.isArray(discovered) ? discovered : discovered.candidates
     const report = provider.report()
     if (!report?.complete) throw new Error('Fixture discovery incomplete')
+    const bundleDirectory = join(scratch, 'bundle-example')
+    await mkdir(join(bundleDirectory, 'scripts'), { recursive: true })
+    await writeFile(join(bundleDirectory, 'SKILL.md'), review)
+    const script = join(bundleDirectory, 'scripts/review.py')
+    await writeFile(script, '# Authored demonstration; never executed.\nREQUIRE_SOURCE_MATCH = True\n')
+    const reviewed = (await readBundle(bundleDirectory)).manifest
+    await writeFile(script, '# Authored demonstration; never executed.\nREQUIRE_SOURCE_MATCH = False\n')
+    const changed = (await readBundle(bundleDirectory)).manifest
     return {
       schema: 'skills-anywhere-playground-1', version, agentCount: AGENTS.length,
+      bundles: { reviewed, changed },
       skills: await Promise.all(report.skills.map(async entry => {
         const extra = entry.metadata.skillsAnywhere as { renamedFrom?: string } | undefined
         const raw = await readFile(entry.path, 'utf8')

@@ -3,6 +3,7 @@ import { createDemoData } from '../huggingface/fixture.ts'
 import { applyCatalogBudget } from '../src/catalog.ts'
 import { searchSkills } from '../src/search.ts'
 import { readFile } from 'node:fs/promises'
+import { compareManifests, validateManifest } from '../src/bundle-manifest.ts'
 
 describe('public showcase fixture', () => {
   it('records real discovery without paths or skills from the host machine', async () => {
@@ -32,5 +33,11 @@ describe('public showcase fixture', () => {
     expect(robot?.name).toBe('robot-reel-review')
     expect(data.inputs.find(input => input.path.endsWith('/robot-reel-review/SKILL.md'))?.markdown)
       .toBe(await readFile('examples/robot-reel-review/SKILL.md', 'utf8'))
+    const reviewed = await validateManifest(data.bundles.reviewed)
+    const changed = await validateManifest(data.bundles.changed)
+    expect(compareManifests(reviewed, changed)).toMatchObject({
+      matches: false, changed: ['scripts/review.py'], added: [], removed: [],
+    })
+    expect(reviewed.files.find(file => file.path === 'SKILL.md')).toEqual(changed.files.find(file => file.path === 'SKILL.md'))
   })
 })

@@ -61,6 +61,14 @@ MCP `open_skill` 返回原始文件的 SHA-256。传入 `check --json` 或之前
 四种 SDK 配置和安装后的 npm 包均通过真实子进程验证。
 [兼容范围与嵌入迁移说明](docs/MCP-COMPATIBILITY.md)。这不代表所有品牌客户端都已端到端认证。
 
+**v0.9：审核技能目录里的全部文件。** `bundle /path/to/skill --json` 生成目录清单，
+可比较脚本／资源的新增、删除和内容变化，再通过 MCP `expected_bundle_sha256` 按审核指纹加载。
+[首页对比区](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)展示“说明没变、脚本已变”，
+也支持在本地浏览器比较自己的两份清单。[流程与边界](docs/BUNDLES.md)。
+指纹覆盖目录内文件内容，不认证作者或脚本安全，也不锁定后续执行时的文件。
+
+[![SKILL.md 未变、脚本已变：在本地比较技能目录清单。](docs/bundle-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
+
 ## 快速开始
 
 ```sh
@@ -93,7 +101,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.8.0/dsh-skills-anywhere-0.8.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.9.0/dsh-skills-anywhere-0.9.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

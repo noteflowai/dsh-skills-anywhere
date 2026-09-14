@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createSkillsAnywhereServer, modelSkills, renderSkill, type SkillsAnywhereMcp } from '../src/mcp.ts'
+import { readBundle } from '../src/skill-bundle.ts'
 import { quietLogger, tempDir, writeSkill } from './helpers.ts'
 
 interface Harness {
@@ -53,6 +54,42 @@ function textOf(result: unknown): string {
 }
 
 describe('MCP server', () => {
+  it('pins all skill files and rejects a changed resource without returning instructions', async () => {
+    const { client, home } = await harness({ cacheMs: 60_000 })
+    const directory = join(home, '.claude', 'skills', 'pdf-forms')
+    await mkdir(join(directory, 'scripts'))
+    await writeFile(join(directory, 'scripts/fill.py'), 'print("reviewed")')
+    const reviewed = (await readBundle(directory)).manifest
+    const args = { name: 'pdf-forms', expected_bundle_sha256: reviewed.sha256 }
+    const opened = await client.callTool({ name: 'open_skill', arguments: args })
+    expect(opened.isError).toBeFalsy()
+    expect(opened.structuredContent).toMatchObject({ bundle: reviewed })
+    await writeFile(join(directory, 'scripts/fill.py'), 'print("changed")')
+    const rejected = await client.callTool({ name: 'open_skill', arguments: args })
+    expect(rejected.isError).toBe(true)
+    expect(textOf(rejected)).toContain('expected_bundle_sha256 does not match')
+    expect(textOf(rejected)).not.toContain('Use pdftk')
+    const fresh = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms', include_bundle: true } })
+    expect(fresh.isError).toBeFalsy()
+    expect((fresh.structuredContent as { bundle: { sha256: string } }).bundle.sha256).not.toBe(reviewed.sha256)
+    const legacy = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    expect(legacy.isError).toBeFalsy()
+    expect(legacy.structuredContent).not.toHaveProperty('bundle')
+  })
+
+  it('applies current author opt-outs even when the entire directory hash matches', async () => {
+    const { client, home } = await harness({ cacheMs: 60_000 })
+    await client.listTools()
+    const directory = join(home, '.claude', 'skills', 'pdf-forms')
+    await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    await writeFile(join(directory, 'SKILL.md'), '---\nname: pdf-forms\ndescription: Disabled\ndisable-model-invocation: true\n---\nPRIVATE')
+    const { manifest } = await readBundle(directory)
+    const result = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms', expected_bundle_sha256: manifest.sha256 } })
+    expect(result.isError).toBe(true)
+    expect(textOf(result)).toContain('disabled')
+    expect(textOf(result)).not.toContain('PRIVATE')
+  })
+
   it('advertises the three tools, instructions and the package version', async () => {
     const { client } = await harness()
     const tools = (await client.listTools()).tools.map(tool => tool.name).toSorted()

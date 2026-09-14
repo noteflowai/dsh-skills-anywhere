@@ -65,6 +65,15 @@ legacy and current-protocol clients. Four SDK configurations and the installed
 npm archive are checked over real subprocess connections.
 [Compatibility matrix and embedding migration](docs/MCP-COMPATIBILITY.md).
 
+**v0.9: review the whole skill directory.** Generate a file manifest with
+`bundle /path/to/skill --json`, compare added/removed/changed resources, and
+require `expected_bundle_sha256` when opening through MCP. The
+[interactive bundle comparison](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
+shows a script change behind unchanged instructions and compares your own
+manifests locally. [Directory review and limits](docs/BUNDLES.md).
+
+[![Unchanged SKILL.md with a changed script: compare skill directory manifests locally.](docs/bundle-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
+
 ## Quick start
 
 ```sh
@@ -97,7 +106,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.8.0/dsh-skills-anywhere-0.8.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.9.0/dsh-skills-anywhere-0.9.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

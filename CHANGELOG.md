@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.9.0] - 2026-09-14
+
+- Add `bundle <directory> --json` and `--against <manifest>` for bounded,
+  deterministic inventories of all regular files, including hidden/binary
+  resources. Report added, removed and changed paths with CI exit codes.
+- Add optional MCP `include_bundle` and `expected_bundle_sha256`. Reject a
+  changed directory before returning instructions; retain single-file callers
+  and fresh author-policy checks.
+- Compare manifests locally in the playground, with real reader-generated
+  fixtures, digest validation, downloads and recovery from invalid/stale input.
+- Document the canonical format, limits, unsupported links and the distinction
+  between content identity, author authentication and later execution.
+
+
 ## [0.8.0] - 2026-09-14
 
 - Migrate the production MCP server to the official split SDK 2.0.0 package.

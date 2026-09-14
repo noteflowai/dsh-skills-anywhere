@@ -14,7 +14,7 @@
   <div class="shell">
     <header class="topbar">
       <a class="brand" href="#top" aria-label="Skills Anywhere home"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></a>
-      <nav aria-label="Project links"><a href="#check">Check a skill</a><a href="#install">Install</a><a href="https://github.com/noteflowai/dsh-skills-anywhere" target="_blank" rel="noopener noreferrer">Source &#8599;</a></nav>
+      <nav aria-label="Project links"><a href="#bundle">Bundle changes</a><a href="#check">Check a skill</a><a href="#install">Install</a><a href="https://github.com/noteflowai/dsh-skills-anywhere" target="_blank" rel="noopener noreferrer">Source &#8599;</a></nav>
     </header>
     <main id="top">
       <section class="hero">
@@ -25,6 +25,7 @@
           <a class="primary" href="#workspace">Explore the workspace <span aria-hidden="true">&#8595;</span></a>
           <p class="hero-note">Open source &middot; MIT &middot; No sign-up</p>
           <a id="robot-start" href="#workspace">Try the Microduck review workflow &#8594;</a>
+          <p><a href="#bundle">Spot a script change behind unchanged instructions &#8595;</a></p>
         </div>
         <div class="orbit" aria-label="Skills from coding-agent directories and plugin marketplaces flow into a shared pool">
           <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
@@ -85,6 +86,25 @@
         <details class="diagnostics"><summary>What happened during discovery? <span id="diagnostic-count"></span></summary><div id="diagnostics"></div></details>
       </section>
       <p class="muted">Taking a reviewed skill into an agent? <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/VERIFIED-LOADS.md">Pin its exact file hash with MCP open_skill</a>. This browser checker does not connect to your MCP server.</p>
+      <section class="local-check bundle-lab" id="bundle" aria-labelledby="bundle-title">
+        <div class="eyebrow">SAME INSTRUCTIONS. DIFFERENT FILES.</div>
+        <h2 id="bundle-title">Did the rest of the skill change?</h2>
+        <p class="section-intro">A reviewed SKILL.md can stay identical while a script changes. Compare the directory's file inventory, then require the reviewed bundle hash when loading through MCP. The example changes one authored script; nothing is executed.</p>
+        <div class="lab-actions"><button id="bundle-demo-changed" type="button">Show script change</button><button id="bundle-demo-matching" type="button">Show matching bundle</button></div>
+        <div class="check-inputs">
+          <div><label for="bundle-file-reviewed">Reviewed manifest <input id="bundle-file-reviewed" type="file" accept=".json,application/json"></label><p id="bundle-source-reviewed" class="muted"></p><code class="bundle-hash" id="bundle-reviewed-hash"></code></div>
+          <div><label for="bundle-file-current">Current manifest <input id="bundle-file-current" type="file" accept=".json,application/json"></label><p id="bundle-source-current" class="muted"></p><code class="bundle-hash" id="bundle-current-hash"></code></div>
+        </div>
+        <p id="bundle-status" role="status">Loading the authored example...</p>
+        <div id="bundle-results" hidden>
+          <p><strong id="bundle-verdict"></strong> <span id="bundle-skill-state"></span></p>
+          <p id="bundle-counts" class="muted"></p>
+          <div class="check-results"><article><h3>File changes</h3><pre id="bundle-changes" tabindex="0" aria-label="Changed bundle paths"></pre></article><article><h3>Require the reviewed bundle in MCP</h3><pre id="bundle-mcp" tabindex="0" aria-label="Sample MCP open_skill arguments"></pre><p class="muted">Use your own discovered skill name and CLI manifest hash.</p></article></div>
+        </div>
+        <div class="lab-actions"><button id="bundle-download-reviewed" type="button" disabled>Download reviewed manifest</button><button id="bundle-download-current" type="button" disabled>Download current manifest</button></div>
+        <p>For your own files: run <code>dsh-skills-anywhere bundle /path/to/skill --json</code>, save the output outside the skill directory, and open the manifests above. <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/BUNDLES.md">Directory review &amp; CI guide &#8599;</a></p>
+        <p class="muted">Manifests stay in this page and are never stored or added to share links. Each is limited to 1 MiB. This compares recorded paths, sizes and content hashes; it does not inspect your directory, certify script safety or freeze files for later execution. Referenced files outside the skill directory, installed tools, permissions and author identity are outside the digest.</p>
+      </section>
       <section class="local-check" id="check" aria-labelledby="check-title">
         <div class="eyebrow">BRING ONE FILE. SEE BOTH MODES.</div>
         <h2 id="check-title">How will your skill be read?</h2>
