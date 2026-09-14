@@ -21,6 +21,7 @@ button,input:not([type=range]){min-height:44px}
 #clear-search{flex-shrink:0}
 #back-to-skills{margin:10px 0 0}
 .inspector pre,.check-results pre{font-size:12px}
+.source-review ul{padding-left:18px;margin:16px 0}.source-review li{margin:16px 0;overflow-wrap:anywhere}.source-review strong{font-size:12px}.check-results summary{cursor:pointer;min-height:44px;padding:10px 0;color:var(--mint)}
 .inspector pre{max-height:32rem;overflow:auto;padding-right:10px}
 .topbar nav a{display:inline-flex;align-items:center;min-height:44px}
 @media(max-width:400px){.topbar{height:auto;min-height:72px;flex-wrap:wrap;gap:4px;padding:12px 0}.topbar nav{flex-wrap:wrap;gap:16px}.search-input{flex-wrap:wrap}}

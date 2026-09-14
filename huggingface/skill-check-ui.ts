@@ -41,6 +41,26 @@ export function installSkillCheck(example: string, source: { commit: string; dir
           ].join('\n\n')
           : result.reason
       }
+      const { externalSources, declaredTools } = report.surface
+      const assessed = report.lenient.ok
+      const unverified = externalSources.filter(item => !item.pinned).length
+      el('check-source-state').textContent = !assessed ? 'Unavailable: parsing failed'
+        : externalSources.length === 0 ? 'No HTTP(S) references found'
+          : `${externalSources.length} hosts · ${unverified} need source review`
+      el('check-sources').replaceChildren()
+      for (const source of externalSources) {
+        const item = document.createElement('li')
+        const heading = document.createElement('strong')
+        heading.textContent = `${source.host} — ${source.pinned ? 'Full-commit addresses' : 'Unverified or mutable address'}`
+        const urls = document.createElement('pre')
+        urls.tabIndex = 0
+        urls.textContent = source.urls.join('\n')
+        item.append(heading, urls)
+        el('check-sources').append(item)
+      }
+      el('check-tools').textContent = !assessed ? 'Unavailable: parsing failed.'
+        : declaredTools.length ? declaredTools.join('\n')
+          : 'No allowed-tools declaration. No tool restriction can be inferred.'
       el('check-results').hidden = false
       download.disabled = false
       status.textContent = `Checked ${report.input.bytes.toLocaleString()} UTF-8 bytes with both provider modes.`
@@ -96,13 +116,13 @@ export function installSkillCheck(example: string, source: { commit: string; dir
     if (!report) return
     const url = URL.createObjectURL(new Blob([JSON.stringify({
       ...report, source,
-      scope: 'Provider parsing only; no script, resource, security or client compatibility verification.',
+      scope: 'Provider parsing and local source-address/tool-declaration review. No fetching, content verification, script execution or client permission enforcement.',
     }, null, 2)], { type: 'application/json' }))
     const link = document.createElement('a')
     link.href = url
     link.download = 'skills-anywhere-local-check.json'
     link.click()
     setTimeout(() => URL.revokeObjectURL(url), 5000)
-    status.textContent = 'Check report downloaded. It contains parsed descriptions and diagnostics, but not the raw file body.'
+    status.textContent = 'Check report downloaded with descriptions, referenced URLs, tool declarations and diagnostics. The raw file body is omitted.'
   })
 }

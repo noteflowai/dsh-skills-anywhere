@@ -13,9 +13,9 @@ keeping catalog choices, or share a view that restores those choices explicitly.
 locally: inspect repairs, invocation settings and a downloadable check report.
 Your file stays in the browser. The same checks are available in the
 [command line and CI](docs/CHECKING.md), with file hashes and actionable exit codes.
-Each report also lists the external sources the instructions reference and whether they are pinned, plus the tools the author declared. That is an enumeration, not a security audit, a verdict on intent or a guarantee of compatibility with every client.
+The browser and each downloaded report also list the external sources the instructions reference and whether they are pinned, plus the tools the author declared. That is an enumeration, not a security audit, a verdict on intent or a guarantee of compatibility with every client.
 
-<a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere"><img src="docs/skill-check.png" width="880" alt="Actual local SKILL.md check: strict mode rejects an invalid name, while lenient mode explains the name and description repairs."></a>
+[![Local skill review showing parsing, full-commit and unverified source addresses, and author-declared tools.](docs/source-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
