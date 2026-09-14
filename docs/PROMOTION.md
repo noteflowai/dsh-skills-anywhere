@@ -1,6 +1,6 @@
 # Publication and community submissions
 
-Checked September 13, 2026. This file records public distribution, existing
+Checked September 14, 2026. This file records public distribution, existing
 community submissions and the next suitable channels. A submission is not
 acceptance, and a directory entry is not an upstream endorsement.
 
@@ -33,16 +33,16 @@ Desktop (1440 px), mobile (390 px), downloads and the actual Hub iframe were
 exercised. [Publication and reproduction details](HUGGINGFACE.md).
 The automatic current-main deployment and anonymous readback subsequently passed
 in run [34756607955](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34756607955).
-The Space cannot read visitors' files, execute skills or host an MCP endpoint.
+The sample catalog cannot scan visitor directories. The optional browser checker reads only pasted text or explicitly selected files; it executes no skills and hosts no MCP endpoint.
 
 ## Distribution already available
 
 | Entry | Verified state |
 | --- | --- |
-| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.5.1 and a provenance attestation. |
-| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.5.1, active/latest, npm package over stdio. |
+| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.6.0 and a provenance attestation. |
+| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.6.0, active/latest, npm package over stdio. |
 | [DeepSeek — Show Your Plugins!](https://github.com/deepseek-ai/deepseek-harness/discussions/6193) | Existing bilingual community showcase, including the web UI card. Reuse this thread for relevant follow-up. |
-| [Glama](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere) | Public entry exists, but the fetched page still showed old 0.3.1 tarball instructions and “not on npm yet.” Current npm/main are newer. Directory refresh and quality evaluation remain follow-up work. |
+| [Glama](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere) | Public entry and **maintenance rated A** badge verified. The fetched README still referenced 0.5.1 while npm is 0.6.0. The rating is a maintenance signal, not a security or client-compatibility certification. Refreshing the cached entry remains follow-up work. |
 
 The published npm package was exercised directly with:
 
@@ -68,20 +68,21 @@ The Space also has browser checks and seven publisher regression/guard tests.
 
 ## Existing directory applications
 
-These applications existed before the two Chinese submissions above. All
-were open when checked; none is described here as accepted.
+Nine applications were rechecked on September 14. **Awesome DeepSeek Harness
+and Awesome Gemini CLI have merged their entries**; the other seven remain open.
+These are community directory listings, not upstream product endorsements.
 
-| Directory | Existing PR |
-| --- | --- |
-| Awesome MCP Servers | [#14308](https://github.com/punkpeye/awesome-mcp-servers/pull/14308) |
-| Awesome DSH Plugin | [#5004](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/5004) |
-| Awesome DeepSeek Harness | [#466](https://github.com/Dominic789654/awesome-deepseek-harness/pull/466) |
-| Awesome Claude Code Plugins | [#481](https://github.com/ccplugins/awesome-claude-code-plugins/pull/481) |
-| Awesome Gemini CLI | [#126](https://github.com/Piebald-AI/awesome-gemini-cli/pull/126) |
-| Awesome Codex CLI | [#267](https://github.com/RoggeOhta/awesome-codex-cli/pull/267) |
-| Awesome Claude Skills | [#711](https://github.com/BehiSecc/awesome-claude-skills/pull/711) |
-| Awesome Cursor Skills | [#77](https://github.com/spencerpauly/awesome-cursor-skills/pull/77) |
-| Awesome OpenCode | [#709](https://github.com/awesome-opencode/awesome-opencode/pull/709) |
+| Directory | Existing PR | Status on September 14 |
+| --- | --- | --- |
+| Awesome MCP Servers | [#14308](https://github.com/punkpeye/awesome-mcp-servers/pull/14308) | Open; awaiting review |
+| Awesome DSH Plugin | [#5004](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/5004) | Open; awaiting review |
+| Awesome DeepSeek Harness | [#466](https://github.com/Dominic789654/awesome-deepseek-harness/pull/466) | Merged September 13; listing accepted |
+| Awesome Claude Code Plugins | [#481](https://github.com/ccplugins/awesome-claude-code-plugins/pull/481) | Open; awaiting review |
+| Awesome Gemini CLI | [#126](https://github.com/Piebald-AI/awesome-gemini-cli/pull/126) | Merged September 13; listing accepted |
+| Awesome Codex CLI | [#267](https://github.com/RoggeOhta/awesome-codex-cli/pull/267) | Open; awaiting review |
+| Awesome Claude Skills | [#711](https://github.com/BehiSecc/awesome-claude-skills/pull/711) | Open; awaiting review |
+| Awesome Cursor Skills | [#77](https://github.com/spencerpauly/awesome-cursor-skills/pull/77) | Open; awaiting review |
+| Awesome OpenCode | [#709](https://github.com/awesome-opencode/awesome-opencode/pull/709) | Open; awaiting review |
 
 The MCP Servers submission's `check-submission` and the DSH Plugin submission's
 `check` / `Submission gate` had passed. Those are submission checks, not curator
@@ -96,14 +97,14 @@ No duplicate PR or reminder comment was added.
 | 掘金 / 知乎 | Adapt the Chinese submission into a practical walkthrough with the web card and `doctor` output from a fixture. Account access and current site rules have not been checked. |
 | Awesome Claude Code | Defer. Its current rules require 14 days since the first default-branch commit plus continued activity, **or** 100 stars. This project is too young and had one star. The recommendation must also be human-written and submitted through the web form; neither CLI submission nor a discussion workaround is allowed. |
 | Show HN | The owner must write their own submission and comments and be available to discuss the implementation. Current HN rules prohibit generated/AI-edited comments. Use the factual README; do not generate a paste-ready first comment. |
-| Glama | Check the existing entry for a refresh and quality evaluation after its maintainer metadata is processed. The read-only public page is not evidence that its cached README or deploy support is current. |
+| Glama | Maintenance badge now rates A and is linked from both READMEs. Refresh the cached 0.5.1 instructions; the entry is not evidence of cloud access to a visitor's local skills. |
 | Anthropic community plugin marketplace | Owner-only web form at https://platform.claude.com/plugins/submit (Console login). `claude plugin validate .` passes. Approved plugins are pinned into anthropics/claude-plugins-community and shown on claude.com/plugins. |
-| LobeHub MCP marketplace | Owner-only, interactive: `npx -y @lobehub/market-cli` → `login` → `github connect` → `plugin init --stdio "npx -y dsh-skills-anywhere mcp"` → `plugin publish https://github.com/noteflowai/dsh-skills-anywhere`. |
+| LobeHub MCP marketplace | The previously used submission documentation returned 404 on September 14. Revalidate current instructions before treating the earlier CLI sequence as supported. No submission is recorded. |
 | cursor.directory | Owner-only web form https://cursor.directory/plugins/new (GitHub login); the repository now carries the Agent Plugins manifest it expects. |
 | mcpservers.org | Web form https://mcpservers.org/submit (contact e-mail required; free review takes about two weeks). |
-| PulseMCP | Nothing to do: submissions are paused and it ingests the official registry when it resumes. |
+| PulseMCP | The public submission path returned 403 on September 14. Its current submission status could not be verified; this does not establish that submissions are closed. |
 | agentskills.io | Published the implementation playground in *Show and tell* [#557](https://github.com/agentskills/agentskills/discussions/557), with explicit disclosure that Codex wrote the post on the maintainer's behalf. Reuse that discussion for feedback. The Client Showcase remains unsuitable because this tool does not execute skills. |
-| Cursor forum | Showcase category https://forum.cursor.com/c/showcase/9 (owner post). |
+| Cursor forum | Showcase category https://forum.cursor.com/c/showcase/9. Current rules restrict fully AI-generated posts and automated bots; a participating maintainer should write from their own experience. |
 | Reddit | r/mcp (`showcase`/`server` flair), r/ClaudeCode (`Built with Claude`), r/ClaudeAI (needs 50 post karma; free-to-try statement). Confirm each sub's rules page before posting; owner-written text only. |
 | Smithery, Docker MCP catalog | Only with extra artifacts (an `.mcpb` bundle, respectively a `Dockerfile`); not planned. |
 | travisvn/awesome-claude-skills | Defer until the repository has 10 or more stars; the PR must be human-written. |
@@ -143,8 +144,8 @@ publication with official endorsement.
 dsh-skills-anywhere 帮助开发者在多个编程助手之间复用现有 Agent Skills：
 直接发现本地技能目录、Claude Code 插件市场及 Git 技能仓库，
 通过 DeepSeek Harness 插件或 MCP 提供按需查找与加载。
-v0.4.0 已发布到 npm 和官方 MCP Registry，提供来源检查、去重、
-重名处理、目录预算及网页管理，减少跨工具维护技能副本的工作。
+v0.6.0 已发布到 npm 和官方 MCP Registry，提供来源检查、去重、
+重名处理、目录预算及网页管理，并支持浏览器和 CI 检查明确指定的技能文件。
 这是 MIT 许可的独立社区项目；实际技能执行仍取决于客户端能力与权限。
 
 
@@ -173,3 +174,12 @@ The maintained HF, Agent Skills and Chinese submission bodies now include the
 [CI guide](CHECKING.md) and current install commands. Existing threads are reused;
 editorial submissions remain pending review. The older version examples above
 record the original publication checks.
+
+## September 14: registry showcase and verified directory listings
+
+- The [MCP Registry Show and tell category](https://github.com/modelcontextprotocol/registry/discussions/categories/show-and-tell), inherited discussion template, contribution guide and community communication rules were checked. No existing Skills Anywhere discussion was found.
+- A [complete implementation post](outreach/registry-showcase.md) follows the template and discloses maintainer/AI involvement. Its example was run through the public `dsh-skills-anywhere@0.6.0` package from an unrelated directory: one file passed with no repairs or input errors.
+- **No new registry discussion was published.** GitHub returned `FORBIDDEN`: `noteflowai does not have the correct permissions to execute CreateDiscussion`. Recent discussions were read back before the bounded retry to rule out a partially created duplicate. Posting requires suitable GitHub access; the draft is retained.
+- The existing two Chinese editorial submissions remain open. The nine directory PRs were individually rechecked: two merged, seven open. The public Glama badge says **maintenance rated A**. Both READMEs link the maintenance badge and the two accepted community listings.
+
+Primary evidence: [DeepSeek directory PR #466](https://github.com/Dominic789654/awesome-deepseek-harness/pull/466), [Gemini CLI directory PR #126](https://github.com/Piebald-AI/awesome-gemini-cli/pull/126), [Glama badge](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg), [registry contribution guide](https://github.com/modelcontextprotocol/registry/blob/main/CONTRIBUTING.md), [discussion template](https://github.com/modelcontextprotocol/.github/blob/main/.github/DISCUSSION_TEMPLATE/show-and-tell.yml), [community communication rules](https://modelcontextprotocol.io/community/communication).
