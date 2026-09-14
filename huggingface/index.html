@@ -23,6 +23,7 @@
           <p class="lede">One shared pool for your coding agents.<br>Explore how discovery, search and a smaller<br class="wide-only"> model catalog fit together.</p>
           <a class="primary" href="#workspace">Explore the workspace <span aria-hidden="true">&#8595;</span></a>
           <p class="hero-note">Open source &middot; MIT &middot; No sign-up</p>
+          <a id="robot-start" href="#workspace">Try the Microduck review workflow &#8594;</a>
         </div>
         <div class="orbit" aria-label="Skills from coding-agent directories and plugin marketplaces flow into a shared pool">
           <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
@@ -42,20 +43,21 @@
       </section>
       <section class="lab" id="workspace">
         <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2>A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
-        <p class="section-intro">These fictional files were scanned by the real provider at build time. Budget and search run the project's shared code in your browser. This example does not scan your computer or run a skill.</p>
+        <p class="section-intro">These authored files were scanned by the real provider at build time. They include a usable Microduck review skill alongside fictional examples. Budget and search run the project's shared code in your browser. This example does not scan your computer or run a skill.</p>
         <div class="scenarios" aria-label="Guided examples">
           <button type="button" data-scenario="default" class="active">01 <span>Follow the sources</span></button>
           <button type="button" data-scenario="collision">02 <span>Untangle a name clash</span></button>
           <button type="button" data-scenario="budget">03 <span>Find a hidden skill</span></button>
+          <button type="button" data-scenario="robot">04 <span>Review robot evidence</span></button>
         </div>
         <div class="workspace-grid">
           <aside class="control-panel">
             <div class="panel-label">MODEL CATALOG</div>
             <div class="budget-value"><span id="listed-count">3</span><small>skills listed</small></div>
             <label for="budget">Catalog budget <output id="budget-value" for="budget">3</output></label>
-            <input id="budget" type="range" min="0" max="6" value="3" step="1">
+            <input id="budget" type="range" min="0" max="7" value="3" step="1">
             <p class="muted">0 means unlimited. Pin a skill to prioritize it; Hide keeps it searchable.</p>
-            <div class="mini-stats"><div><strong id="eligible-count">6</strong><span>available to search</span></div><div><strong id="disabled-count">1</strong><span>author disabled</span></div></div>
+            <div class="mini-stats"><div><strong id="eligible-count">7</strong><span>available to search</span></div><div><strong id="disabled-count">1</strong><span>author disabled</span></div></div>
             <div class="note-card" id="scenario-note">Follow each skill back to its source. The identical review copy is collapsed; different configure skills stay reachable.</div>
             <button id="reset" class="quiet-button" type="button">Reset workspace</button>
           </aside>
@@ -70,6 +72,10 @@
           <div class="inspector-heading"><span class="panel-label">ON-DEMAND SKILL INSPECTOR</span><span id="selected-state" class="pill"></span></div>
           <h3 id="selected-name"></h3><p id="selected-path" class="code-path"></p>
           <pre id="selected-content" tabindex="0" aria-label="Selected sample skill instructions"></pre>
+          <div id="review-workflow" hidden>
+            <p>From a recorded walk to a checked review: export a Microduck frame, load this skill through MCP, and let your agent check the file against the original recording. No model inference is needed to verify it.</p>
+            <p><a href="https://noteflowai.github.io/robot-reel/microduck-lab/" target="_blank" rel="noopener noreferrer">1. Explore the recorded walk &#8599;</a> &middot; <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/PHYSICAL_AI.md" target="_blank" rel="noopener noreferrer">2. Follow the MCP walkthrough &#8599;</a></p>
+          </div>
         </div>
         <div class="lab-actions"><button type="button" id="share">Copy this view</button><button type="button" id="download">Download sample workspace</button><a href="manifest.json" download>Build manifest &#8595;</a><span id="action-status" role="status"></span></div>
         <input id="share-fallback" class="share-fallback" aria-label="Copy this view address" readonly hidden>

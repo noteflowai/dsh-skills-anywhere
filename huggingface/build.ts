@@ -12,7 +12,7 @@ export async function buildShowcase(root = process.cwd()): Promise<void> {
   const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
   const source = { commit: git('rev-parse', 'HEAD'), dirty: git('status', '--porcelain').length > 0 }
   const pkg = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8')) as { version: string }
-  const data = await createDemoData(pkg.version)
+  const data = await createDemoData(pkg.version, root)
   const html = await readFile(resolve(root, 'huggingface/index.html'), 'utf8')
   // HF's static HTML injector has corrupted multibyte text at a buffer boundary.
   // Entity-encoded HTML and escaped data also make file integrity unambiguous.

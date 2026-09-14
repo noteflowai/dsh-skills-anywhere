@@ -199,3 +199,17 @@ security-verification page, so public search could not establish whether an
 automated listing already existed. Our publication record contained no earlier
 mcpservers.org submission. The normal submission form was accessible; no
 challenge was bypassed. Submit was clicked once. No further submission is planned.
+
+## September 14: a concrete Physical AI review workflow
+
+The fourth Space scenario exposes the canonical MIT-licensed
+[`robot-reel-review` skill](../examples/robot-reel-review/SKILL.md). A
+[local MCP walkthrough](PHYSICAL_AI.md) connects skill discovery/loading with
+Robot Reel's independent frame verifier. The public 0.6.0 package was tested
+through a real stdio process; an altered joint angle was rejected.
+[Recorded checks](physical-ai-workflow-check.json) distinguish protocol and
+deterministic verification from untested LLM reasoning.
+
+The maintained HF introduction includes this example. Reuse the existing pinned
+thread; this workflow does not warrant duplicate editorial submissions. The
+free mcpservers.org submission remains pending review.

@@ -38,6 +38,15 @@ Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但�
 
 它还会**去重**软链接和字节级相同的副本（`skills` CLI 会把同一份技能链接到多个 Agent）、**修复**常见的 frontmatter 偏差而不是悄悄丢掉技能，并对**同名冲突**（`discord/configure` 与 `telegram/configure`）自动加前缀，保证每个技能都能被调用。附带一个小 CLI，让你清楚看到 dsh 会看到什么、为什么。
 
+## 试一个真实的物理 AI 工作流
+
+通过 MCP 加载 Microduck 帧复盘技能，让 Agent 先调用 Robot Reel 校验原始
+关节记录，再整理有依据的结论。
+[交互技能示例](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
+（选择 **04 Review robot evidence**）· [本地操作说明](docs/PHYSICAL_AI.md) ·
+[可复用技能](examples/robot-reel-review/SKILL.md)。
+网页展示技能内容；只读校验由你所用 Agent 的执行工具完成，无需重新仿真或 GPU。
+
 ## 快速开始
 
 ```sh

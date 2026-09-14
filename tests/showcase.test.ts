@@ -2,12 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { createDemoData } from '../huggingface/fixture.ts'
 import { applyCatalogBudget } from '../src/catalog.ts'
 import { searchSkills } from '../src/search.ts'
+import { readFile } from 'node:fs/promises'
 
 describe('public showcase fixture', () => {
   it('records real discovery without paths or skills from the host machine', async () => {
     const data = await createDemoData('test-version')
-    expect(data.inputs).toHaveLength(9)
-    expect(data.skills).toHaveLength(7)
+    expect(data.inputs).toHaveLength(10)
+    expect(data.skills).toHaveLength(8)
     expect(data.dropped).toEqual([
       expect.objectContaining({ name: 'review', winner: 'review', reason: 'same-content', path: '~/.cursor/skills/review/SKILL.md' }),
     ])
@@ -27,5 +28,9 @@ describe('public showcase fixture', () => {
     expect([...result.values()].filter(value => value === 'visible')).toHaveLength(1)
     const matches = searchSkills(data.skills.filter(skill => skill.invocation.modelInvocable), 'configure', 20)
     expect(matches.map(match => match.name).sort()).toEqual(['chat-configure', 'issues-configure'])
+    const robot = searchSkills(data.skills, 'Microduck recorded frame', 20)[0]
+    expect(robot?.name).toBe('robot-reel-review')
+    expect(data.inputs.find(input => input.path.endsWith('/robot-reel-review/SKILL.md'))?.markdown)
+      .toBe(await readFile('examples/robot-reel-review/SKILL.md', 'utf8'))
   })
 })

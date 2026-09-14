@@ -4,11 +4,13 @@ This is the Hugging Face playground for [dsh-skills-anywhere](https://github.com
 
 ![Skills Anywhere playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/resolve/main/thumbnail.png)
 
-Three things to try:
+Four guided examples:
 
-1. **Follow the sources.** Nine fictional files are scanned by the real provider. One identical copy is dropped, invalid YAML is reported, and the source of every discovered skill stays visible.
+1. **Follow the sources.** Ten authored files are scanned by the real provider. One identical copy is dropped, invalid YAML is reported, and the source of every discovered skill stays visible.
 2. **Untangle a name clash.** Two plugins both call a skill `configure`; inspect the distinct names that keep both reachable.
 3. **Find a hidden skill.** Lower the catalog budget, search for `test`, and inspect `test-plan` even when it is not listed. Pin it into the catalog, or Hide it while keeping search available.
+
+4. **Review robot evidence.** Load the usable `robot-reel-review` skill, then follow the [local MCP walkthrough](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/PHYSICAL_AI.md). Your agent can check a Microduck frame against Robot Reel's original recording before explaining measured and target angles. MCP loads the skill; the agent's own execution tool runs the read-only verifier. The Space does neither.
 
 The browser reuses the project's catalog-selection and search code. Discovery is recorded at build time from authored fixtures. The sample can be shared by URL or downloaded as JSON, and the build manifest identifies its source commit and file hashes.
 
@@ -19,7 +21,7 @@ The Space does not scan your directories, execute a skill, host MCP or call a mo
 
 What would make shared skill discovery easier to inspect: source precedence, name collisions, or catalog visibility? Concrete examples and reproduction reports are welcome.
 
-中文：这是使用内置虚构文件的交互演示，可查看来源、去重与重名处理，调整目录预算并按需搜索技能。浏览器不读取你的电脑，也不执行技能或调用模型。实际使用自己的技能目录需安装本地工具。
+中文：这是使用内置示例文件的交互演示，其中包含可复用的 Microduck 帧复盘技能，可查看来源、去重与重名处理，调整目录预算并按需搜索技能。浏览器不读取你的电脑，也不执行技能或调用模型。实际使用自己的技能目录需安装本地工具。
 
 **New: check your own SKILL.md locally.** Paste or select one Markdown file (up to 128 KiB), compare the real provider's strict and lenient modes, and download a report of repairs, invocation settings and metadata keys. The input stays in the page and is not added to URLs or browser storage. The report omits the raw body, but may contain descriptions and diagnostic excerpts; inspect it before sharing. This is provider parsing, not a security audit or a guarantee of client/specification compatibility.
 
