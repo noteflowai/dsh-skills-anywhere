@@ -16,6 +16,8 @@ tags:
   - developer-tools
   - interactive-demo
   - skill-validation
+  - physical-ai
+  - microduck
 thumbnail: https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/resolve/main/thumbnail.png
 ---
 
@@ -24,12 +26,13 @@ thumbnail: https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/resolve/mai
 Try a sample workspace from **dsh-skills-anywhere**, an open-source Agent Skills
 provider for DeepSeek Harness and an MCP server for coding clients.
 
-**Three things to try**
+**Four guided examples**
 
 1. Follow skills back to their project, user and plugin-marketplace directories.
 2. Inspect two different `configure` skills after their names are disambiguated.
 3. Reduce the catalog budget, search for a skill that is no longer listed,
    inspect its instructions, and pin it into the catalog.
+4. Load a usable Microduck frame-review skill and follow its local MCP walkthrough.
 
 **Bring your own SKILL.md.** Paste or open one file (up to 128 KiB) to compare
 the provider's strict and lenient modes. Inspect repairs, author invocation
@@ -37,7 +40,7 @@ settings and metadata keys, then download a report. Input stays in this page
 and is not added to share links or browser storage. This checks parsing only,
 not script safety, resources or complete client/specification compatibility.
 
-The fixture uses nine fictional Markdown files. The real filesystem provider
+The fixture uses ten authored Markdown files, including the usable Robot Reel review skill. The real filesystem provider
 discovers, parses, deduplicates and renames them at build time. The browser
 imports the same catalog-selection and search functions used by the package.
 Author-disabled skills stay unavailable through the demo's model controls.
@@ -71,3 +74,12 @@ The 0.6.0 command line checks explicitly named local files, supports strict and
 lenient gates, and reports file hashes with exit codes for automation.
 [Copy a working CI example](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md).
 The browser and CLI share the parser comparison; neither executes skill instructions.
+
+### A concrete Physical AI workflow
+
+Select **04 Review robot evidence** to inspect the usable `robot-reel-review`
+skill. It teaches an agent to check a shared Microduck frame against Robot Reel's
+original recording before explaining the joint's measured/target angles.
+[Follow the local MCP walkthrough](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/PHYSICAL_AI.md).
+The Space displays the skill; verification runs in the user's own agent workspace,
+not on this Space. No robot images or policy weights are bundled here.

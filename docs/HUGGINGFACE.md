@@ -8,9 +8,9 @@ provider; it does not replace installing the package.
 
 ## What is real in the demo
 
-`huggingface/fixture.ts` creates nine authored Markdown files in an isolated
+`huggingface/fixture.ts` creates ten authored Markdown files in an isolated
 temporary home/project. The actual `SkillsAnywhereProvider` discovers and parses
-them. Its report includes seven skills, an identical copy that is dropped,
+them. Its report includes eight skills, an identical copy that is dropped,
 two plugin names that are disambiguated, repaired frontmatter, an invalid YAML
 file, and an author-disabled skill.
 
@@ -68,7 +68,7 @@ The browser check covers desktop/mobile iframes, budget and search semantics,
 disabled skills, hash restoration, denied clipboard, download, keyboard tabs,
 and direct `file://` use. It captures the social thumbnail from the actual page.
 
-**Download sample workspace** saves a JSON record containing the nine original
+**Download sample workspace** saves a JSON record containing the ten original
 Markdown files and the current view. It is a fixture export, not a backup of
 the visitor's computer or an installable skill pack.
 
@@ -109,3 +109,9 @@ an npm release.
 Official references:
 [Static Spaces](https://huggingface.co/docs/hub/en/spaces-sdks-static) and
 [Space configuration](https://huggingface.co/docs/hub/en/spaces-config-reference).
+
+The fourth guided scenario selects the canonical
+[`robot-reel-review` skill](../examples/robot-reel-review/SKILL.md), copied into
+the isolated fixture at build time. Its full bytes are retained in the workspace
+download and checked against the source file. The linked [local workflow](PHYSICAL_AI.md)
+uses MCP to load it and Robot Reel to verify the recording; the Space executes neither.

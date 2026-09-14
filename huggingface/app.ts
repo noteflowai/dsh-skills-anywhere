@@ -13,6 +13,7 @@ declare global {
 const data = window.SKILLS_DEMO
 const build = window.SKILLS_BUILD
 const names = new Set(data.skills.map(skill => skill.name))
+const availableCount = data.skills.filter(skill => skill.invocation.modelInvocable).length
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 const budget = el<HTMLInputElement>('budget')
 const search = el<HTMLInputElement>('search')
@@ -25,6 +26,7 @@ const guidance: Record<string, string> = {
   default: 'Follow each skill back to its source. The identical review copy is collapsed; different configure skills stay reachable.',
   collision: 'Two plugins both call their skill configure. Discovery keeps both and prefixes their names with the plugin, so you can choose the right one.',
   budget: 'The catalog only lists one skill now. Search still finds test-plan; inspect it on demand, or Pin it to move it into the catalog.',
+  robot: 'Load a real Microduck review skill, then use the linked walkthrough with your own MCP client. This browser shows instructions; your agent runs the read-only verifier in its own workspace.',
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, className = '', text = ''): HTMLElementTagNameMap[K] {
@@ -50,7 +52,7 @@ function loadFragment(): void {
   if (!location.hash.includes('=')) return
   const params = new URLSearchParams(location.hash.slice(1))
   const value = params.has('budget') ? Number(params.get('budget')) : 3
-  budget.value = Number.isInteger(value) && value >= 0 && value <= 6 ? String(value) : '3'
+  budget.value = Number.isInteger(value) && value >= 0 && value <= availableCount ? String(value) : '3'
   search.value = (params.get('q') ?? '').slice(0, 120)
   const readSet = (key: string) => new Set((params.get(key) ?? '').split(',').filter(name =>
     names.has(name) && data.skills.find(skill => skill.name === name)?.invocation.modelInvocable))
@@ -121,6 +123,7 @@ function render(updateAddress = true): void {
   if (!shown.length) list.append(node('p', 'empty', 'No matches. Try test, review, configure or release.'))
   const chosen = data.skills.find(skill => skill.name === selected && skill.invocation.modelInvocable)!
   inspect(chosen, stateLabels[states.get(chosen.name)!])
+  el('review-workflow').hidden = chosen.name !== 'robot-reel-review'
   if (updateAddress) {
     try { history.replaceState(null, '', fragment()) } catch { /* Preview embeds may restrict history. */ }
   }
@@ -130,9 +133,9 @@ function reset(scenario = 'default'): void {
   pinned.clear()
   hidden.clear()
   budget.value = scenario === 'budget' ? '1' : '3'
-  search.value = scenario === 'collision' ? 'configure' : scenario === 'budget' ? 'test' : ''
+  search.value = scenario === 'collision' ? 'configure' : scenario === 'budget' ? 'test' : scenario === 'robot' ? 'Microduck' : ''
   selected = scenario === 'budget' ? 'test-plan' : scenario === 'collision'
-    ? data.skills.find(skill => skill.renamedFrom === 'configure')!.name : 'review'
+    ? data.skills.find(skill => skill.renamedFrom === 'configure')!.name : scenario === 'robot' ? 'robot-reel-review' : 'review'
   el('scenario-note').textContent = guidance[scenario]!
   document.querySelectorAll<HTMLButtonElement>('[data-scenario]').forEach(button => {
     button.classList.toggle('active', button.dataset.scenario === scenario)
@@ -176,6 +179,7 @@ function showInstall(method: string): void {
 }
 
 el('agent-count').textContent = String(data.agentCount)
+budget.max = String(availableCount)
 el('build-meta').textContent = `Package ${data.version} / source ${build.commit.slice(0, 12)}${build.dirty ? ' (local preview)' : ''} / discovery fixture, no live inference`
 el('diagnostic-count').textContent = `${data.dropped.length} duplicate / ${data.invalid.length} invalid / ${data.skills.filter(skill => skill.renamedFrom).length} renamed`
 const diagnostics = el('diagnostics')
@@ -188,6 +192,11 @@ for (const skill of data.skills) {
 budget.addEventListener('input', () => render())
 search.addEventListener('input', () => render())
 el('reset').addEventListener('click', () => reset())
+el('robot-start').addEventListener('click', event => {
+  event.preventDefault()
+  reset('robot')
+  el('workspace').scrollIntoView()
+})
 document.querySelectorAll<HTMLButtonElement>('[data-scenario]').forEach(button =>
   button.addEventListener('click', () => reset(button.dataset.scenario)))
 el('share').addEventListener('click', () => {

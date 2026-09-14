@@ -40,6 +40,16 @@ The same pool is available **outside dsh** too: `dsh-skills-anywhere mcp` serves
 
 It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI links one canonical copy into several agents), **repairs** common frontmatter drift instead of silently dropping a skill, and **renames** colliding names (`discord/configure` vs `telegram/configure`) so every skill stays reachable. A small CLI shows you exactly what dsh will see and why.
 
+## Try a real Physical AI workflow
+
+Load a Microduck frame-review skill through MCP, then have your agent verify
+its recorded joint facts with Robot Reel before writing a review.
+[Interactive skill example](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
+(select **04 Review robot evidence**) · [Local walkthrough](docs/PHYSICAL_AI.md) ·
+[Reusable skill](examples/robot-reel-review/SKILL.md).
+The browser shows the instructions; your agent's own execution tool runs the
+read-only verifier. No new simulation or GPU is needed.
+
 ## Quick start
 
 ```sh

@@ -24,7 +24,7 @@ entry in the anonymous view; GitHub issue search also found no prior submission.
 Their existing bodies now include the live Hugging Face playground; no duplicate
 issues or reminder comments were added.
 
-The Space uses nine authored Markdown files scanned by the actual provider at
+The current Space uses ten authored Markdown files scanned by the actual provider at
 build time, and shares the package's catalog and search logic in the browser.
 Its first publication used the successful main CI artifact from run
 [34756372479](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34756372479)
@@ -199,3 +199,17 @@ security-verification page, so public search could not establish whether an
 automated listing already existed. Our publication record contained no earlier
 mcpservers.org submission. The normal submission form was accessible; no
 challenge was bypassed. Submit was clicked once. No further submission is planned.
+
+## September 14: a concrete Physical AI review workflow
+
+The fourth Space scenario exposes the canonical MIT-licensed
+[`robot-reel-review` skill](../examples/robot-reel-review/SKILL.md). A
+[local MCP walkthrough](PHYSICAL_AI.md) connects skill discovery/loading with
+Robot Reel's independent frame verifier. The public 0.6.0 package was tested
+through a real stdio process; an altered joint angle was rejected.
+[Recorded checks](physical-ai-workflow-check.json) distinguish protocol and
+deterministic verification from untested LLM reasoning.
+
+The maintained HF introduction includes this example. Reuse the existing pinned
+thread; this workflow does not warrant duplicate editorial submissions. The
+free mcpservers.org submission remains pending review.

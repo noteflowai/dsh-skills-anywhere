@@ -15,11 +15,12 @@ const review = skill('review', 'Review a change for correctness, tests and clear
   '# Review a change\n\nRead the diff and relevant tests. Trace one realistic input through the changed code.\nReport concrete findings with file references and explain what behavior each test protects.')
 
 /** Authored fixtures only. Never discover the builder's real home or worktree. */
-export async function createDemoData(version: string): Promise<DemoData> {
+export async function createDemoData(version: string, root = process.cwd()): Promise<DemoData> {
   const scratch = await mkdtemp(join(tmpdir(), 'skills-playground-'))
   const fixtureHome = join(scratch, 'home')
   const project = join(scratch, 'project')
   const inputs = [
+    { path: 'project/.claude/skills/robot-reel-review/SKILL.md', markdown: await readFile(join(root, 'examples/robot-reel-review/SKILL.md'), 'utf8') },
     { path: 'project/.claude/skills/review/SKILL.md', markdown: review },
     { path: 'home/.cursor/skills/review/SKILL.md', markdown: review },
     { path: 'home/.codex/skills/test-plan/SKILL.md', markdown: skill('test-plan', 'Plan tests for behavior, failure cases and regressions.', '# Plan a test\n\nChoose one user-visible behavior. Describe a successful case and a failure case.\nPrefer a regression test that fails before the fix and passes after it.') },
