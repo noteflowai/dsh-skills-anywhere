@@ -12,56 +12,31 @@ https://github.com/noteflowai/dsh-skills-anywhere
 
 ### 项目描述
 
-这是一个共享 Agent Skills 的 TypeScript 工具，直接发现编程助手目录、Claude Code 插件市场和 Git 仓库中的 SKILL.md，通过 DeepSeek Harness 或 MCP 提供查找、加载，无需复制。支持去重、重名处理、目录预算和本地解析检查。新版可按文件 SHA-256 锁定已审核指令，作者刚禁用的设置在加载时立即生效。适合多工具开发者与团队复用技能，采用 MIT 许可。
+Skills Anywhere 直接发现编程助手目录、插件市场和 Git 仓库中的 SKILL.md，通过 DeepSeek Harness 或 MCP 提供查找与按需加载，无需复制。支持去重、重名处理、目录预算、本地解析检查和按文件哈希加载。新版浏览器演示支持键盘打开／返回详情、保留设置清空搜索、恢复分享视图及本地文件读取失败恢复，适合多工具开发者与团队复用技能。
 
 ### 亮点
 
-- **0.7.0 交付更新**：MCP `open_skill` 返回原始 SKILL.md 的 SHA-256，可传入 `expected_sha256`，发现文件已变化时不返回新指令。MCP 工具、资源和 dsh 提供器都在加载时重新检查作者禁用标志，覆盖目录缓存与预算隐藏场景。已通过三种操作系统检查及实际 npm 包安装验证。文件哈希不覆盖旁边的脚本，也不构成安全认证。
-  使用说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/VERIFIED-LOADS.md
+- **真实的共享目录逻辑**：覆盖 68 种 Agent 目录定义，支持项目／用户目录、插件市场和 Git 来源，提供去重、重名解释、预算、Pin / Hide / Exclude。
+- **0.7.1 浏览器体验**：打开技能后聚焦说明，可返回原行；清空搜索保留目录选择；分享链接恢复预算、Pin／Hide 与当前技能。手机按钮更易操作，长说明支持键盘滚动。
+- **带入自己的 SKILL.md**：浏览器显示文件读取状态，比较严格／宽容解析并导出报告；拒绝无效 UTF-8，清空或编辑会丢弃旧读取结果。输入不上传、不加入分享链接。CLI/CI 提供相同解析检查和文件哈希。
+- **按已审核内容加载**：MCP `open_skill` 支持 `expected_sha256`；文件变化时不返回新指令，并在加载时复查作者禁用标志。
 
-- 让已有技能保持原来的存放位置，通过工具查询来源；修改本地技能后，
-  加载时读取最新内容。
-- 内置 60 多种 Agent 的目录定义，同时支持项目级、用户级目录及 Git
-  技能仓库。这里指目录识别能力，不声称所有客户端和技能执行都已验证。
-- dsh 模型目录默认最多列出 50 个技能，其余可按需搜索，避免把整个技能库
-  都塞进每次请求；技能作者禁用模型调用的设置仍有效。
-- v0.4.0 的 dsh 网页卡片可按来源浏览技能，查看目录状态，设置 Pin、Hide、
-  Exclude 和预算；CLI 的 `doctor` 可说明修复、跳过、去重及重命名原因。
-- MCP 服务独立于 dsh 运行，提供技能查找、打开和资源读取。
-
-维护者自荐：这是与 AI 结对开发的独立社区项目，仍处于早期阶段，
-不代表 DeepSeek、Anthropic 或其他客户端官方。技能是模型将读取的指令，
-引入外部仓库前需自行审阅；它不提供额外的脚本执行沙箱。
+维护者自荐：独立社区项目，与 AI 结对开发，MIT 许可，不代表上游官方。目录覆盖不等于所有客户端或技能脚本通过兼容验证。浏览器使用示例工作区，不扫描访客电脑、不运行技能或模型；解析和文件身份检查也不构成脚本安全认证。
 
 ### 示例代码
 
-要求 Node.js 22.19+ 或 24+。以下命令查看支持的目录，
-无需启动 dsh 或配置模型 API：
+要求 Node.js 22.19+ 或 24+；查看目录无需 dsh 或模型 API：
 
 ```sh
-npx -y dsh-skills-anywhere@0.7.0 agents
-```
+npx -y dsh-skills-anywhere@0.7.1 agents
 
-独立 MCP 服务启动命令，供 MCP 客户端按 README 配置：
-
-```sh
-npx -y dsh-skills-anywhere@0.7.0 mcp
+# Configure this stdio server in an MCP client:
+npx -y dsh-skills-anywhere@0.7.1 mcp
 ```
 
 ### 截图或演示视频
 
-[Hugging Face 交互演示](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)：
-无需安装，可操作来源检查、去重与重名场景、目录预算和按需搜索。
-演示采用虚构示例文件并复用项目逻辑，不读取访客电脑、不执行技能或调用模型。
+在线体验：https://huggingface.co/spaces/glayguo/dsh-skills-anywhere
+版本：https://github.com/noteflowai/dsh-skills-anywhere/releases/tag/v0.7.1
 
-![按来源浏览技能与调整目录预算](https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/web-card.png)
-
-CLI 演示：https://raw.githubusercontent.com/noteflowai/dsh-skills-anywhere/v0.4.0/docs/demo.gif
-
-中文说明：https://github.com/noteflowai/dsh-skills-anywhere/blob/v0.7.0/README.zh.md
-
-交互功能更新：在线演示可粘贴或选择自己的 `SKILL.md`，在浏览器中比较严格／宽容解析结果并下载报告。输入不上传，不执行技能；检查范围是本项目解析器的行为。
-
-0.6.0 发布更新：相同的本地解析检查现已提供 CLI 和 CI 用法，可批量检查明确指定的文件，输出工具版本、文件 SHA-256、完整诊断及退出码。支持严格／宽容模式与“有修复即失败”的提交门禁，不修改文件、不执行技能。npm 和官方 MCP Registry 均已发布。
-
-CI 示例与检查范围：https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md
+![让不同编程助手共享现有 Agent Skills](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/resolve/main/thumbnail.png)

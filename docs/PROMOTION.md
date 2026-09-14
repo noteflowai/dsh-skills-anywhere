@@ -1,5 +1,16 @@
 # Publication and community submissions
 
+## 0.7.1 UI publication · 2026-09-14
+
+[Release 0.7.1](https://github.com/noteflowai/dsh-skills-anywhere/releases/tag/v0.7.1) is public.
+[Release validation](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34813756144) passed;
+the real Hugging Face iframe was exercised at 1440, 390 and 320 pixels.
+Inspect/return navigation, preserved catalog choices, restored-view guidance, and recoverable local UTF-8 file checks are public. GitHub and npm serve identical tarballs; npm provenance and official MCP Registry 0.7.1 were verified.
+
+The existing weekly and HelloGitHub submissions and HF introduction were rewritten around the current workflow, then read back exactly. Both editorial submissions remain open with no comments; no new issue or reminder comment was created. The existing five-item HF collection was updated. [Publication receipts](outreach/publication-0.7.1.json).
+
+Earlier publication history follows.
+
 Checked September 14, 2026. This file records public distribution, existing
 community submissions and the next suitable channels. A submission is not
 acceptance, and a directory entry is not an upstream endorsement.
@@ -16,7 +27,7 @@ acceptance, and a directory entry is not an upstream endorsement.
 | mcpservers.org | [Submission form](https://mcpservers.org/submit) | Free submission received September 14; awaiting review, not yet listed | [Exact fields and confirmation](outreach/mcpservers-submission.md) |
 
 The two Chinese submissions identify the maintainer relationship, independent community status and
-AI-assisted development. They now include **0.7.0**, retain the original tagged
+AI-assisted development. They now include **0.7.1**, retain the original tagged
 screenshots and distinguish directory discovery from end-to-end compatibility.
 The four distinct submission links returned HTTP 200, and GitHub readback
 matched the prepared bodies. Public HelloGitHub search returned no matching

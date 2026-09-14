@@ -1,0 +1,41 @@
+{
+  "version": "0.7.1",
+  "checked": "2026-09-14",
+  "release": "https://github.com/noteflowai/dsh-skills-anywhere/releases/tag/v0.7.1",
+  "validation_run": "https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34813756144",
+  "public_browser_widths": [
+    1440,
+    390,
+    320
+  ],
+  "existing_posts_updated": [
+    {
+      "channel": "weekly",
+      "repo": "ruanyf/weekly",
+      "number": 11665,
+      "url": "https://github.com/ruanyf/weekly/issues/11665",
+      "state": "open",
+      "comments": 0,
+      "body_sha256": "e0ddade70203dc248fea42b5c2f1d47afe6c572eb8366483e5815ca81db2a7a0"
+    },
+    {
+      "channel": "hello",
+      "repo": "521xueweihan/HelloGitHub",
+      "number": 3695,
+      "url": "https://github.com/521xueweihan/HelloGitHub/issues/3695",
+      "state": "open",
+      "comments": 0,
+      "body_sha256": "2cdd2a8247312b213fbd2f507838ee531df63fa874209f393201f9ee25663c27"
+    },
+    {
+      "channel": "huggingface",
+      "repo": "glayguo/dsh-skills-anywhere",
+      "discussion": 1,
+      "comment_id": "6aa693bb8a735fce0b6cce61",
+      "title": "v0.7.1: inspect skills, return to your workspace and recover local checks",
+      "body_sha256": "7a4c62838039c03cda15719a6144f85785230eabd4d8fa722ff9b886d8c36755"
+    }
+  ],
+  "new_posts_created": 0,
+  "editorial_acceptance": false
+}
