@@ -34,11 +34,18 @@ provider for DeepSeek Harness and an MCP server for coding clients.
    inspect its instructions, and pin it into the catalog.
 4. Load a usable Microduck frame-review skill and follow its local MCP walkthrough.
 
+**Inspect, then return.** Opening a skill brings its instructions into focus;
+**Back to skills** returns to the same row. Clear search without losing budget,
+pin or hide choices. Shared links identify the restored workspace instead of
+showing a misleading guided-example selection.
+
 **Bring your own SKILL.md.** Paste or open one file (up to 128 KiB) to compare
 the provider's strict and lenient modes. Inspect repairs, author invocation
 settings and metadata keys, then download a report. Input stays in this page
 and is not added to share links or browser storage. This checks parsing only,
 not script safety, resources or complete client/specification compatibility.
+File reads show progress and reject invalid UTF-8; clearing local input also
+discards a pending read.
 
 The fixture uses ten authored Markdown files, including the usable Robot Reel review skill. The real filesystem provider
 discovers, parses, deduplicates and renames them at build time. The browser

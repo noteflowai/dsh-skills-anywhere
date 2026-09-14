@@ -10,6 +10,7 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#workspace-title">Skip to the workspace</a>
   <div class="shell">
     <header class="topbar">
       <a class="brand" href="#top" aria-label="Skills Anywhere home"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></a>
@@ -42,7 +43,7 @@
         <div><strong>On demand</strong><span>search first, load one skill</span></div>
       </section>
       <section class="lab" id="workspace">
-        <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2>A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
+        <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2 id="workspace-title" tabindex="-1">A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
         <p class="section-intro">These authored files were scanned by the real provider at build time. They include a usable Microduck review skill alongside fictional examples. Budget and search run the project's shared code in your browser. This example does not scan your computer or run a skill.</p>
         <div class="scenarios" aria-label="Guided examples">
           <button type="button" data-scenario="default" class="active">01 <span>Follow the sources</span></button>
@@ -62,21 +63,23 @@
             <button id="reset" class="quiet-button" type="button">Reset workspace</button>
           </aside>
           <div class="pool-panel">
-            <div class="search-bar"><label for="search">Find a skill</label><input id="search" type="search" maxlength="120" placeholder="Try &quot;test&quot; or &quot;configure&quot;" autocomplete="off"></div>
+            <div class="search-bar"><label for="search">Find a skill</label><div class="search-input"><input id="search" type="search" maxlength="120" placeholder="Try &quot;test&quot; or &quot;configure&quot;" autocomplete="off" aria-controls="skill-list"><button id="clear-search" type="button" hidden>Clear search</button></div></div>
             <div class="pool-head"><span id="result-count" aria-live="polite"></span><span>PIN &middot; HIDE &middot; INSPECT</span></div>
             <div id="skill-list" class="skill-list"></div>
             <noscript><p>JavaScript enables this interactive sample. You can still read the source and installation instructions below.</p></noscript>
           </div>
         </div>
-        <div class="inspector" id="inspector" aria-live="polite">
+        <section class="inspector" id="inspector" aria-labelledby="selected-name">
           <div class="inspector-heading"><span class="panel-label">ON-DEMAND SKILL INSPECTOR</span><span id="selected-state" class="pill"></span></div>
-          <h3 id="selected-name"></h3><p id="selected-path" class="code-path"></p>
+          <h3 id="selected-name" tabindex="-1"></h3><p id="selected-path" class="code-path"></p>
+          <button id="back-to-skills" type="button">Back to skills &#8593;</button>
+          <p class="muted">Full source instructions. Scroll inside the panel to read more; keyboard users can focus it and use the arrow or Page Down keys.</p>
           <pre id="selected-content" tabindex="0" aria-label="Selected sample skill instructions"></pre>
           <div id="review-workflow" hidden>
             <p>From a recorded walk to a checked review: export a Microduck frame, load this skill through MCP, and let your agent check the file against the original recording. No model inference is needed to verify it.</p>
             <p><a href="https://noteflowai.github.io/robot-reel/microduck-lab/" target="_blank" rel="noopener noreferrer">1. Explore the recorded walk &#8599;</a> &middot; <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/PHYSICAL_AI.md" target="_blank" rel="noopener noreferrer">2. Follow the MCP walkthrough &#8599;</a></p>
           </div>
-        </div>
+        </section>
         <div class="lab-actions"><button type="button" id="share">Copy this view</button><button type="button" id="download">Download sample workspace</button><a href="manifest.json" download>Build manifest &#8595;</a><span id="action-status" role="status"></span></div>
         <input id="share-fallback" class="share-fallback" aria-label="Copy this view address" readonly hidden>
         <details class="diagnostics"><summary>What happened during discovery? <span id="diagnostic-count"></span></summary><div id="diagnostics"></div></details>

@@ -27,6 +27,17 @@ const guidance: Record<string, string> = {
   collision: 'Two plugins both call their skill configure. Discovery keeps both and prefixes their names with the plugin, so you can choose the right one.',
   budget: 'The catalog only lists one skill now. Search still finds test-plan; inspect it on demand, or Pin it to move it into the catalog.',
   robot: 'Load a real Microduck review skill, then use the linked walkthrough with your own MCP client. This browser shows instructions; your agent runs the read-only verifier in its own workspace.',
+  custom: 'Custom view. Search, budget, pins and hidden skills reflect your choices. Choose a guided example to start a new walkthrough.',
+  shared: 'Restored view. The link includes search, budget, pins and hidden skills; local SKILL.md input is never included.',
+}
+
+function guide(scenario: string): void {
+  el('scenario-note').textContent = guidance[scenario]!
+  document.querySelectorAll<HTMLButtonElement>('[data-scenario]').forEach(button => {
+    const active = button.dataset.scenario === scenario
+    button.classList.toggle('active', active)
+    button.setAttribute('aria-pressed', String(active))
+  })
 }
 
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, className = '', text = ''): HTMLElementTagNameMap[K] {
@@ -60,6 +71,7 @@ function loadFragment(): void {
   hidden = readSet('hide')
   const requested = data.skills.find(skill => skill.name === params.get('skill'))
   selected = requested?.invocation.modelInvocable ? requested.name : 'review'
+  guide('shared')
 }
 
 function inspect(skill: DemoSkill, state: string): void {
@@ -74,6 +86,8 @@ function render(updateAddress = true): void {
   const openable = data.skills.filter(skill => skill.invocation.modelInvocable)
   el('listed-count').textContent = String([...states.values()].filter(state => state === 'visible').length)
   el('budget-value').textContent = budget.value === '0' ? 'unlimited' : budget.value
+  budget.setAttribute('aria-valuetext', budget.value === '0' ? 'Unlimited catalog' : `${budget.value} skills in catalog budget`)
+  el('clear-search').hidden = !search.value
   el('eligible-count').textContent = String(openable.length)
   el('disabled-count').textContent = String(data.skills.length - openable.length)
   const query = search.value.trim()
@@ -102,6 +116,7 @@ function render(updateAddress = true): void {
       button.addEventListener('click', () => {
         if (collection.has(skill.name)) collection.delete(skill.name)
         else collection.add(skill.name)
+        guide('custom')
         render()
         document.querySelector<HTMLButtonElement>(`[aria-label="${action} ${skill.name}"]`)?.focus()
       })
@@ -111,16 +126,17 @@ function render(updateAddress = true): void {
     open.type = 'button'
     open.disabled = !skill.invocation.modelInvocable
     open.setAttribute('aria-label', `Inspect ${skill.name}`)
+    open.setAttribute('aria-controls', 'inspector')
     open.addEventListener('click', () => {
       selected = skill.name
       render()
-      document.querySelector<HTMLButtonElement>(`[aria-label="Inspect ${skill.name}"]`)?.focus()
+      el('selected-name').focus()
     })
     controls.append(open)
     row.append(main, controls)
     list.append(row)
   }
-  if (!shown.length) list.append(node('p', 'empty', 'No matches. Try test, review, configure or release.'))
+  if (!shown.length) list.append(node('p', 'empty', 'No searchable skills match. Clear search to show all skills; your catalog settings will stay in place.'))
   const chosen = data.skills.find(skill => skill.name === selected && skill.invocation.modelInvocable)!
   inspect(chosen, stateLabels[states.get(chosen.name)!])
   el('review-workflow').hidden = chosen.name !== 'robot-reel-review'
@@ -136,11 +152,7 @@ function reset(scenario = 'default'): void {
   search.value = scenario === 'collision' ? 'configure' : scenario === 'budget' ? 'test' : scenario === 'robot' ? 'Microduck' : ''
   selected = scenario === 'budget' ? 'test-plan' : scenario === 'collision'
     ? data.skills.find(skill => skill.renamedFrom === 'configure')!.name : scenario === 'robot' ? 'robot-reel-review' : 'review'
-  el('scenario-note').textContent = guidance[scenario]!
-  document.querySelectorAll<HTMLButtonElement>('[data-scenario]').forEach(button => {
-    button.classList.toggle('active', button.dataset.scenario === scenario)
-    button.setAttribute('aria-pressed', String(button.dataset.scenario === scenario))
-  })
+  guide(scenario)
   render()
 }
 
@@ -189,13 +201,23 @@ for (const skill of data.skills) {
   if (skill.renamedFrom) diagnostics.append(node('p', '', `Renamed: ${skill.renamedFrom} -> ${skill.name} (${skill.origin}).`))
   if (skill.warnings.length) diagnostics.append(node('p', '', `Repaired ${skill.name}: ${skill.warnings.join('; ')}`))
 }
-budget.addEventListener('input', () => render())
-search.addEventListener('input', () => render())
+budget.addEventListener('input', () => { guide('custom'); render() })
+search.addEventListener('input', () => { guide('custom'); render() })
+el('clear-search').addEventListener('click', () => {
+  search.value = ''
+  guide('custom')
+  render()
+  search.focus()
+})
+el('back-to-skills').addEventListener('click', () => {
+  const open = document.querySelector<HTMLButtonElement>(`[aria-label="Inspect ${selected}"]`)
+  ;(open ?? search).focus()
+})
 el('reset').addEventListener('click', () => reset())
 el('robot-start').addEventListener('click', event => {
   event.preventDefault()
   reset('robot')
-  el('workspace').scrollIntoView()
+  el('workspace-title').focus()
 })
 document.querySelectorAll<HTMLButtonElement>('[data-scenario]').forEach(button =>
   button.addEventListener('click', () => reset(button.dataset.scenario)))
@@ -228,6 +250,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-install]').forEach((button, 
   })
 })
 window.addEventListener('hashchange', () => { loadFragment(); render(false) })
+guide('default')
 loadFragment()
 showInstall('cli')
 render(false)

@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-14
+
+### Showcase
+
+- Move focus to inspected instructions and provide a return to the originating
+  skill, with a search fallback when the row has been filtered out.
+- Clear an empty search without resetting catalog choices. Distinguish custom
+  and restored views from guided examples; expose correct pressed states.
+- Add a skip link, larger controls and more readable instruction/report text.
+- Show local file-read progress, reject invalid UTF-8 and recover from errors.
+  Clearing or editing input cancels older pending reads.
+
+The npm provider and MCP contracts are unchanged. This patch updates the browser
+workflow and its installation documentation.
+
 ## [0.7.0] - 2026-09-14
 
 ### Added

@@ -6,7 +6,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "dsh-skills-anywhere@0.7.0",
+        "dsh-skills-anywhere@0.7.1",
         "mcp"
       ]
     }
