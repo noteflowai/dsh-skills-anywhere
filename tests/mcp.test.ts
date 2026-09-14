@@ -1,4 +1,5 @@
-import { mkdir, readFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
@@ -129,6 +130,48 @@ describe('MCP server', () => {
     expect((result.structuredContent as { name: string }).name).toBe('late-arrival')
   })
 
+  it('rejects freshly disabled instructions through tools and resources even with cached discovery', async () => {
+    const { client, home } = await harness({ cacheMs: 60_000 })
+    await client.callTool({ name: 'list_skills', arguments: {} })
+    await writeSkill(join(home, '.claude', 'skills'), 'pdf-forms', 'Disabled now', {
+      frontmatter: { 'disable-model-invocation': true }, body: 'Do not expose these instructions.',
+    })
+    const result = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    expect(result.isError).toBe(true)
+    expect(textOf(result)).toContain('disabled by its author')
+    expect(textOf(result)).not.toContain('Do not expose')
+    await expect(client.readResource({ uri: 'skill://pdf-forms' })).rejects.toThrow(/disabled/)
+  })
+
+  it('pins exact original bytes and refuses changed instructions without returning their body', async () => {
+    const { client, home } = await harness({ cacheMs: 60_000 })
+    const path = join(home, '.claude', 'skills', 'pdf-forms', 'SKILL.md')
+    const sha256 = createHash('sha256').update(await readFile(path)).digest('hex')
+    const args = { name: 'pdf-forms', expected_sha256: sha256 }
+    const first = await client.callTool({ name: 'open_skill', arguments: args })
+    expect(first.isError).toBeFalsy()
+    expect((first.structuredContent as { sha256: string }).sha256).toBe(sha256)
+    await writeSkill(join(home, '.claude', 'skills'), 'pdf-forms', 'Changed', { body: 'Unexpected instructions.' })
+    const changed = await client.callTool({ name: 'open_skill', arguments: args })
+    expect(changed.isError).toBe(true)
+    expect(textOf(changed)).toContain('expected_sha256 does not match')
+    expect(textOf(changed)).not.toContain('Unexpected instructions')
+    const fresh = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    expect(fresh.isError).toBeFalsy()
+    expect((fresh.structuredContent as { sha256: string }).sha256).not.toBe(sha256)
+  })
+
+  it.each(['encoding', 'size'])('rejects a cached file replaced with invalid %s', async kind => {
+    const { client, home } = await harness({ cacheMs: 60_000 })
+    await client.callTool({ name: 'list_skills', arguments: {} })
+    const path = join(home, '.claude', 'skills', 'pdf-forms', 'SKILL.md')
+    if (kind === 'encoding') await writeFile(path, Buffer.from([0xff, 0xfe]))
+    else await writeFile(path, 'x'.repeat(128 * 1024 + 1))
+    const result = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    expect(result.isError).toBe(true)
+    await expect(client.readResource({ uri: 'skill://pdf-forms' })).rejects.toThrow()
+  })
+
   it('exposes skills as skill:// resources with completion', async () => {
     const { client } = await harness()
     const templates = await client.listResourceTemplates()
@@ -145,6 +188,17 @@ describe('MCP server', () => {
     })
     expect(completion.completion.values).toEqual(['pdf-forms'])
     await expect(client.readResource({ uri: 'skill://secret-ops' })).rejects.toThrow(/disabled/)
+  })
+
+  it('keeps collision-renamed skills loadable with hashes', async () => {
+    const { client, home } = await harness()
+    const market = join(home, '.claude', 'plugins', 'marketplaces', 'official', 'external_plugins')
+    await writeSkill(join(market, 'discord', 'skills'), 'access', 'discord', { body: 'discord access' })
+    await writeSkill(join(market, 'telegram', 'skills'), 'access', 'telegram', { body: 'telegram access' })
+    const result = await client.callTool({ name: 'open_skill', arguments: { name: 'telegram-access' } })
+    expect(result.isError).toBeFalsy()
+    expect(result.structuredContent).toMatchObject({ name: 'telegram-access', content: 'telegram access' })
+    expect((result.structuredContent as { sha256: string }).sha256).toMatch(/^[a-f0-9]{64}$/)
   })
 
   it('refresh caches one discovery pass and exposes the report', async () => {

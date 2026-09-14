@@ -9,7 +9,7 @@
  */
 
 import { watchFile, unwatchFile } from 'node:fs'
-import { readFile } from 'node:fs/promises'
+import { readSkillBytes } from './skill-input.ts'
 import { join } from 'node:path'
 import chokidar, { type FSWatcher } from 'chokidar'
 import type {
@@ -203,7 +203,10 @@ export class SkillsAnywhereProvider implements SkillProvider {
     const locator = candidate.locator as Locator
     let raw: string
     try {
-      raw = await readFile(locator.path, { encoding: 'utf8', ...(options.signal !== undefined ? { signal: options.signal } : {}) })
+      options.signal?.throwIfAborted()
+      const bytes = await readSkillBytes(locator.path)
+      options.signal?.throwIfAborted()
+      raw = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
     } catch (error) {
       options.signal?.throwIfAborted()
       if (isAbsent(error)) return undefined
@@ -219,13 +222,22 @@ export class SkillsAnywhereProvider implements SkillProvider {
       name: candidate.name,
       description: parsed.skill.description,
       ...(parsed.skill.whenToUse !== undefined ? { whenToUse: parsed.skill.whenToUse } : {}),
-      // The candidate carries the catalog decision (budget or author policy).
-      invocation: candidate.invocation,
+      // Preserve catalog restrictions and apply the author's current policy.
+      invocation: {
+        modelInvocable: candidate.invocation.modelInvocable && parsed.skill.invocation.modelInvocable,
+        userInvocable: candidate.invocation.userInvocable && parsed.skill.invocation.userInvocable,
+      },
       source: candidate.source,
       provider: this.name,
       resourceBase: { kind: 'directory', path: locator.directory },
       path: locator.path,
-      metadata: { ...parsed.skill.metadata, ...candidate.metadata },
+      metadata: {
+        ...parsed.skill.metadata, ...candidate.metadata,
+        skillsAnywhere: {
+          ...(candidate.metadata?.skillsAnywhere as Record<string, unknown> | undefined),
+          authorInvocation: parsed.skill.invocation,
+        },
+      },
       content: parsed.skill.content,
     }
   }

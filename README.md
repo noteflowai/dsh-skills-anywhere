@@ -50,6 +50,13 @@ its recorded joint facts with Robot Reel before writing a review.
 The browser shows the instructions; your agent's own execution tool runs the
 read-only verifier. No new simulation or GPU is needed.
 
+## Review once, load the same file
+
+MCP `open_skill` now returns the original file's SHA-256. Supply
+`expected_sha256` from `check --json` or an earlier open to reject a changed
+`SKILL.md` before its instructions are returned. Fresh author opt-outs apply
+immediately, even while discovery is cached. [Exact-file workflow](docs/VERIFIED-LOADS.md).
+
 ## Quick start
 
 ```sh
@@ -82,7 +89,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.6.0/dsh-skills-anywhere-0.6.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.7.0/dsh-skills-anywhere-0.7.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

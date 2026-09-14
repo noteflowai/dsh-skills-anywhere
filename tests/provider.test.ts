@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 import * as Plugin from '../src/index.ts'
 import { resolveConfig } from '../src/config.ts'
 import { SkillsAnywhereProvider } from '../src/provider.ts'
+import { isOpenable } from '../src/tools.ts'
 import { writeSourcesFile } from '../src/sources.ts'
 import { makeSkillRepo, quietLogger, skillMarkdown, tempDir, waitFor, writeSkill } from './helpers.ts'
 
@@ -71,6 +72,28 @@ describe('resolveConfig', () => {
 })
 
 describe('SkillsAnywhereProvider inside the dsh registry', () => {
+  it.each([0, 50])('honours a fresh author opt-out with catalog budget %i', async limit => {
+    const { home, project } = await fixture()
+    const root = join(home, '.claude', 'skills')
+    await writeSkill(root, 'changing-policy', 'Initially available')
+    const provider = new SkillsAnywhereProvider(resolveConfig({
+      home, dshHome: join(home, '.dsh'), watch: false, sync: false, catalog: { limit },
+    }), quietLogger())
+    try {
+      const candidates = await provider.list({ cwd: project })
+      const candidate = (Array.isArray(candidates) ? candidates : candidates.candidates).find(entry => entry.name === 'changing-policy')!
+      expect(isOpenable((await provider.get(candidate))!)).toBe(true)
+      await writeSkill(root, 'changing-policy', 'Disabled now', {
+        frontmatter: { 'disable-model-invocation': true, 'user-invocable': false },
+      })
+      const changed = (await provider.get(candidate))!
+      expect(changed.invocation.modelInvocable).toBe(false)
+      expect(changed.invocation.userInvocable).toBe(false)
+      expect(isOpenable(changed)).toBe(false)
+    } finally {
+      await provider.dispose()
+    }
+  })
   it('publishes skills from other agents\' user and project directories with the right ranks', async () => {
     const { home, project } = await fixture()
     await writeSkill(join(home, '.claude', 'skills'), 'from-claude-user')

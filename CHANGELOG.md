@@ -6,6 +6,23 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-14
+
+### Added
+
+- MCP `open_skill` returns SHA-256 of the original SKILL.md bytes and accepts
+  optional `expected_sha256` from CLI `check --json` or a prior open. A mismatch
+  returns an error without returning the changed instructions. Referenced files
+  and author authenticity are outside this file identity check.
+- Use bounded, regular-file, fatal UTF-8 reads for both MCP and dsh loads.
+
+### Fixed
+
+- Recheck the author's current invocation policy at load time in MCP tools,
+  MCP resources, and the dsh provider, including skills hidden by catalog budget.
+  Cached discovery can no longer override a newly disabled author setting.
+- Preserve loadability of collision-renamed skills and existing unpinned clients.
+
 ## [0.6.0] - 2026-09-13
 
 ### Added
