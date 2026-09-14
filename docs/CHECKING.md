@@ -124,3 +124,9 @@ can be derived from body paragraphs and YAML errors can quote input lines.
 Inspect a report before publishing it. The browser report records the website
 source commit; the CLI report wraps the same parser results with file identities
 and the selected gate.
+
+### Reviewing source addresses in the browser
+
+The local file checker now shows every referenced HTTP(S) host and URL, plus the author's `allowed-tools` declaration. Strict/lenient parsing remains separate from this review. Nothing is fetched and no client permissions are enforced. Reports also contain the referenced URLs and declared tools; clearing the input removes the displayed results.
+
+`--require-pinned-sources` recognizes HTTPS full-commit file/tree addresses on GitHub and Hugging Face. A hash in an arbitrary path or a `#sha256` fragment is not a verified pin. Queries, credentials, unsupported hosts and unfamiliar layouts remain unverified. An accepted address does not establish that remote bytes, redirects or transitive dependencies were checked.

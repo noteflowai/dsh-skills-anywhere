@@ -111,7 +111,7 @@
         <h2 id="check-title">How will your skill be read?</h2>
         <p class="muted">Use the same checks before committing:
           <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md" target="_blank" rel="noreferrer">Command line &amp; CI guide</a>.</p>
-        <p class="section-intro">Paste or open a SKILL.md and compare the actual provider's strict and lenient parsing. See rejected fields, repairs and invocation settings before installing. Files stay in this page; checking does not run instructions.</p>
+        <p class="section-intro">Paste or open a SKILL.md. Compare parsing modes, inspect external references and review the author's tool declaration before installing. Files stay in this page; checking does not fetch sources or run instructions.</p>
         <div class="check-inputs">
           <label for="check-directory">Skill directory name <input id="check-directory" value="my-skill" maxlength="128" autocomplete="off" spellcheck="false"></label>
           <label for="check-file">Open one Markdown file <input id="check-file" type="file" accept=".md,.markdown,text/markdown,text/plain"></label>
@@ -123,6 +123,8 @@
         <div id="check-results" class="check-results" hidden>
           <article><h3>Provider strict mode <span id="check-strict-state"></span></h3><pre id="check-strict-details" tabindex="0"></pre></article>
           <article><h3>Provider lenient mode <span id="check-lenient-state"></span></h3><pre id="check-lenient-details" tabindex="0"></pre></article>
+          <article class="source-review"><h3>External source review <span id="check-source-state"></span></h3><p class="muted">A full-commit address can identify a revision. This offline check does not verify remote bytes, redirects or linked instructions. Unknown URL layouts remain unverified.</p><ul id="check-sources"></ul></article>
+          <article><h3>Author-declared tools</h3><pre id="check-tools" tabindex="0"></pre><p class="muted">A declaration is carried to the client; it is not an enforced permission boundary. The client controls tool access.</p><details><summary>Use a source-address gate in CI</summary><pre tabindex="0">dsh-skills-anywhere check --require-pinned-sources path/to/SKILL.md</pre><p class="muted">Requires recognized full-commit addresses on GitHub or Hugging Face. It does not verify content or assess intent.</p></details></article>
         </div>
         <p class="muted">This checks provider parsing, not complete specification conformance, script safety, resources or compatibility with every client. Unknown metadata can be preserved without being acted on. Input is not added to share links, saved in browser storage or sent to a service.</p>
       </section>

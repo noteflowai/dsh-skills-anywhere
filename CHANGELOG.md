@@ -2,6 +2,9 @@
 
 ## 0.11.0 — 2026-09-14
 
+- Show source references and author-declared tools directly in the local browser checker, with separate parsing, source-address and client-enforcement boundaries. Clear unavailable results after invalid input.
+- Fix false pin acceptance: arbitrary hex path segments and digest fragments no longer satisfy `--require-pinned-sources`. Only recognized HTTPS full-commit GitHub/Hugging Face layouts qualify; no remote bytes are fetched or verified.
+
 - Carry an author-declared `allowed-tools` with the skill when serving it to a
   different agent, as `declared_tools` in `open_skill` and as a
   `<skill_author_declared_tools>` block in the text. It was parsed and then

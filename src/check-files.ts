@@ -13,8 +13,8 @@ export interface CheckOptions {
    * Fail a file that reaches an external source it does not pin.
    *
    * Off by default, because whether a given host is acceptable is a policy
-   * decision this tool has no standing to make. On, it enforces the one part
-   * that is objective: the bytes reviewed are the bytes that will arrive.
+   * decision this tool has no standing to make. On, it requires recognized
+   * full-commit source addresses. It does not fetch or verify remote bytes.
    */
   readonly requirePinnedSources: boolean
 }

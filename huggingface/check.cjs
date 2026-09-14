@@ -135,6 +135,23 @@ const server = createServer(async (request, response) => {
       const reportText = await fs.readFile(await (await reportDownload).path(), 'utf8')
       assert.equal(JSON.parse(reportText).strict.name, 'private-skill')
       assert(!reportText.includes('LOCAL_ONLY_SENTINEL'))
+      await frame.locator('#check-input').fill([
+        '---', 'name: source-review', 'description: Review external instructions.',
+        'allowed-tools: Read WebFetch', '---',
+        `https://raw.githubusercontent.com/team/repo/${'a'.repeat(40)}/SKILL.md`,
+        `https://example.com/instructions#sha256:${'b'.repeat(64)}`,
+      ].join('\n'))
+      await frame.locator('#check-run').click()
+      assert.match(await frame.locator('#check-source-state').innerText(), /2 hosts · 1 need source review/)
+      assert.match(await frame.locator('#check-sources').innerText(), /Full-commit addresses/)
+      assert.match(await frame.locator('#check-sources').innerText(), /Unverified or mutable address/)
+      assert.equal(await frame.locator('#check-tools').innerText(), 'Read\nWebFetch')
+      assert.equal(await frame.locator('#check-sources a').count(), 0)
+      assert(await inner.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1))
+      await frame.locator('#check-input').fill('---\nname: [invalid yaml\n---')
+      await frame.locator('#check-run').click()
+      assert.match(await frame.locator('#check-source-state').innerText(), /Unavailable/)
+      assert.equal(await frame.locator('#check-sources li').count(), 0)
       await frame.locator('#check-file').setInputFiles({ name: 'SKILL.md', mimeType: 'text/markdown', buffer: Buffer.from(markdown) })
       await frame.locator('#check-status').filter({ hasText: 'Checked' }).waitFor()
       assert.equal(await frame.locator('#check-strict-state').innerText(), 'Accepted')

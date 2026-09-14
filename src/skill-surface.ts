@@ -21,9 +21,8 @@ export interface ExternalSource {
   readonly host: string
   readonly urls: readonly string[]
   /**
-   * True when every reference to this host names an immutable revision, so the
-   * bytes fetched later are the bytes reviewed now. Pinning is what separates a
-   * reference from a standing invitation to change the instructions (AST07).
+   * True when every reference uses a recognized full-commit URL layout.
+   * This is an offline address check; no remote bytes or redirects are verified.
    */
   readonly pinned: boolean
 }
@@ -57,9 +56,9 @@ function trimPunctuation(url: string): string {
 /**
  * Whether a reference names an immutable revision.
  *
- * A 40 or 64 character hex path segment is a git object or a digest. A branch
- * name, a `latest` tag or a bare host is not: the same URL can serve different
- * instructions tomorrow.
+ * Only recognize commit positions on known source hosts. A random hex segment
+ * or a digest fragment on an arbitrary host does not constrain the response.
+ * Fragments are not even sent to an HTTP server. Queries can change routing.
  */
 function isPinned(url: string): boolean {
   let parsed: URL
@@ -68,9 +67,24 @@ function isPinned(url: string): boolean {
   } catch {
     return false
   }
-  const segments = parsed.pathname.split('/').filter(segment => segment.length > 0)
-  return segments.some(segment => /^[a-f0-9]{40}$|^[a-f0-9]{64}$/i.test(segment))
-    || /^sha256[:-][a-f0-9]{64}$/i.test(parsed.hash.replace(/^#/, ''))
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.port || parsed.search) return false
+  const segments = parsed.pathname.split('/').slice(1)
+  const commit = (value: string | undefined) => /^[a-f0-9]{40}$/i.test(value ?? '')
+  const file = (start: number) => segments.length > start && segments.slice(start).every(Boolean)
+  if (parsed.hostname === 'raw.githubusercontent.com') {
+    return !!segments[0] && !!segments[1] && commit(segments[2]) && file(3)
+  }
+  if (parsed.hostname === 'github.com') {
+    return !!segments[0] && !!segments[1] && ['blob', 'raw', 'tree'].includes(segments[2] ?? '')
+      && commit(segments[3]) && file(4)
+  }
+  if (parsed.hostname === 'huggingface.co') {
+    const offset = ['datasets', 'spaces'].includes(segments[0] ?? '') ? 1 : 0
+    return !!segments[offset] && !!segments[offset + 1]
+      && ['resolve', 'blob'].includes(segments[offset + 2] ?? '')
+      && commit(segments[offset + 3]) && file(offset + 4)
+  }
+  return false
 }
 
 /**
