@@ -90,3 +90,10 @@ original recording before explaining the joint's measured/target angles.
 [Follow the local MCP walkthrough](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/PHYSICAL_AI.md).
 The Space displays the skill; verification runs in the user's own agent workspace,
 not on this Space. No robot images or policy weights are bundled here.
+
+## Current local MCP support
+
+Version 0.8.0 negotiates legacy and MCP 2026-07-28 stdio connections. Four SDK
+client configurations and the installed npm archive exercise the real server.
+[Compatibility and migration](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/MCP-COMPATIBILITY.md).
+This is a capability of the installed package; this Space does not host MCP.

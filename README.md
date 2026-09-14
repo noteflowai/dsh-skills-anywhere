@@ -60,6 +60,11 @@ MCP `open_skill` now returns the original file's SHA-256. Supply
 `SKILL.md` before its instructions are returned. Fresh author opt-outs apply
 immediately, even while discovery is cached. [Exact-file workflow](docs/VERIFIED-LOADS.md).
 
+**MCP 2026-07-28 support:** the local stdio command now negotiates with both
+legacy and current-protocol clients. Four SDK configurations and the installed
+npm archive are checked over real subprocess connections.
+[Compatibility matrix and embedding migration](docs/MCP-COMPATIBILITY.md).
+
 ## Quick start
 
 ```sh
@@ -92,7 +97,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.7.1/dsh-skills-anywhere-0.7.1.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.8.0/dsh-skills-anywhere-0.8.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
