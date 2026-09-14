@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.0 — 2026-09-14
+
+- Export the same model-facing skill search used by MCP for controlled direct/MCP comparisons.
+- Add an isolated real-MCP experiment bridge with skill and bundle receipts, bounded catalog discovery and mutation checks.
+- Add a numerical robot-recording review skill, controlled composition fixtures, and public research links to all 27 independently graded model trials.
+- Document cross-model handoff through an explicitly selected public Funes trace. Model quality gains and native commercial-agent interoperability are not implied.
+
+
 ## [0.9.0] - 2026-09-14
 
 - Add `bundle <directory> --json` and `--against <manifest>` for bounded,

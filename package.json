@@ -1,6 +1,6 @@
 {
   "name": "dsh-skills-anywhere",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Your skills, anywhere. A live Agent Skills provider for DeepSeek Harness: every other agent's skill directories (Claude Code, Codex, Cursor, Gemini CLI, Copilot and 60+ more), Claude Code plugin marketplaces, and any GitHub skill repo, all in the dsh skill catalog, and served to any MCP client (Claude Code, Cursor, Codex) too. Zero copies, zero symlinks.",
   "keywords": [
     "deepseek-harness",
@@ -95,11 +95,11 @@
     "prepare": "node -e \"process.exit(require('fs').existsSync('lib/index.js') ? 0 : 1)\" || pnpm run build",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint src tests",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "pnpm run build && vitest run",
+    "test:coverage": "pnpm run build && vitest run --coverage",
     "version": "node scripts/sync-version.mjs && git add -A",
     "version:check": "node scripts/sync-version.mjs --check",
-    "check": "pnpm run version:check && pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build",
+    "check": "pnpm run version:check && pnpm run typecheck && pnpm run lint && pnpm run test",
     "showcase:build": "tsdown --config huggingface/tsdown.config.ts && node .dsh-showcase/tools/build.js --build",
     "showcase:check": "node huggingface/check.cjs && node .dsh-showcase/tools/build.js --seal"
   },

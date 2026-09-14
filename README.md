@@ -43,6 +43,11 @@ The same pool is available **outside dsh** too: `dsh-skills-anywhere mcp` serves
 
 It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI links one canonical copy into several agents), **repairs** common frontmatter drift instead of silently dropping a skill, and **renames** colliding names (`discord/configure` vs `telegram/configure`) so every skill stays reachable. A small CLI shows you exactly what dsh will see and why.
 
+## New in 0.10.0: research you can inspect
+
+[Explore all 27 real GPU skill trials](https://noteflowai.github.io/evalarc/skill-impact/) and [the research pilots](docs/research-pilots.md). Robot Reel's [captured-scene editor](https://noteflowai.github.io/robot-reel/scene-lab/) and [official LIBERO-Plus replay](https://noteflowai.github.io/robot-reel/libero-plus/) connect real source records with portable skill delivery and independent grading. Every failed attempt stays visible; no skill efficacy, full-benchmark or real-hardware result is implied.
+
+
 ## Try a real Physical AI workflow
 
 Load a Microduck frame-review skill through MCP, then have your agent verify
@@ -106,7 +111,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.9.0/dsh-skills-anywhere-0.9.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.10.0/dsh-skills-anywhere-0.10.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
