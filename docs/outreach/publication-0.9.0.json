@@ -1,0 +1,92 @@
+{
+  "version": "0.9.0",
+  "checked": "2026-09-14",
+  "release": "https://github.com/noteflowai/dsh-skills-anywhere/releases/tag/v0.9.0",
+  "release_source_commit": "4644a502bebd18f5dd07bcd55cd2300c9c65a064",
+  "feature_pr": 36,
+  "main_ci_run": "https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34819877193",
+  "release_validation_run": "https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34819913585",
+  "tests": 173,
+  "public_browser": [
+    {
+      "width": 1440,
+      "hub_iframe": true,
+      "download_digests_verified": true,
+      "local_comparison": true,
+      "invalid_input_recovery": true,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "hub_iframe": true,
+      "download_digests_verified": true,
+      "local_comparison": true,
+      "invalid_input_recovery": true,
+      "errors": []
+    },
+    {
+      "width": 320,
+      "hub_iframe": true,
+      "download_digests_verified": true,
+      "local_comparison": true,
+      "invalid_input_recovery": true,
+      "errors": []
+    }
+  ],
+  "package_readback": {
+    "version": "0.9.0",
+    "npm_latest": true,
+    "npm_and_github_identical": true,
+    "registry_version": "0.9.0",
+    "sha256": "6667e894ce0377be58fb99dc8cd44bb3bddecdfabba78b9de9aefc0b5d0751bf",
+    "integrity": "sha512-ziWZd7XSi9mulba/AwNSn79D+oNlaP5WwIGs7mGgO996QtsrbTRf5v6Jh9JcNb7prmpaLzgesWVW89WuJr8YXQ==",
+    "provenance": true
+  },
+  "space_readback": {
+    "repo": "glayguo/dsh-skills-anywhere",
+    "hub_commit": "c563ef9d2b3bb734a91b591c3109519261a4c702",
+    "source_commit": "4644a502bebd18f5dd07bcd55cd2300c9c65a064",
+    "files_verified": 10,
+    "bytes_verified": 360034,
+    "anonymous": true,
+    "served_manifest_matches": true
+  },
+  "npm_signature_audit": "audited 20 packages in 0s\n\n20 packages have verified registry signatures\n\n7 packages have verified attestations",
+  "promotion": {
+    "existing_posts_updated": [
+      {
+        "channel": "weekly",
+        "repo": "ruanyf/weekly",
+        "number": 11665,
+        "state": "open",
+        "comments": 0,
+        "url": "https://github.com/ruanyf/weekly/issues/11665",
+        "body_sha256": "dbcfc0596d29c620e79c76ba7685bb50cb15d352a371ce41800af6db0c3140ec"
+      },
+      {
+        "channel": "hello",
+        "repo": "521xueweihan/HelloGitHub",
+        "number": 3695,
+        "state": "open",
+        "comments": 0,
+        "url": "https://github.com/521xueweihan/HelloGitHub/issues/3695",
+        "body_sha256": "245d22749111a6931d6779b4a107be31f048e2852c806efe14c589250b711b15"
+      },
+      {
+        "channel": "huggingface",
+        "repo": "glayguo/dsh-skills-anywhere",
+        "discussion": 1,
+        "comment_id": "6aa693bb8a735fce0b6cce61",
+        "title": "v0.9.0: unchanged instructions, changed scripts \u2014 review the whole skill directory",
+        "body_sha256": "82ce51ff1998755a6879615fe687f894dfa363ed6caf9d2a32984f179896c9f2"
+      }
+    ],
+    "collection": {
+      "slug": "glayguo/noteflow-ai-open-source-playgrounds-6aa693c382b0184786eb8856",
+      "items": 5,
+      "note": "Skills Anywhere 0.9.0: review scripts and resources with directory manifests, compare changes locally, and pin MCP loads to reviewed bytes."
+    },
+    "new_posts_created": 0,
+    "editorial_acceptance": false
+  }
+}

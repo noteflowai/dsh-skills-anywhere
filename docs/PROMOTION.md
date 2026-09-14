@@ -1,5 +1,34 @@
 # Publication and community submissions
 
+## 0.9.0 directory review publication · 2026-09-14
+
+[PR #36](https://github.com/noteflowai/dsh-skills-anywhere/pull/36) added bounded
+skill directory manifests, resource comparisons and optional MCP bundle-pinned
+loads. The local comparison shows a changed script behind unchanged SKILL.md
+and accepts user-selected manifests without uploading them.
+
+Release source `4644a502bebd18f5dd07bcd55cd2300c9c65a064` passed 173 tests,
+the Linux/macOS/Windows matrix, coverage thresholds, CodeQL, browser and
+installed-archive checks. [Main CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34819877193)
+and the [release workflow](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34819913585)
+succeeded. An initial macOS filename-fixture failure was corrected before merge;
+the filesystem itself rejects invalid UTF-8 names during creation.
+
+GitHub and npm serve the identical 0.9.0 archive; npm latest, integrity,
+provenance and official MCP Registry 0.9.0 were verified. The public npm install
+passed empty-PATH CLI and both SDK-generation MCP checks. npm audit signatures
+verified 20 registry signatures and 7 attestations. The actual HF iframe passed
+1440/390/320px checks for manifest downloads, local comparison and invalid-input
+recovery. Ten Space manifest entries and its serving commit were read back
+anonymously. [Workflow and scope](BUNDLES.md).
+
+The existing HF introduction, collection note, weekly submission and HelloGitHub
+submission were updated in place and read back exactly. Both editorial issues
+remain open with zero comments; no acceptance is claimed. No duplicate issues,
+reminder comments or new X posts were created.
+[Publication receipts](outreach/publication-0.9.0.json).
+
+
 ## 0.8.0 MCP publication · 2026-09-14
 
 [PR #34](https://github.com/noteflowai/dsh-skills-anywhere/pull/34) added legacy
@@ -72,8 +101,8 @@ The sample catalog cannot scan visitor directories. The optional browser checker
 
 | Entry | Verified state |
 | --- | --- |
-| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.8.0 and a provenance attestation. |
-| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.8.0, active/latest, npm package over stdio. |
+| [npm](https://www.npmjs.com/package/dsh-skills-anywhere) | Public registry reports 0.9.0 and a provenance attestation. |
+| [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.noteflowai%2Fdsh-skills-anywhere/versions/latest) | `io.github.noteflowai/dsh-skills-anywhere`, 0.9.0, active/latest, npm package over stdio. |
 | [DeepSeek — Show Your Plugins!](https://github.com/deepseek-ai/deepseek-harness/discussions/6193) | Existing bilingual community showcase, including the web UI card. Reuse this thread for relevant follow-up. |
 | [Glama](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere) | Public entry and **maintenance rated A** badge verified. The fetched README still referenced 0.5.1 while npm is 0.6.0. The rating is a maintenance signal, not a security or client-compatibility certification. Refreshing the cached entry remains follow-up work. |
 
