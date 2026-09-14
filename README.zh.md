@@ -47,6 +47,13 @@ Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但�
 [可复用技能](examples/robot-reel-review/SKILL.md)。
 网页展示技能内容；只读校验由你所用 Agent 的执行工具完成，无需重新仿真或 GPU。
 
+## 审核后加载同一份文件
+
+MCP `open_skill` 返回原始文件的 SHA-256。传入 `check --json` 或之前一次
+打开结果中的 `expected_sha256`，文件变化时会在返回指令前拒绝加载。
+作者刚设置的禁用标志立即生效，不受目录缓存影响。
+[固定文件版本的使用说明](docs/VERIFIED-LOADS.md)。
+
 ## 快速开始
 
 ```sh
@@ -79,7 +86,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.6.0/dsh-skills-anywhere-0.6.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.7.0/dsh-skills-anywhere-0.7.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

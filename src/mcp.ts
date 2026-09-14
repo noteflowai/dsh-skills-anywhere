@@ -14,7 +14,8 @@
  * @module dsh-skills-anywhere/mcp
  */
 
-import { readFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { readSkillBytes } from './skill-input.ts'
 import { createRequire } from 'node:module'
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
@@ -57,6 +58,8 @@ export interface OpenedSkill {
   readonly path: string
   readonly source: string
   readonly content: string
+  /** SHA-256 of the original SKILL.md bytes, including frontmatter. */
+  readonly sha256: string
 }
 
 const DEFAULT_CACHE_MS = 3000
@@ -126,14 +129,19 @@ export function renderSkill(skill: Pick<OpenedSkill, 'name' | 'directory' | 'con
 /** Re-read a discovered skill from disk so edits since discovery are honoured. */
 export async function openSkill(skill: DiscoveredSkill, lenient: boolean): Promise<OpenedSkill | undefined> {
   let raw: string
+  let bytes: Buffer
   try {
-    raw = await readFile(skill.path, 'utf8')
+    bytes = await readSkillBytes(skill.path)
+    raw = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
   } catch {
     return undefined
   }
   const parsed = parseSkillMarkdown(raw, { fallbackName: skill.name, lenient })
   if (!parsed.ok) return undefined
+  // Discovery may be cached. Honour the author's current file at every load.
+  if (!parsed.skill.invocation.modelInvocable) throw new Error(`skill "${skill.name}" is not available for model invocation (disabled by its author)`)
   return {
+    sha256: createHash('sha256').update(bytes).digest('hex'),
     name: skill.name,
     description: parsed.skill.description,
     directory: skill.directory,
@@ -258,6 +266,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     description: 'Load the full instructions of an installed Agent Skill by exact name, together with the directory its scripts and references live in.',
     inputSchema: {
       name: z.string().min(1).describe('Exact skill name as returned by find_skills or list_skills.'),
+      expected_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require these exact SKILL.md bytes, using a hash from check --json or an earlier open_skill. Excludes referenced files.'),
     },
     outputSchema: {
       name: z.string(),
@@ -266,9 +275,11 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       path: z.string().describe('Absolute path of the SKILL.md file.'),
       source: z.string(),
       content: z.string().describe('The skill instructions (Markdown body without frontmatter).'),
+      sha256: z.string().describe('SHA-256 of original SKILL.md bytes, including frontmatter; not a security or resource verification.'),
     },
-  }, async ({ name }) => {
+  }, async ({ name, expected_sha256 }) => {
     const skill = await lookup(name)
+    if (expected_sha256 !== undefined && skill.sha256 !== expected_sha256) throw new Error('SKILL.md changed: expected_sha256 does not match; review the current file before loading instructions')
     return { content: [{ type: 'text', text: renderSkill(skill) }], structuredContent: { ...skill } }
   })
 
