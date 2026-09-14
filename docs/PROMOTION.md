@@ -13,6 +13,7 @@ acceptance, and a directory entry is not an upstream endorsement.
 | Agent Skills — Show and tell | [#557](https://github.com/agentskills/agentskills/discussions/557) | Public implementation showcase; not a client listing or endorsement | [Discussion body](outreach/agentskills-showcase.md) |
 | 科技爱好者周刊 | [#11665](https://github.com/ruanyf/weekly/issues/11665) | Submitted; awaiting editorial selection | [Chinese introduction](outreach/weekly-submission.md) |
 | HelloGitHub | [#3695](https://github.com/521xueweihan/HelloGitHub/issues/3695) | Submitted; awaiting review | [Project recommendation form](outreach/hellogithub-submission.md) |
+| mcpservers.org | [Submission form](https://mcpservers.org/submit) | Free submission received September 14; awaiting review, not yet listed | [Exact fields and confirmation](outreach/mcpservers-submission.md) |
 
 The two Chinese submissions identify the maintainer relationship, independent community status and
 AI-assisted development. They describe version **0.4.0**, link its tagged
@@ -101,7 +102,7 @@ No duplicate PR or reminder comment was added.
 | Anthropic community plugin marketplace | Owner-only web form at https://platform.claude.com/plugins/submit (Console login). `claude plugin validate .` passes. Approved plugins are pinned into anthropics/claude-plugins-community and shown on claude.com/plugins. |
 | LobeHub MCP marketplace | The previously used submission documentation returned 404 on September 14. Revalidate current instructions before treating the earlier CLI sequence as supported. No submission is recorded. |
 | cursor.directory | Owner-only web form https://cursor.directory/plugins/new (GitHub login); the repository now carries the Agent Plugins manifest it expects. |
-| mcpservers.org | Web form https://mcpservers.org/submit (contact e-mail required; free review takes about two weeks). |
+| mcpservers.org | Free form submitted September 14 with explicit success confirmation. Await review; do not submit again. [Fields and receipt](outreach/mcpservers-submission.md). |
 | PulseMCP | The public submission path returned 403 on September 14. Its current submission status could not be verified; this does not establish that submissions are closed. |
 | agentskills.io | Published the implementation playground in *Show and tell* [#557](https://github.com/agentskills/agentskills/discussions/557), with explicit disclosure that Codex wrote the post on the maintainer's behalf. Reuse that discussion for feedback. The Client Showcase remains unsuitable because this tool does not execute skills. |
 | Cursor forum | Showcase category https://forum.cursor.com/c/showcase/9. Current rules restrict fully AI-generated posts and automated bots; a participating maintainer should write from their own experience. |
@@ -183,3 +184,18 @@ record the original publication checks.
 - The existing two Chinese editorial submissions remain open. The nine directory PRs were individually rechecked: two merged, seven open. The public Glama badge says **maintenance rated A**. Both READMEs link the maintenance badge and the two accepted community listings.
 
 Primary evidence: [DeepSeek directory PR #466](https://github.com/Dominic789654/awesome-deepseek-harness/pull/466), [Gemini CLI directory PR #126](https://github.com/Piebald-AI/awesome-gemini-cli/pull/126), [Glama badge](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg), [registry contribution guide](https://github.com/modelcontextprotocol/registry/blob/main/CONTRIBUTING.md), [discussion template](https://github.com/modelcontextprotocol/.github/blob/main/.github/DISCUSSION_TEMPLATE/show-and-tell.yml), [community communication rules](https://modelcontextprotocol.io/community/communication).
+
+## September 14: mcpservers.org free submission
+
+The normal public form accepted **Skills Anywhere** at 00:52 UTC and displayed
+“Submission Successful!” with the server name. The selected plan was free ($0),
+category Development, with remote hosting disabled. The npm author contact
+`admin@noteflowai.com` was used; no paid option or new account was created.
+
+The confirmation says review within 12 hours, whereas the form advertised up to
+two weeks. Neither is a guaranteed review time. This is a received submission,
+not an accepted listing. The homepage and possible listing page showed a
+security-verification page, so public search could not establish whether an
+automated listing already existed. Our publication record contained no earlier
+mcpservers.org submission. The normal submission form was accessible; no
+challenge was bypassed. Submit was clicked once. No further submission is planned.
