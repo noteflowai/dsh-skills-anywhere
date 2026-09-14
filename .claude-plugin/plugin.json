@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "dsh-skills-anywhere",
   "displayName": "Skills Anywhere",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Every skill you have installed for any agent (Claude Code, Codex, Cursor, Gemini CLI, DeepSeek Harness and 60+ more), plus any GitHub skill repo, served as find_skills / open_skill tools and skill:// resources. Zero copies, zero symlinks.",
   "author": {
     "name": "Note Flow AI",
@@ -25,7 +25,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "dsh-skills-anywhere@0.8.0",
+        "dsh-skills-anywhere@0.9.0",
         "mcp",
         "--cwd",
         "${CLAUDE_PROJECT_DIR}"

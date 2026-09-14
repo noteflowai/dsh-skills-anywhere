@@ -16,6 +16,8 @@
 
 import { createHash } from 'node:crypto'
 import { readSkillBytes } from './skill-input.ts'
+import { readBundle } from './skill-bundle.ts'
+import type { BundleManifest } from './bundle-manifest.ts'
 import { createRequire } from 'node:module'
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/server'
 import { serveStdio } from '@modelcontextprotocol/server/stdio'
@@ -60,6 +62,7 @@ export interface OpenedSkill {
   readonly content: string
   /** SHA-256 of the original SKILL.md bytes, including frontmatter. */
   readonly sha256: string
+  readonly bundle?: BundleManifest
 }
 
 const DEFAULT_CACHE_MS = 3000
@@ -127,11 +130,12 @@ export function renderSkill(skill: Pick<OpenedSkill, 'name' | 'directory' | 'con
 }
 
 /** Re-read a discovered skill from disk so edits since discovery are honoured. */
-export async function openSkill(skill: DiscoveredSkill, lenient: boolean): Promise<OpenedSkill | undefined> {
+export async function openSkill(skill: DiscoveredSkill, lenient: boolean, includeBundle = false): Promise<OpenedSkill | undefined> {
   let raw: string
   let bytes: Buffer
+  const snapshot = includeBundle ? await readBundle(skill.directory) : undefined
   try {
-    bytes = await readSkillBytes(skill.path)
+    bytes = snapshot?.skillBytes ?? await readSkillBytes(skill.path)
     raw = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
   } catch {
     return undefined
@@ -148,6 +152,7 @@ export async function openSkill(skill: DiscoveredSkill, lenient: boolean): Promi
     path: skill.path,
     source: skill.source,
     content: parsed.skill.content,
+    ...(snapshot ? { bundle: snapshot.manifest } : {}),
   }
 }
 
@@ -245,7 +250,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     return { content: [{ type: 'text', text }], structuredContent: structured }
   })
 
-  async function lookup(name: string): Promise<OpenedSkill> {
+  async function lookup(name: string, includeBundle = false): Promise<OpenedSkill> {
     if (!isSkillName(name)) throw new Error(`invalid skill name "${name}"`)
     let report = await refresh()
     let skill = report.skills.find(entry => entry.name === name)
@@ -256,7 +261,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     }
     if (skill === undefined) throw new Error(`skill "${name}" is unknown; search with find_skills`)
     if (!skill.invocation.modelInvocable) throw new Error(`skill "${name}" is not available for model invocation (disabled by its author)`)
-    const opened = await openSkill(skill, config.lenient)
+    const opened = await openSkill(skill, config.lenient, includeBundle)
     if (opened === undefined) throw new Error(`skill "${name}" is no longer readable at ${skill.path}`)
     return opened
   }
@@ -267,6 +272,8 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     inputSchema: {
       name: z.string().min(1).describe('Exact skill name as returned by find_skills or list_skills.'),
       expected_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require these exact SKILL.md bytes, using a hash from check --json or an earlier open_skill. Excludes referenced files.'),
+      include_bundle: z.boolean().optional().describe('Also fingerprint all regular files below this skill directory; bounded reads, no execution.'),
+      expected_bundle_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require the reviewed directory digest from bundle --json. Includes its scripts, references, assets and hidden files; excludes external dependencies. Implies include_bundle.'),
     },
     outputSchema: {
       name: z.string(),
@@ -276,10 +283,17 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       source: z.string(),
       content: z.string().describe('The skill instructions (Markdown body without frontmatter).'),
       sha256: z.string().describe('SHA-256 of original SKILL.md bytes, including frontmatter; not a security or resource verification.'),
+      bundle: z.object({
+        schema: z.literal('skills-anywhere-bundle-1'),
+        sha256: z.string(),
+        total_bytes: z.number(),
+        files: z.array(z.object({ path: z.string(), bytes: z.number(), sha256: z.string() })),
+      }).optional().describe('Directory inventory at inspection time. Does not freeze files for later execution or authenticate an author.'),
     },
-  }, async ({ name, expected_sha256 }) => {
-    const skill = await lookup(name)
+  }, async ({ name, expected_sha256, include_bundle, expected_bundle_sha256 }) => {
+    const skill = await lookup(name, include_bundle === true || expected_bundle_sha256 !== undefined)
     if (expected_sha256 !== undefined && skill.sha256 !== expected_sha256) throw new Error('SKILL.md changed: expected_sha256 does not match; review the current file before loading instructions')
+    if (expected_bundle_sha256 !== undefined && skill.bundle?.sha256 !== expected_bundle_sha256) throw new Error('Skill bundle changed: expected_bundle_sha256 does not match; review scripts and resources before loading instructions')
     return { content: [{ type: 'text', text: renderSkill(skill) }], structuredContent: { ...skill } }
   })
 

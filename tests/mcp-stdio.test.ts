@@ -8,6 +8,7 @@ import { Client as LegacyClient } from '@modelcontextprotocol/sdk/client/index.j
 import { StdioClientTransport as LegacyTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { expect, it } from 'vitest'
 import { tempDir } from './helpers.ts'
+import { readBundle } from '../src/skill-bundle.ts'
 
 async function fixture() {
   const directory = await tempDir('mcp-wire')
@@ -49,6 +50,15 @@ it.each(['v1', 'v2-legacy', 'v2-auto', 'v2-modern'] as const)(
       expect((await client.readResource({ uri: 'skill://incident' })).contents).toHaveLength(1)
       const args = { name: 'incident', expected_sha256: createHash('sha256').update(content).digest('hex') }
       expect((await client.callTool({ name: 'open_skill', arguments: args })).isError).toBeFalsy()
+      const resource = join(directory, '.claude', 'skills', 'incident', 'resource.txt')
+      await writeFile(resource, 'reviewed resource')
+      const reviewed = (await readBundle(join(directory, '.claude', 'skills', 'incident'))).manifest
+      const bundleArgs = { ...args, expected_bundle_sha256: reviewed.sha256 }
+      expect((await client.callTool({ name: 'open_skill', arguments: bundleArgs })).isError).toBeFalsy()
+      await writeFile(resource, 'changed resource')
+      const bundleChanged = await client.callTool({ name: 'open_skill', arguments: bundleArgs })
+      expect(bundleChanged.isError).toBe(true)
+      expect(JSON.stringify(bundleChanged)).not.toContain('Original instructions.')
       await writeFile(skill, content + 'CHANGED BODY')
       const changed = await client.callTool({ name: 'open_skill', arguments: args })
       expect(changed.isError).toBe(true)

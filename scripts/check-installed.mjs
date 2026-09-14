@@ -18,13 +18,13 @@ const cwd = mkdtempSync(join(tmpdir(), 'skills-installed-check-'))
 try {
   writeFileSync(join(cwd, 'valid.md'), '---\nname: incident\ndescription: Inspect supplied evidence.\n---\nPRIVATE BODY\n')
   writeFileSync(join(cwd, 'repair.md'), 'Inspect supplied evidence.')
-  function run(args, code) {
-    const result = spawnSync(process.execPath, [entry, 'check', ...args, '--json'], { cwd, encoding: 'utf8', timeout: 15000 })
+  function run(args, code, command = 'check') {
+    const result = spawnSync(process.execPath, [entry, command, ...args, '--json'], { cwd, env: { ...process.env, PATH: '' }, encoding: 'utf8', timeout: 15000 })
     assert.equal(result.status, code, result.stderr || result.error?.message)
     assert.equal(result.stderr, '')
     assert.ok(!result.stdout.includes('PRIVATE BODY'))
     const report = JSON.parse(result.stdout)
-    assert.deepEqual(report.tool, { name: 'dsh-skills-anywhere', version })
+    if (command === 'check') assert.deepEqual(report.tool, { name: 'dsh-skills-anywhere', version })
     return report
   }
   assert.deepEqual(run(['valid.md'], 0).counts, { passed: 1, failed: 0, inputErrors: 0 })
@@ -46,6 +46,12 @@ try {
   ].join('\n'))
   for (const mode of ['legacy', 'modern']) {
     writeFileSync(skillPath, readFileSync(join(cwd, 'valid.md')))
+    const resource = join(skillDirectory, 'resource.txt')
+    writeFileSync(resource, 'reviewed resource')
+    const bundle = run([skillDirectory], 0, 'bundle')
+    const reviewPath = join(cwd, 'review.json')
+    writeFileSync(reviewPath, JSON.stringify(bundle))
+    assert.equal(run([skillDirectory, '--against', reviewPath], 0, 'bundle').matches, true)
     const pinned = run([skillPath], 0).files[0].sha256
     const client = mode === 'legacy'
       ? new LegacyClient({ name: 'installed-check-v1', version: '1.0.0' })
@@ -61,6 +67,14 @@ try {
       const opened = await client.callTool({ name: 'open_skill', arguments: arguments_ })
       assert.ok(!opened.isError)
       assert.equal(opened.structuredContent.sha256, pinned)
+      const bundleArgs = { ...arguments_, expected_bundle_sha256: bundle.sha256 }
+      assert.ok(!(await client.callTool({ name: 'open_skill', arguments: bundleArgs })).isError)
+      writeFileSync(resource, 'CHANGED RESOURCE')
+      const comparison = run([skillDirectory, '--against', reviewPath], 1, 'bundle')
+      assert.deepEqual(comparison.changed, ['resource.txt'])
+      const changedBundle = await client.callTool({ name: 'open_skill', arguments: bundleArgs })
+      assert.equal(changedBundle.isError, true)
+      assert.ok(!JSON.stringify(changedBundle).includes('PRIVATE BODY'))
       writeFileSync(skillPath, readFileSync(skillPath, 'utf8') + '\nCHANGED INSTRUCTIONS')
       const changed = await client.callTool({ name: 'open_skill', arguments: arguments_ })
       assert.equal(changed.isError, true)
@@ -74,7 +88,7 @@ try {
       await transport.close()
     }
   }
-  console.log('Installed tarball: file checks, legacy + 2026-07-28 MCP, exact-byte loads and fresh author opt-outs passed.')
+  console.log('Installed tarball: empty-PATH file/bundle checks, resource changes, legacy + 2026-07-28 MCP, exact-byte loads and fresh author opt-outs passed.')
 } finally {
   rmSync(cwd, { recursive: true, force: true })
 }

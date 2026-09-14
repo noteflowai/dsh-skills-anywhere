@@ -31,6 +31,7 @@ Commands
   sync                 Clone or refresh every source now
   doctor               Explain skipped, repaired, and duplicate skills
   check <files...>      Check explicit Markdown files locally (strict by default)
+  bundle <directory>   Fingerprint a skill directory or compare a reviewed manifest
   mcp                  Serve the same skills to any MCP client over stdio
 
 Options
@@ -44,6 +45,7 @@ Options
   --json               Machine-readable output
   --lenient            check: accept repairs made by the provider
   --fail-on-repair      check: fail if the selected mode needs any repairs
+  --against <file>      bundle: compare with a saved manifest outside the directory
   -h, --help           Show this help
 `
 
@@ -78,6 +80,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
         help: { type: 'boolean', short: 'h', default: false },
         lenient: { type: 'boolean', default: false },
         'fail-on-repair': { type: 'boolean', default: false },
+        against: { type: 'string' },
       },
     })
   } catch (error) {
@@ -90,9 +93,25 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     return 0
   }
   const [command = 'list', ...positional] = parsed.positionals
+  if (command !== 'bundle' && parsed.values.against !== undefined) {
+    console.error('--against is only available for bundle.')
+    return 2
+  }
   if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'])) {
     console.error('--lenient and --fail-on-repair are only available for check.')
     return 2
+  }
+  if (command === 'bundle') {
+    if (positional.length !== 1) {
+      console.error('usage: dsh-skills-anywhere bundle <directory> [--against <manifest.json>] [--json]')
+      return 2
+    }
+    const { bundleCommand } = await import('./bundle-cli.ts')
+    return bundleCommand(positional[0]!, {
+      cwd: parsed.values.cwd ?? process.cwd(),
+      json: parsed.values.json ?? false,
+      ...(parsed.values.against !== undefined ? { against: parsed.values.against } : {}),
+    })
   }
   if (command === 'check') {
     if (positional.length === 0) {

@@ -19,4 +19,6 @@ export interface DemoData {
   inputs: { path: string; markdown: string }[]
   dropped: { name: string; path: string; winner: string; reason: string }[]
   invalid: { path: string; reason: string }[]
+  bundles: { reviewed: BundleManifest; changed: BundleManifest }
 }
+import type { BundleManifest } from '../src/bundle-manifest.ts'

@@ -25,7 +25,8 @@ const server = createServer(async (request, response) => {
   const browser = await chromium.launch({ headless: true })
   const errors = []
   try {
-    for (const width of [1440, 390]) {
+    await fs.mkdir('.dsh-showcase/screenshots', { recursive: true })
+    for (const width of [1440, 390, 320]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: 'reduce' })
       await context.addInitScript(() => {
         Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('Clipboard denied by embed') } } })
@@ -144,6 +145,43 @@ const server = createServer(async (request, response) => {
       await frame.locator('#check-status').filter({ hasText: 'UTF-8' }).waitFor()
       assert.equal(await frame.locator('#check').getAttribute('aria-busy'), 'false')
       assert(await frame.locator('#check-run').isEnabled())
+      await frame.locator('#bundle-verdict').filter({ hasText: 'REVIEW REQUIRED' }).waitFor()
+      assert.equal(await frame.locator('#bundle-skill-state').innerText(), 'SKILL.md is unchanged.')
+      assert.match(await frame.locator('#bundle-changes').innerText(), /CHANGED  scripts\/review.py/)
+      const beforeDownload = page.waitForEvent('download')
+      await frame.locator('#bundle-download-reviewed').click()
+      const reviewed = JSON.parse(await fs.readFile(await (await beforeDownload).path(), 'utf8'))
+      const afterDownload = page.waitForEvent('download')
+      await frame.locator('#bundle-download-current').click()
+      const current = JSON.parse(await fs.readFile(await (await afterDownload).path(), 'utf8'))
+      assert.notEqual(reviewed.sha256, current.sha256)
+      assert.deepEqual(reviewed.files.find(f => f.path === 'SKILL.md'), current.files.find(f => f.path === 'SKILL.md'))
+      await frame.locator('#bundle-demo-matching').click()
+      await frame.locator('#bundle-verdict').filter({ hasText: /^MATCH$/ }).waitFor()
+      await frame.locator('#bundle-file-current').setInputFiles({ name: 'LOCAL_BUNDLE.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(current)) })
+      await frame.locator('#bundle-verdict').filter({ hasText: 'REVIEW REQUIRED' }).waitFor()
+      assert(!(await inner.evaluate(() => location.hash)).includes('LOCAL_BUNDLE'))
+      await frame.locator('#bundle-file-current').setInputFiles({ name: 'forged.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ ...current, sha256: '0'.repeat(64) })) })
+      await frame.locator('#bundle-status').filter({ hasText: 'disagrees' }).waitFor()
+      assert(await frame.locator('#bundle-results').isHidden())
+      assert(await frame.locator('#bundle-download-current').isDisabled())
+      await frame.locator('#bundle-file-current').setInputFiles({ name: 'large.json', mimeType: 'application/json', buffer: Buffer.alloc(1024 * 1024 + 1) })
+      await frame.locator('#bundle-status').filter({ hasText: '1 MiB' }).waitFor()
+      await inner.evaluate(() => {
+        const original = File.prototype.arrayBuffer
+        window.restoreBundleReader = () => { File.prototype.arrayBuffer = original }
+        File.prototype.arrayBuffer = function () {
+          return new Promise(resolve => { window.finishBundleRead = () => original.call(this).then(resolve) })
+        }
+      })
+      await frame.locator('#bundle-file-current').setInputFiles({ name: 'slow.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(current)) })
+      await frame.locator('#bundle-demo-matching').click()
+      await frame.locator('#bundle-verdict').filter({ hasText: /^MATCH$/ }).waitFor()
+      await inner.evaluate(async () => { await window.finishBundleRead(); window.restoreBundleReader(); await new Promise(resolve => setTimeout(resolve, 0)) })
+      assert.equal(await frame.locator('#bundle-verdict').innerText(), 'MATCH')
+      assert.equal(await frame.locator('html').evaluate(element => element.scrollWidth <= innerWidth), true)
+      await frame.locator('#bundle-demo-changed').click()
+      await frame.locator('#bundle-verdict').filter({ hasText: 'REVIEW REQUIRED' }).waitFor()
       await inner.evaluate(() => {
         const original = File.prototype.arrayBuffer
         File.prototype.arrayBuffer = function () {
@@ -170,12 +208,17 @@ const server = createServer(async (request, response) => {
     await page.screenshot({ path: path.join(root, 'thumbnail.png') })
     await page.goto(`file://${path.join(root, 'index.html')}`)
     await page.locator('[data-name="review"]').waitFor()
+    await page.locator('#bundle-verdict').filter({ hasText: 'REVIEW REQUIRED' }).waitFor()
     await page.getByRole('button', { name: '02 Untangle a name clash' }).click()
     assert.equal(await page.locator('.skill-row').count(), 2)
     await page.getByRole('button', { name: 'Load repair example', exact: true }).click()
     assert.equal(await page.locator('#check-lenient-state').innerText(), 'Accepted with repairs')
     await page.getByRole('button', { name: '04 Review robot evidence' }).click()
     assert.equal(await page.locator('#selected-name').innerText(), 'robot-reel-review')
+    for (const width of [1440, 390, 320]) {
+      await page.setViewportSize({ width, height: 2400 })
+      await page.locator('#bundle').screenshot({ path: `.dsh-showcase/screenshots/bundle-${width}.png` })
+    }
     assert.deepEqual(errors, [])
     console.log('Showcase browser checks passed: desktop/mobile iframe, source fixture, budget/search, disabled skills, share fallback, download, keyboard tabs, offline.')
   } finally {

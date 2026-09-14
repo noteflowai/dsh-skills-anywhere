@@ -41,3 +41,11 @@ authenticate an author, pin scripts/references beside the file, or prove model
 compliance. For a complete dependency snapshot, also pin the Git source commit
 and review the resources the skill will use. The browser checker's report is
 for parser inspection; use the CLI's original-byte hash for this workflow.
+
+## Include scripts and resources (0.9+)
+
+Use `bundle /path/to/skill --json` for a directory inventory and pass its
+`sha256` as MCP `expected_bundle_sha256`. This includes all regular files below
+the skill root, including hidden files, and rejects nested links. Default loads
+retain the single-file behavior. Directory inspection does not freeze later
+resource reads. [Complete workflow, format and limits](BUNDLES.md).

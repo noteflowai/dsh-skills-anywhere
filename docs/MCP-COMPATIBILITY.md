@@ -53,3 +53,10 @@ Primary references, checked 2026-09-14:
 - [Official protocol specification](https://modelcontextprotocol.io/specification/2026-07-28)
 - [TypeScript SDK stdio guide](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/serving/stdio.md)
 - [SDK v2 migration guide](https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/migration/upgrade-to-v2.md)
+
+## Directory review in 0.9
+
+The same four SDK configurations now also load with `expected_bundle_sha256`,
+modify only a resource, and verify rejection with unchanged SKILL.md. The
+installed archive checks this with both SDK generations and an empty PATH for
+CLI operations. [Bundle contract](BUNDLES.md).
