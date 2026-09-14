@@ -1,0 +1,72 @@
+{
+  "version": "0.8.0",
+  "checked": "2026-09-14",
+  "release": "https://github.com/noteflowai/dsh-skills-anywhere/releases/tag/v0.8.0",
+  "release_source_commit": "57e8f57ac29f6872a9c6017bfc9400908b5f48c1",
+  "validation_run": "https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34817726291",
+  "public_browser_widths": [
+    1440,
+    390,
+    320
+  ],
+  "package_readback": {
+    "version": "0.8.0",
+    "npm_and_github_identical": true,
+    "registry": "0.8.0",
+    "sha256": "20e91e2726e36e4fc037ddfded554ecb08d435e86a8c421857bc3b7e86d27e55",
+    "integrity": "sha512-WIKLYQUJJQxSVcSSUtP4vOvzN0OLyEA3yC4paOHTsQfN08LFyNoXyvCdjl2TAO0BY/ATijmcLXtu9J3V88+8sg==",
+    "provenance": true
+  },
+  "space_readback": {
+    "repo": "glayguo/dsh-skills-anywhere",
+    "kind": "space",
+    "hub_commit": "6bd4e79cf623767c16312157a758e45f7886e646",
+    "source_commit": "57e8f57ac29f6872a9c6017bfc9400908b5f48c1",
+    "files_verified": 10,
+    "bytes_verified": 357614,
+    "anonymous": true,
+    "served_manifest_matches": true
+  },
+  "existing_posts_updated": [
+    {
+      "project": "skills",
+      "channel": "weekly",
+      "repo": "ruanyf/weekly",
+      "number": 11665,
+      "url": "https://github.com/ruanyf/weekly/issues/11665",
+      "state": "open",
+      "comments": 0,
+      "body_sha256": "13b1eb8f182ffd23dfa47aa7ddb092596182801fad319174ff08c799e645be42"
+    },
+    {
+      "project": "skills",
+      "channel": "hello",
+      "repo": "521xueweihan/HelloGitHub",
+      "number": 3695,
+      "url": "https://github.com/521xueweihan/HelloGitHub/issues/3695",
+      "state": "open",
+      "comments": 0,
+      "body_sha256": "3b677f9dbce72b5a2c99b391b908b4989ef30d80f98eb1da2b79d8170668cc3e"
+    },
+    {
+      "project": "skills",
+      "channel": "huggingface",
+      "repo": "glayguo/dsh-skills-anywhere",
+      "discussion": 1,
+      "comment_id": "6aa693bb8a735fce0b6cce61",
+      "title": "v0.8.0: legacy and current MCP clients, one stdio command",
+      "body_sha256": "ab8b33ecb103afa52302cf3feac4ac78c42a0bc11ffe533f1a55dc39189d1415"
+    }
+  ],
+  "collection": {
+    "slug": "glayguo/noteflow-ai-open-source-playgrounds-6aa693c382b0184786eb8856",
+    "items": 5,
+    "updated_notes": {
+      "glayguo/dsh-skills-anywhere": "Skills Anywhere 0.8.0: legacy and MCP 2026-07-28 stdio, reviewed file hashes, shared skills and a local browser checker.",
+      "glayguo/evalarc": "EvalArc 0.8.0: download a complete suite and verify its original configuration, attempts, acceptance gates and JUnit offline."
+    }
+  },
+  "new_posts_created": 0,
+  "editorial_acceptance": false,
+  "release_validation_run": "https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34817750967"
+}
