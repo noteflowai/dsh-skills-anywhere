@@ -36,13 +36,14 @@ mkdir -p "$REVIEW_WORKSPACE"
 
 ```bash
 npx -y dsh-skills-anywhere@0.6.0 add noteflowai/dsh-skills-anywhere \
-  --path examples/robot-reel-review --ref main --project --cwd "$REVIEW_WORKSPACE"
+  --path examples/robot-reel-review --ref c27696e3f8572238002cad94affe89329db11c03 --project --cwd "$REVIEW_WORKSPACE"
 npx -y dsh-skills-anywhere@0.6.0 sources --json --cwd "$REVIEW_WORKSPACE"
 ```
 
 `add` writes the workspace's `.dsh/skills-anywhere.json`, clones the skill
-repository into the local cache and records its resolved commit. Replace `main`
-with a reviewed commit for a fixed source. Existing source entries are retained.
+repository into the local cache and records its resolved commit. The example
+pins the tested skill commit; its original bytes are identified in the check
+record below. Existing source entries are retained.
 The source cache is a Git checkout; installed agent directories are not copied
 or rewritten. If the workspace sits inside another Git checkout, its nearest
 Git root determines the project configuration location.
@@ -114,3 +115,8 @@ a temporary, explicitly configured skill root: discovery, `open_skill` and the
 resource read all succeeded. The source verifier accepted the original frame
 and rejected a copy whose measured angle was changed by 0.001 rad. Neither input
 file was modified. [Machine-readable check record](physical-ai-workflow-check.json).
+
+The documented `add` command was also run with the published CLI against that
+Git commit in a temporary project. A second stdio process using the CLI `mcp`
+command found the Git-origin skill, loaded it from the locked cache and matched
+its full SHA-256. Repeating registration did not add another source entry.

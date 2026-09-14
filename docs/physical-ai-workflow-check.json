@@ -24,5 +24,18 @@
   "scope": "MCP discovery/loading and deterministic verifier; no LLM reasoning or GUI client certification",
   "checked_at": "2026-09-14T01:18:45.675948+00:00",
   "robot_reel_source": "c9e7f42c6fac758a08564418ee19c082aea69e5b",
-  "frame_trace_sha256": "dcc3200bd954bdcd2f2914d609aec30c6e9bcee57a41fe97a600861f18eb0241"
+  "frame_trace_sha256": "dcc3200bd954bdcd2f2914d609aec30c6e9bcee57a41fe97a600861f18eb0241",
+  "registered_git_source": {
+    "package": {
+      "name": "dsh-skills-anywhere",
+      "version": "0.6.0"
+    },
+    "git_source": "noteflowai/dsh-skills-anywhere",
+    "revision": "c27696e3f8572238002cad94affe89329db11c03",
+    "source": "git noteflowai/dsh-skills-anywhere/examples/robot-reel-review",
+    "skill": "robot-reel-review",
+    "skill_sha256": "0ecd77da55411cc588224817dc7ee7d6b493995d7c00ee59c6b6425b5e829e7a",
+    "project_registration": true,
+    "published_cli_stdio": true
+  }
 }

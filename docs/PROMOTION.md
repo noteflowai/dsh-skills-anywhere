@@ -24,7 +24,7 @@ entry in the anonymous view; GitHub issue search also found no prior submission.
 Their existing bodies now include the live Hugging Face playground; no duplicate
 issues or reminder comments were added.
 
-The Space uses nine authored Markdown files scanned by the actual provider at
+The current Space uses ten authored Markdown files scanned by the actual provider at
 build time, and shares the package's catalog and search logic in the browser.
 Its first publication used the successful main CI artifact from run
 [34756372479](https://github.com/noteflowai/dsh-skills-anywhere/actions/runs/34756372479)
