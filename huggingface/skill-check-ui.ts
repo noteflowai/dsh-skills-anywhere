@@ -15,6 +15,8 @@ export function installSkillCheck(example: string, source: { commit: string; dir
     report = undefined
     download.disabled = true
     el('check-results').hidden = true
+    el('check').setAttribute('aria-busy', 'false')
+    el<HTMLButtonElement>('check-run').disabled = false
     status.textContent = 'Ready to check. Your text stays in this page.'
   }
 
@@ -68,16 +70,26 @@ export function installSkillCheck(example: string, source: { commit: string; dir
     invalidate()
     const selected = file.files?.[0]
     if (!selected) return
+    file.value = ''
     const request = revision
     input.value = ''
+    el('check').setAttribute('aria-busy', 'true')
+    el<HTMLButtonElement>('check-run').disabled = true
+    status.textContent = 'Reading the selected file locally…'
     try {
       if (selected.size > MAX_SKILL_BYTES) throw new Error('Choose a SKILL.md of 128 KiB or less.')
-      const text = await selected.text()
+      const bytes = await selected.arrayBuffer()
       if (revision !== request) return
-      input.value = text
+      input.value = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
       run()
     } catch (error) {
-      if (revision === request) status.textContent = error instanceof Error ? error.message : 'Could not read this file.'
+      if (revision === request) {
+        el('check').setAttribute('aria-busy', 'false')
+        el<HTMLButtonElement>('check-run').disabled = false
+        status.textContent = error instanceof TypeError
+          ? 'Could not read UTF-8 text. Save this file as UTF-8 and open it again.'
+          : error instanceof Error ? error.message : 'Could not read this file.'
+      }
     }
   })
   download.addEventListener('click', () => {

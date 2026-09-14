@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "dsh-skills-anywhere",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Every Agent Skill installed for any coding agent, plus GitHub skill repos, as find_skills / open_skill tools and skill:// resources over MCP. Zero copies, zero symlinks.",
   "author": {
     "name": "Note Flow AI",
