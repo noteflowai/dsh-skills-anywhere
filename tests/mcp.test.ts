@@ -54,6 +54,30 @@ function textOf(result: unknown): string {
 }
 
 describe('MCP server', () => {
+  it('returns one path-free delivery identity per successful load and no receipt on rejection', async () => {
+    const { client, home } = await harness()
+    const first = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms', include_bundle: true } })
+    const data = first.structuredContent as {
+      content: string; sha256: string; bundle: { sha256: string }
+      receipt: { load_id: string; loaded_at: string; content_sha256: string }
+    }
+    expect(data.receipt).toMatchObject({
+      schema: 'skills-anywhere-load-1', name: 'pdf-forms',
+      skill_sha256: data.sha256, bundle_sha256: data.bundle.sha256,
+      content_sha256: createHash('sha256').update(data.content).digest('hex'),
+      provider: 'dsh-skills-anywhere', permissions_enforced: false, declared_tools: null,
+    })
+    expect(new Date(data.receipt.loaded_at).toISOString()).toBe(data.receipt.loaded_at)
+    expect(JSON.stringify(data.receipt)).not.toContain(home)
+    expect(JSON.stringify(data.receipt)).not.toContain('Use pdftk')
+    const again = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms' } })
+    expect(again.structuredContent).toMatchObject({ receipt: { bundle_sha256: null } })
+    expect((again.structuredContent as typeof data).receipt.load_id).not.toBe(data.receipt.load_id)
+    const rejected = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms', expected_sha256: '0'.repeat(64) } })
+    expect(rejected.isError).toBe(true)
+    expect(rejected.structuredContent ?? {}).not.toHaveProperty('receipt')
+  })
+
   it('pins all skill files and rejects a changed resource without returning instructions', async () => {
     const { client, home } = await harness({ cacheMs: 60_000 })
     const directory = join(home, '.claude', 'skills', 'pdf-forms')

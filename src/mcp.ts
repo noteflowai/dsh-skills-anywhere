@@ -15,6 +15,7 @@
  */
 
 import { createHash } from 'node:crypto'
+import { loadReceipt, type LoadReceipt } from './load-receipt.ts'
 import { readSkillBytes } from './skill-input.ts'
 import { readBundle } from './skill-bundle.ts'
 import type { BundleManifest } from './bundle-manifest.ts'
@@ -73,6 +74,8 @@ export interface OpenedSkill {
    */
   readonly declaredTools?: readonly string[]
   readonly bundle?: BundleManifest
+  /** Returned instruction identity; no execution or task-success assertion. */
+  readonly receipt: LoadReceipt
 }
 
 const DEFAULT_CACHE_MS = 3000
@@ -183,7 +186,7 @@ export async function openSkill(skill: DiscoveredSkill, lenient: boolean, includ
   if (!parsed.ok) return undefined
   // Discovery may be cached. Honour the author's current file at every load.
   if (!parsed.skill.invocation.modelInvocable) throw new Error(`skill "${skill.name}" is not available for model invocation (disabled by its author)`)
-  return {
+  const opened = {
     sha256: createHash('sha256').update(bytes).digest('hex'),
     name: skill.name,
     description: parsed.skill.description,
@@ -196,6 +199,7 @@ export async function openSkill(skill: DiscoveredSkill, lenient: boolean, includ
       : {}),
     ...(snapshot ? { bundle: snapshot.manifest } : {}),
   }
+  return { ...opened, receipt: loadReceipt(opened, packageVersion()) }
 }
 
 
@@ -323,6 +327,19 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
         total_bytes: z.number(),
         files: z.array(z.object({ path: z.string(), bytes: z.number(), sha256: z.string() })),
       }).optional().describe('Directory inventory at inspection time. Does not freeze files for later execution or authenticate an author.'),
+      receipt: z.object({
+        schema: z.literal('skills-anywhere-load-1'),
+        load_id: z.string(),
+        loaded_at: z.string(),
+        provider: z.literal('dsh-skills-anywhere'),
+        provider_version: z.string(),
+        name: z.string(),
+        skill_sha256: z.string(),
+        content_sha256: z.string(),
+        bundle_sha256: z.string().nullable(),
+        declared_tools: z.array(z.string()).nullable(),
+        permissions_enforced: z.literal(false),
+      }).describe('Identity of this instruction delivery. Attach to your own tool span; does not assert execution, permission enforcement or task success. Omits source path fields and instruction text; preserves author tool declarations.'),
     },
   }, async ({ name, expected_sha256, include_bundle, expected_bundle_sha256 }) => {
     const skill = await lookup(name, include_bundle === true || expected_bundle_sha256 !== undefined)

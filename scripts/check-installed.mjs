@@ -67,6 +67,11 @@ try {
       const opened = await client.callTool({ name: 'open_skill', arguments: arguments_ })
       assert.ok(!opened.isError)
       assert.equal(opened.structuredContent.sha256, pinned)
+      assert.equal(opened.structuredContent.receipt.schema, 'skills-anywhere-load-1')
+      assert.equal(opened.structuredContent.receipt.skill_sha256, pinned)
+      assert.equal(opened.structuredContent.receipt.provider_version, version)
+      assert.equal(opened.structuredContent.receipt.bundle_sha256, null)
+      assert.equal(opened.structuredContent.receipt.permissions_enforced, false)
       const bundleArgs = { ...arguments_, expected_bundle_sha256: bundle.sha256 }
       assert.ok(!(await client.callTool({ name: 'open_skill', arguments: bundleArgs })).isError)
       writeFileSync(resource, 'CHANGED RESOURCE')

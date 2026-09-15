@@ -44,6 +44,10 @@ The same pool is available **outside dsh** too: `dsh-skills-anywhere mcp` serves
 
 It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI links one canonical copy into several agents), **repairs** common frontmatter drift instead of silently dropping a skill, and **renames** colliding names (`discord/configure` vs `telegram/configure`) so every skill stays reachable. A small CLI shows you exactly what dsh will see and why.
 
+## New in 0.12.0: skill delivery receipts
+
+Successful MCP `open_skill` calls now return a delivery receipt identifying the exact instruction body, original SKILL.md and optional bundle. Attach it to your actual tool span to review delivered versions alongside task results. A receipt does not claim instruction following or permission enforcement. [Receipt contract](docs/LOAD-RECEIPTS.md) · [EvalArc Trace Workbench](https://noteflowai.github.io/evalarc/trace-workbench/).
+
 ## New in 0.10.0: research you can inspect
 
 [Explore all 27 real GPU skill trials](https://noteflowai.github.io/evalarc/skill-impact/) and [the research pilots](docs/research-pilots.md). Robot Reel's [captured-scene editor](https://noteflowai.github.io/robot-reel/scene-lab/) and [official LIBERO-Plus replay](https://noteflowai.github.io/robot-reel/libero-plus/) connect real source records with portable skill delivery and independent grading. Every failed attempt stays visible; no skill efficacy, full-benchmark or real-hardware result is implied.
@@ -112,7 +116,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.1/dsh-skills-anywhere-0.11.1.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.0/dsh-skills-anywhere-0.12.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
