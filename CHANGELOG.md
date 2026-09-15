@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0 — 2026-09-15
+
+- Return a unique skills-anywhere-load-1 receipt with instruction/body digests, optional bundle identity, provider version and retained author tool declarations from successful MCP and direct loads.
+- Omit source path fields and instruction text from the receipt; author declarations can themselves contain paths. Keep permission enforcement client-owned and rejected pins free of successful receipts.
+- Add a real stdio recorder, installed-package checks for both protocol eras, documentation and Trace Workbench links.
+
 ## 0.11.1 — 2026-09-15
 
 - Fix a browser comparison race: importing either manifest while an example is still hashing no longer leaves the other side permanently loading. Validate and settle each side independently, expose per-side busy state and let the same local file be selected again after an error.
