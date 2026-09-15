@@ -1,7 +1,8 @@
 # OWASP contribution: source-address checks and declared tools
 
 **Submission exists:** [OWASP issue #83](https://github.com/OWASP/www-project-agentic-skills-top-10/issues/83).
-The earlier draft's "not submitted" status is stale. The text below records the
+The original [publication receipt](publication-2026-09-15.md) is retained.
+The text below records the
 reviewed contribution; submission does not establish acceptance or endorsement.
 
 The upstream README now directs v1 document-review comments to its
