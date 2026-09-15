@@ -1,6 +1,6 @@
 # Draft contribution to OWASP Agentic Skills Top 10
 
-**Status: not submitted.** Prepared for the maintainer to review and send. The project page
+**Status: submitted 2026-09-15** as [OWASP issue #83](https://github.com/OWASP/www-project-agentic-skills-top-10/issues/83), on the maintainer's instruction. Receipt: [publication-2026-09-15.md](publication-2026-09-15.md). The project page
 invites contributions of mitigation case studies and of tooling, and its v1 draft is in public
 review, so this is written as a contribution to that draft rather than as a project
 announcement. Nothing here claims acceptance, review or endorsement by OWASP.

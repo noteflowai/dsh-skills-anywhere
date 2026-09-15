@@ -1,5 +1,28 @@
 # Publication and community submissions
 
+## 2026-09-15 outreach · OWASP contribution and a finding-led X thread
+
+Submitted [OWASP Agentic Skills Top 10 issue #83](https://github.com/OWASP/www-project-agentic-skills-top-10/issues/83)
+as a mitigation enhancement and research contribution, and posted a finding-led thread from
+[@glay_oneai](https://x.com/glay_oneai/status/2099745359224578381). Both were carried out on the
+maintainer's explicit instruction.
+
+The OWASP issue leads with this project's own error: it treated any URL holding a 40 or 64
+character hex segment as a pinned source, and a hash in a URL does not constrain what a server
+returns. #39 corrected it to recognised content-addressed layouts, and the issue proposes sharper
+AST05 wording because the current text invites the same mistake. It also contributes the AST10
+`allowed-tools` loss with its resolution, and explains why the checker returns no verdict, which
+follows from AST08's own warning about pattern matchers.
+
+Every claim was reproduced from the published npm package before submission. Nothing was asked
+for: no listing, no link, no endorsement, and the implementation is offered for reuse. Issues #63
+and #70 are cross-referenced so maintainers can see the contribution is complementary.
+
+The X thread is not another launch post. It carries one finding per project with the shared
+observation that each green number was hiding something, and two of the four posts describe errors
+this work shipped. [Receipt](outreach/publication-2026-09-15.md).
+
+
 ## 0.9.0 directory review publication · 2026-09-14
 
 [PR #36](https://github.com/noteflowai/dsh-skills-anywhere/pull/36) added bounded
