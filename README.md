@@ -46,7 +46,7 @@ It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI
 
 ## New in 0.12.0: skill delivery receipts
 
-Successful MCP `open_skill` calls now return a path-free receipt identifying the exact instruction body, original SKILL.md and optional bundle. Attach it to your actual tool span to review delivered versions alongside task results. A receipt does not claim instruction following or permission enforcement. [Receipt contract](docs/LOAD-RECEIPTS.md) · [EvalArc Trace Workbench](https://noteflowai.github.io/evalarc/trace-workbench/).
+Successful MCP `open_skill` calls now return a delivery receipt identifying the exact instruction body, original SKILL.md and optional bundle. Attach it to your actual tool span to review delivered versions alongside task results. A receipt does not claim instruction following or permission enforcement. [Receipt contract](docs/LOAD-RECEIPTS.md) · [EvalArc Trace Workbench](https://noteflowai.github.io/evalarc/trace-workbench/).
 
 ## New in 0.10.0: research you can inspect
 

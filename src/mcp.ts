@@ -339,7 +339,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
         bundle_sha256: z.string().nullable(),
         declared_tools: z.array(z.string()).nullable(),
         permissions_enforced: z.literal(false),
-      }).describe('Identity of this instruction delivery. Attach to your own tool span; does not assert execution, permission enforcement or task success. Contains no filesystem paths or instruction text.'),
+      }).describe('Identity of this instruction delivery. Attach to your own tool span; does not assert execution, permission enforcement or task success. Omits source path fields and instruction text; preserves author tool declarations.'),
     },
   }, async ({ name, expected_sha256, include_bundle, expected_bundle_sha256 }) => {
     const skill = await lookup(name, include_bundle === true || expected_bundle_sha256 !== undefined)

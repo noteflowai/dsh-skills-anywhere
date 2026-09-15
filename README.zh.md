@@ -45,7 +45,7 @@ Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但�
 
 ## 0.12.0：技能加载回执
 
-成功的 MCP `open_skill` 调用会返回不含文件路径的加载回执，关联指令正文、原始 SKILL.md 与可选目录摘要。调用方可将回执关联到实际工具 span，再与任务评估结果一起检查。回执不代表指令已经执行或权限已经强制限制。[数据契约](docs/LOAD-RECEIPTS.md) · [EvalArc 评估工作台](https://noteflowai.github.io/evalarc/trace-workbench/)。
+成功的 MCP `open_skill` 调用会返回省略源文件路径字段的加载回执，关联指令正文、原始 SKILL.md 与可选目录摘要。调用方可将回执关联到实际工具 span，再与任务评估结果一起检查。回执不代表指令已经执行或权限已经强制限制。[数据契约](docs/LOAD-RECEIPTS.md) · [EvalArc 评估工作台](https://noteflowai.github.io/evalarc/trace-workbench/)。
 
 ## 0.10.0：有原始证据的研究场景
 

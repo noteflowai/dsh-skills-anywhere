@@ -24,8 +24,9 @@ Read `structuredContent.receipt` from the response:
 | `declared_tools` | Author's declaration, or `null` when absent |
 | `permissions_enforced` | Always `false`; the client controls tool permissions |
 
-The receipt contains no filesystem paths or instruction text. The surrounding
-MCP response still contains both, so choose what to retain. A fresh read has a
+The receipt omits source path fields and instruction text. Author-declared
+tool strings are preserved and can themselves contain paths. The surrounding
+MCP response also contains source paths and instructions, so choose what to retain. A fresh read has a
 fresh load ID even if its bytes are unchanged. Rejected hash checks return an
 error without a successful delivery receipt.
 
