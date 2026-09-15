@@ -196,6 +196,32 @@ const server = createServer(async (request, response) => {
       await frame.locator('#bundle-verdict').filter({ hasText: /^MATCH$/ }).waitFor()
       await inner.evaluate(async () => { await window.finishBundleRead(); window.restoreBundleReader(); await new Promise(resolve => setTimeout(resolve, 0)) })
       assert.equal(await frame.locator('#bundle-verdict').innerText(), 'MATCH')
+      // Replacing one side while the example is hashing must not cancel the
+      // other side. Hold the real digest promises, then release them explicitly.
+      for (const side of ['reviewed', 'current']) {
+        await inner.evaluate(() => {
+          const original = crypto.subtle.digest.bind(crypto.subtle)
+          const pending = []
+          crypto.subtle.digest = (...args) => new Promise((resolve, reject) => {
+            pending.push(() => original(...args).then(resolve, reject))
+          })
+          window.releaseExampleDigests = async () => {
+            crypto.subtle.digest = original
+            await Promise.all(pending.map(finish => finish()))
+          }
+        })
+        await frame.locator('#bundle-demo-matching').click()
+        await frame.locator(`#bundle-file-${side}`).setInputFiles({
+          name: 'replacement.json', mimeType: 'application/json',
+          buffer: Buffer.from(JSON.stringify(current)),
+        })
+        await inner.evaluate(() => window.releaseExampleDigests())
+        await frame.locator('#bundle-verdict').filter({ hasText: 'REVIEW REQUIRED' }).waitFor()
+        assert.equal(await frame.locator(`#bundle-${side}-hash`).innerText(), current.sha256)
+        assert.equal(await frame.locator(`#bundle-${side === 'reviewed' ? 'current' : 'reviewed'}-hash`).innerText(), reviewed.sha256)
+        assert(await frame.locator('#bundle-download-reviewed').isEnabled())
+        assert(await frame.locator('#bundle-download-current').isEnabled())
+      }
       assert.equal(await frame.locator('html').evaluate(element => element.scrollWidth <= innerWidth), true)
       await frame.locator('#bundle-demo-changed').click()
       await frame.locator('#bundle-verdict').filter({ hasText: 'REVIEW REQUIRED' }).waitFor()

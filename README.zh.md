@@ -12,6 +12,8 @@
 
 **[体验 Hugging Face 交互演示](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)**：在示例工作区中查看技能来源、处理重名、调整目录预算，并搜索未列出的技能。无需安装或模型 API。[演示原理](docs/HUGGINGFACE.md)。
 
+本地目录清单比较会分别显示两侧验证状态；示例加载过程中替换任一文件，也能保留另一侧的结果。文件仍只在浏览器中处理。
+
 打开详情后可用键盘返回原技能行；清空搜索保留目录预算和 Pin／Hide 设置，
 分享链接明确显示恢复后的视图。本地文件读取有进度反馈，清空输入也会取消旧读取。
 
@@ -106,7 +108,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.0/dsh-skills-anywhere-0.11.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.1/dsh-skills-anywhere-0.11.1.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere

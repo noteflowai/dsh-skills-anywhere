@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.1 — 2026-09-15
+
+- Fix a browser comparison race: importing either manifest while an example is still hashing no longer leaves the other side permanently loading. Validate and settle each side independently, expose per-side busy state and let the same local file be selected again after an error.
+- Exercise both overlap directions inside the embedded playground, alongside stale-file rejection and local-only file handling. CLI and MCP manifest semantics are unchanged.
+
 ## 0.11.0 — 2026-09-14
 
 - Show source references and author-declared tools directly in the local browser checker, with separate parsing, source-address and client-enforcement boundaries. Clear unavailable results after invalid input.

@@ -6,17 +6,23 @@ export function installBundleComparison(example: { reviewed: BundleManifest; cha
   const state: Record<Side, BundleManifest | undefined> = { reviewed: undefined, current: undefined }
   const tokens: Record<Side, number> = { reviewed: 0, current: 0 }
   const errors: Record<Side, string> = { reviewed: '', current: '' }
+  const pending: Record<Side, boolean> = { reviewed: false, current: false }
 
   function render(): void {
     const { reviewed, current } = state
     for (const side of ['reviewed', 'current'] as const) {
       el<HTMLButtonElement>(`bundle-download-${side}`).disabled = !state[side]
-      el(`bundle-${side}-hash`).textContent = state[side]?.sha256 ?? 'No valid manifest loaded'
+      el(`bundle-${side}-hash`).textContent = state[side]?.sha256
+        ?? (pending[side] ? 'Reading and validating locally…' : 'No valid manifest loaded')
+      el(`bundle-${side}-hash`).setAttribute('aria-busy', String(pending[side]))
     }
     const ready = reviewed !== undefined && current !== undefined
     el('bundle-results').hidden = !ready
     if (!ready) {
-      el('bundle-status').textContent = Object.values(errors).filter(Boolean).join(' ') || 'Reading and validating manifests…'
+      el('bundle-status').textContent = [
+        ...Object.values(errors).filter(Boolean),
+        ...(['reviewed', 'current'] as const).filter(side => pending[side]).map(side => `Validating ${side} manifest locally…`),
+      ].join(' ') || 'Choose a valid manifest for each side, or load an example.'
       return
     }
     const comparison = compareManifests(reviewed, current)
@@ -36,30 +42,38 @@ export function installBundleComparison(example: { reviewed: BundleManifest; cha
       ++tokens[side]
       state[side] = undefined
       errors[side] = ''
+      pending[side] = true
       el<HTMLInputElement>(`bundle-file-${side}`).value = ''
       el(`bundle-source-${side}`).textContent = 'Authored example'
     }
     const token = { ...tokens }
     render()
-    try {
-      const pair = await Promise.all([validateManifest(example.reviewed), validateManifest(changed ? example.changed : example.reviewed)])
-      if (token.reviewed !== tokens.reviewed || token.current !== tokens.current) return
-      state.reviewed = pair[0]
-      state.current = pair[1]
-    } catch {
-      if (token.reviewed !== tokens.reviewed || token.current !== tokens.current) return
-      errors.reviewed = 'The example manifest could not be verified.'
-    }
-    render()
+    await Promise.all((['reviewed', 'current'] as const).map(async side => {
+      try {
+        const value = await validateManifest(side === 'current' && changed ? example.changed : example.reviewed)
+        if (token[side] !== tokens[side]) return
+        state[side] = value
+      } catch {
+        if (token[side] !== tokens[side]) return
+        errors[side] = `The ${side} example manifest could not be verified. Choose a local manifest or retry the example.`
+      } finally {
+        if (token[side] === tokens[side]) {
+          pending[side] = false
+          render()
+        }
+      }
+    }))
   }
 
   for (const side of ['reviewed', 'current'] as const) {
     el<HTMLInputElement>(`bundle-file-${side}`).addEventListener('change', async event => {
       const file = (event.currentTarget as HTMLInputElement).files?.[0]
       if (!file) return
+      ;(event.currentTarget as HTMLInputElement).value = ''
       const token = ++tokens[side]
       state[side] = undefined
       errors[side] = ''
+      pending[side] = true
       el(`bundle-source-${side}`).textContent = file.name
       render()
       try {
@@ -72,8 +86,12 @@ export function installBundleComparison(example: { reviewed: BundleManifest; cha
       } catch (error) {
         if (token !== tokens[side]) return
         errors[side] = `${side === 'reviewed' ? 'Reviewed' : 'Current'}: ${error instanceof Error ? error.message : 'Cannot read this manifest.'}`
+      } finally {
+        if (token === tokens[side]) {
+          pending[side] = false
+          render()
+        }
       }
-      render()
     })
     el(`bundle-download-${side}`).addEventListener('click', () => {
       const manifest = state[side]
