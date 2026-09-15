@@ -9,12 +9,15 @@ maintainer's explicit instruction.
 
 The OWASP issue leads with this project's own error: it treated any URL holding a 40 or 64
 character hex segment as a pinned source, and a hash in a URL does not constrain what a server
-returns. #39 corrected it to recognised content-addressed layouts, and the issue proposes sharper
-AST05 wording because the current text invites the same mistake. It also contributes the AST10
+returns. #39 corrected the address classifier to recognize supported full-commit URL layouts. The
+reviewed issue distinguishes that offline address check from fetched-byte verification; it does
+not claim that a recognized URL verifies remote content. It also contributes the AST10
 `allowed-tools` loss with its resolution, and explains why the checker returns no verdict, which
-follows from AST08's own warning about pattern matchers.
+is consistent with separating source inventory from a verdict on intent.
 
-Every claim was reproduced from the published npm package before submission. Nothing was asked
+The address-classification results were reproduced from the published npm package before
+submission. The subsequent scope correction explains that those results do not establish
+content integrity or client enforcement. Nothing was asked
 for: no listing, no link, no endorsement, and the implementation is offered for reuse. Issues #63
 and #70 are cross-referenced so maintainers can see the contribution is complementary.
 

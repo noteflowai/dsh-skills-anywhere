@@ -6,8 +6,8 @@ use the same local parser comparison. Check explicitly named files without
 starting an agent, configuring a provider or running any skill instructions:
 
 ```sh
-npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md
-npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md skills/review.md --json > skill-check.json
+npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md
+npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md skills/review.md --json > skill-check.json
 ```
 
 The default gate uses **strict provider parsing**. Both parsing results are in
@@ -15,9 +15,9 @@ the JSON report, so you can also see the changes that lenient mode would make:
 
 ```sh
 # Accept recoverable frontmatter drift, without modifying the file.
-npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --lenient
+npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --lenient
 # Require acceptance with no reported repairs, including description truncation.
-npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --fail-on-repair
+npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --fail-on-repair
 ```
 
 Every report also enumerates what the skill reaches for, whether or not it
@@ -25,9 +25,9 @@ passes the parsing gate:
 
 ```sh
 # Facts only: external sources and declared tools are reported, never judged.
-npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md
-# Policy: fail a skill that reaches a source it does not pin.
-npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --require-pinned-sources
+npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md
+# Address gate: reject references without a recognized full-commit URL.
+npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --require-pinned-sources
 ```
 
 | Exit | Meaning |
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-      - run: npx -y dsh-skills-anywhere@0.6.0 check skills/incident-summary/SKILL.md --fail-on-repair --json > skill-check.json
+      - run: npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --fail-on-repair --json > skill-check.json
 ```
 
 Replace the example path with your own. No model key or DeepSeek Harness
@@ -76,18 +76,20 @@ package; checking after installation is local. Pin the version for repeatable CI
 
 ## External sources and declared tools
 
-A skill that fetches its real instructions at run time is a skill whose reviewed
-bytes are not the bytes that will act. Air Security found 17,822 of 142,836 live
-skills resting on at least one such source. Every check therefore lists the
-hosts the instructions reference, and whether each reference names an immutable
-revision — a 40 or 64 character hex path segment — or a name that can serve
-different content tomorrow.
+A skill can reference instructions that will be fetched separately at run time.
+Reviewing the local file does not review those remote bytes. Every check lists
+the HTTP(S) hosts and URLs found in the body, and whether each address matches a
+supported GitHub or Hugging Face layout with a full 40-character commit ID in
+the expected position. Other layouts remain unverified; a hash-shaped segment
+on an arbitrary host or a digest fragment alone is insufficient.
 
 Reaching a source is not a failure by default, because whether a given host is
 acceptable is a policy this tool has no standing to decide.
-`--require-pinned-sources` enforces the part that is objective: what was
-reviewed is what will arrive. Unpinned hosts are then listed per file in
-`unpinnedSources`.
+`--require-pinned-sources` rejects references without a recognized commit-address
+format. Hosts with at least one such reference are listed per file in
+`unpinnedSources`. The checker does not fetch remote files, verify their bytes
+against a trusted digest, follow redirects or inspect transitive dependencies.
+Passing this address gate does not establish that reviewed bytes will arrive.
 
 `allowed-tools` is reported as `declaredTools`. An empty list means the author
 declared no narrowing, which is not a statement that the skill is narrow.
@@ -105,8 +107,9 @@ When this project serves a skill installed for one agent to a different one, any
 `open_skill`'s structured payload as `declared_tools` and as a
 `<skill_author_declared_tools>` block in the text.
 
-It is reported, not applied: MCP gives a server no way to restrict a client's
-tools. The reason to carry it is that dropping it silently would hand the reader
+This server reports the declaration; the receiving client must decide whether
+and how to enforce it. Serving metadata over MCP does not itself apply a policy
+to that client's other tools. Dropping it silently would hand the reader
 a skill that looks unrestricted when its author narrowed it — the metadata loss
 that makes a skill riskier on its second platform than on its first.
 

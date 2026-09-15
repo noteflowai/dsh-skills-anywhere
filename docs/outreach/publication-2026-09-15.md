@@ -1,5 +1,20 @@
 # Publication receipt · 2026-09-15 outreach
 
+## Scope correction after submission
+
+The existing OWASP #83 body was corrected and read back on 2026-09-15.
+`pinned` means a recognized revision-address format in this checker; it does not
+verify remote bytes, commit existence, redirects or client permission enforcement.
+The upstream README directs current v1 document review to its Google document;
+no comment there is claimed. See the [reviewed contribution](owasp-ast10-contribution.md).
+
+The publication account below records the earlier external submission. It is
+retained as history, rather than evidence that every original interpretation was
+correct. Its X thread is a separate external publication and was not edited by
+this scope correction.
+
+## Original publication record
+
 Recorded for the maintainer. Every action below was carried out by an assistant on the
 maintainer's explicit instruction, and every claim in the submitted text was reproduced before
 being written down. No acceptance, review or endorsement by any third party is claimed.
