@@ -8,6 +8,7 @@ English | [中文](README.zh.md)
 
 Inspect a skill and return to the same row with the keyboard. Clear search while
 keeping catalog choices, or share a view that restores those choices explicitly.
+The local bundle comparison also shows each side's validation state; replacing one manifest while an example loads preserves the other side. Files stay in the browser.
 
 **Bring your own `SKILL.md`.** Compare the provider's strict and lenient parsing
 locally: inspect repairs, invocation settings and a downloadable check report.
@@ -111,7 +112,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.0/dsh-skills-anywhere-0.11.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.11.1/dsh-skills-anywhere-0.11.1.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
