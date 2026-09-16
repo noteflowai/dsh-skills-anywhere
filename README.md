@@ -1,20 +1,25 @@
 # dsh-skills-anywhere
 
-**Your skills, anywhere.** Install an [Agent Skill](https://agentskills.io) once, use it in every agent: a live skill provider for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) and an MCP server for Claude Code, Cursor, Codex and friends.
+**Discover and load skills across your tools.** Collect [Agent Skills](https://agentskills.io)
+from local directories and configured Git sources into one catalog, available
+through a live [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+(`dsh`) provider or a local stdio MCP server.
 
 English | [中文](README.zh.md)
 
 **[Try the interactive Hugging Face playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)** — explore an example workspace, resolve name clashes, and search beyond the catalog budget. No installation or model API needed. [How it works](docs/HUGGINGFACE.md).
 
-Inspect a skill and return to the same row with the keyboard. Clear search while
-keeping catalog choices, or share a view that restores those choices explicitly.
-The local bundle comparison also shows each side's validation state; replacing one manifest while an example loads preserves the other side. Files stay in the browser.
+Inspect skill instructions, compare directory manifests and share catalog views.
+Keyboard navigation preserves the selected row and catalog settings. Files
+opened for local review stay in the browser.
 
 **Bring your own `SKILL.md`.** Compare the provider's strict and lenient parsing
 locally: inspect repairs, invocation settings and a downloadable check report.
 Your file stays in the browser. The same checks are available in the
 [command line and CI](docs/CHECKING.md), with file hashes and actionable exit codes.
-The browser and each downloaded report also list the external sources the instructions reference and whether they are pinned, plus the tools the author declared. That is an enumeration, not a security audit, a verdict on intent or a guarantee of compatibility with every client.
+Reports enumerate recognized source URLs, full-commit address forms and
+author-declared tools. Referenced content, script behavior and client
+compatibility require separate verification.
 
 [![Local skill review showing parsing, full-commit and unverified source addresses, and author-declared tools.](docs/source-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
@@ -27,33 +32,44 @@ The browser and each downloaded report also list the external sources the instru
 
 Listed in community directories: [Awesome DeepSeek Harness](https://github.com/Dominic789654/awesome-deepseek-harness) · [Awesome Gemini CLI](https://github.com/Piebald-AI/awesome-gemini-cli). [Publication record](docs/PROMOTION.md).
 
-Agent Skills are portable by design: a folder with a `SKILL.md`. Every agent still looks only in its own folder, so a skill you install for Claude Code is invisible to Codex, Cursor and DeepSeek Harness, and the ones you wrote for them are invisible back. `dsh-skills-anywhere` reads all of those folders where they live and serves them everywhere: as a live skill provider inside dsh, and as an MCP server for Claude Code, Cursor, Codex and any other MCP client.
+Clients can use different project, user and plugin directories for `SKILL.md`
+files. Skills Anywhere discovers configured sources in place and makes the
+resulting catalog available through dsh or an MCP client configured to connect
+to its local server. Directory definitions describe discovery paths; the
+[compatibility matrix](docs/MCP-COMPATIBILITY.md) records tested protocol
+connections separately.
 
 <p align="center"><img src="docs/demo.gif" alt="dsh-skills-anywhere list finds skills from Claude Code, Codex, Cursor, Gemini CLI, Goose, Windsurf and Kiro, then adds anthropics/skills from GitHub" width="880"></p>
 
 Inside dsh, it registers one extra provider on the built-in `ctx.skills` registry, so the model's normal `skill` tool and `/name` invocation simply see more skills:
 
-- **Every other agent's skill directories.** 60+ agents out of the box: Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose, OpenCode, Roo, Cline, Qwen Code, Trae and more. Project-level and user-level.
+- **Predefined agent directories.** Project and user paths for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose and other entries in the [directory registry](src/agents.ts).
 - **Claude Code plugin marketplaces.** The skills nested inside `~/.claude/plugins/marketplaces/*/plugins/*/skills/*`, including the official Anthropic marketplace.
-- **Any git repository full of skills.** Point at `anthropics/skills`, a sub-directory, a branch, a tag, or a commit. It is shallow-cloned into a local cache, refreshed in the background, and pinned in a lock file.
-- **Zero copies, zero symlinks.** Files are read where they live and re-read on every load. Edit a skill in Cursor and dsh sees the change. Nothing to import, nothing to keep in sync.
+- **Configured Git sources.** Select a skill repository, subdirectory, branch, tag or commit. The provider maintains a local checkout and records its resolved commit in a lock file.
+- **Local files read in place.** Existing skills are re-read when loaded, without copying them into each client's directory. Git sources use the managed cache described below.
 
 Hundreds of skills would bloat every model request, so the provider keeps a **catalog budget**: at most 50 skills enter the model's session catalog by default, and the rest stay one `find_skills` call away through two small tools the plugin adds, with `/name` invocation untouched.
 
-The same pool is available **outside dsh** too: `dsh-skills-anywhere mcp` serves it to any [MCP](https://modelcontextprotocol.io) client (Claude Code, Cursor, Codex, Windsurf…) as `find_skills` / `open_skill` tools and `skill://` resources, so one install of a skill reaches every agent you use.
+The same pool is available **outside dsh** through `dsh-skills-anywhere mcp`.
+Configured [MCP](https://modelcontextprotocol.io) clients can discover and open
+skills through tools and `skill://` resources. Client support for tool calls,
+resources and the skill's own instructions determines the available workflow.
 
-It also **deduplicates** symlinked and byte-identical installs (the `skills` CLI links one canonical copy into several agents), **repairs** common frontmatter drift instead of silently dropping a skill, and **renames** colliding names (`discord/configure` vs `telegram/configure`) so every skill stays reachable. A small CLI shows you exactly what dsh will see and why.
+The provider **deduplicates** symlinked and byte-identical entries, supports
+documented frontmatter **repairs**, and **renames** conflicting names such as
+`discord/configure` and `telegram/configure`. The CLI reports the published
+catalog, skipped entries and the reason for each change.
 
-## New in 0.12.0: skill delivery receipts
+## Inspect skill delivery
 
-Successful MCP `open_skill` calls now return a delivery receipt identifying the exact instruction body, original SKILL.md and optional bundle. Attach it to your actual tool span to review delivered versions alongside task results. A receipt does not claim instruction following or permission enforcement. [Receipt contract](docs/LOAD-RECEIPTS.md) · [EvalArc Trace Workbench](https://noteflowai.github.io/evalarc/trace-workbench/).
+Successful MCP `open_skill` calls return a receipt identifying the delivered
+instruction body, original SKILL.md and optional bundle. Attach it to a tool
+span to review delivered versions alongside task results. The receipt records
+delivery; instruction following and permission enforcement are separate checks.
+[Receipt contract](docs/LOAD-RECEIPTS.md) ·
+[EvalArc Trace Workbench](https://noteflowai.github.io/evalarc/trace-workbench/index.html).
 
-## New in 0.10.0: research you can inspect
-
-[Explore all 27 real GPU skill trials](https://noteflowai.github.io/evalarc/skill-impact/) and [the research pilots](docs/research-pilots.md). Robot Reel's [captured-scene editor](https://noteflowai.github.io/robot-reel/scene-lab/) and [official LIBERO-Plus replay](https://noteflowai.github.io/robot-reel/libero-plus/) connect real source records with portable skill delivery and independent grading. Every failed attempt stays visible; no skill efficacy, full-benchmark or real-hardware result is implied.
-
-
-## Try a real Physical AI workflow
+## Example: review robot evidence
 
 Load a Microduck frame-review skill through MCP, then have your agent verify
 its recorded joint facts with Robot Reel before writing a review.
@@ -65,17 +81,17 @@ read-only verifier. No new simulation or GPU is needed.
 
 ## Review once, load the same file
 
-MCP `open_skill` now returns the original file's SHA-256. Supply
+MCP `open_skill` returns the original file's SHA-256. Supply
 `expected_sha256` from `check --json` or an earlier open to reject a changed
 `SKILL.md` before its instructions are returned. Fresh author opt-outs apply
 immediately, even while discovery is cached. [Exact-file workflow](docs/VERIFIED-LOADS.md).
 
-**MCP 2026-07-28 support:** the local stdio command now negotiates with both
-legacy and current-protocol clients. Four SDK configurations and the installed
+**MCP protocol support:** the local stdio command negotiates legacy initialization
+and the 2026-07-28 protocol opening. Four SDK configurations and the installed
 npm archive are checked over real subprocess connections.
 [Compatibility matrix and embedding migration](docs/MCP-COMPATIBILITY.md).
 
-**v0.9: review the whole skill directory.** Generate a file manifest with
+**Review the whole skill directory.** Generate a file manifest with
 `bundle /path/to/skill --json`, compare added/removed/changed resources, and
 require `expected_bundle_sha256` when opening through MCP. The
 [interactive bundle comparison](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
@@ -101,7 +117,8 @@ Published on [npm](https://www.npmjs.com/package/dsh-skills-anywhere) with build
 
 Start dsh as usual. The skill catalog now includes everything above; load a skill with the `skill` tool or `/skill-name` exactly as before.
 
-On a machine with only Claude Code installed, `list` already finds the 31 skills inside the official plugin marketplace, none of which dsh sees on its own:
+Example discovery output is shown below. Paths and counts depend on the local
+installation and configured sources:
 
 ```
 $ npx dsh-skills-anywhere list
@@ -152,7 +169,11 @@ Pin a commit (`github:noteflowai/dsh-skills-anywhere#<sha>`) if you want the ins
 | **Claude Code plugin marketplaces** and the installed-plugin cache | `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` | `anywhere-claude-plugins` | 580 |
 | **Git sources** | `anthropics/skills`, `vercel-labs/agent-skills/skills` | `anywhere-source` | 700 |
 
-Lower rank wins a duplicate name inside the dsh registry. The built-in dsh roots keep their ranks (`.dsh/skills` 100, `.agents/skills` 200, `~/.dsh/skills` 400, `~/.agents/skills` 500), so a skill you wrote for dsh always beats the same name found elsewhere. `.agents/skills` and `.dsh/skills` are deliberately not re-scanned here.
+Lower rank wins a duplicate name inside the dsh registry. The built-in dsh roots
+keep their ranks (`.dsh/skills` 100, `.agents/skills` 200, `~/.dsh/skills` 400,
+`~/.agents/skills` 500). Precedence follows these values across sources; for
+example, an agent's project entry at rank 250 precedes a dsh user entry at 400.
+The built-in `.agents/skills` and `.dsh/skills` roots are not scanned again.
 
 Run `npx dsh-skills-anywhere agents` for the full agent table and which directories exist on your machine.
 
@@ -176,7 +197,15 @@ npx dsh-skills-anywhere add o/r --ref 3f2a9c1 --rank 300           # pin a commi
 
 Sources come from three places, merged in this order: the plugin `config.sources`, the user file `~/.dsh/skills-anywhere/sources.json`, and the project file `<project>/.dsh/skills-anywhere.json` (commit it to share skills with your team). The CLI edits the last two.
 
-Each repository is shallow-cloned once into `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>` (`<repo>@<ref>` when a branch, tag or commit is set, so several refs of one repository never share a checkout) and refreshed when dsh starts, every `syncIntervalMs` (6 hours by default), and whenever a sources file changes. The resolved commit of every source is written to `~/.dsh/skills-anywhere/lock.json`. Discovery only ever reads the cache, so a failed refresh means yesterday's skills, never an empty catalog. The catalog is invalidated as soon as a refresh brings changes; dsh never waits on the network.
+Each repository uses a local checkout at
+`~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>` (`<repo>@<ref>` when a
+branch, tag or commit is set). Background synchronization runs at startup,
+every `syncIntervalMs` (6 hours by default), and when source configuration changes.
+Resolved commits are recorded in `~/.dsh/skills-anywhere/lock.json`.
+Discovery reads the available cache. A failed refresh retains an existing
+checkout; a source that has never synchronized contributes no cached skills.
+Successful changes invalidate the catalog without making discovery wait for
+network synchronization.
 
 ## Catalog budget and the `find_skills` / `open_skill` tools
 
@@ -203,21 +232,21 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
-**Check before committing.** Run `npx -y dsh-skills-anywhere@0.6.0 check
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.12.0 check
 skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
-now has batch file checks, JSON reports with file hashes, and CI exit codes.
+provides batch file checks, JSON reports with file hashes, and CI exit codes.
 Checks read only the named files. [Commands, CI example and scope](docs/CHECKING.md).
 
 ```
 dsh-skills-anywhere list [--all] [--json]     Skills the provider publishes (--all shows hidden duplicates)
-dsh-skills-anywhere agents [--json]           Supported agents and which directories exist here
+dsh-skills-anywhere agents [--json]           Agent directory definitions and paths found here
 dsh-skills-anywhere sources [--json]          Configured git sources and their synced commits
 dsh-skills-anywhere add <source> [--ref] [--path] [--rank] [--project]
 dsh-skills-anywhere remove <source> [--project]
 dsh-skills-anywhere sync [--force] [--json]   Clone or refresh every source now
 dsh-skills-anywhere doctor [--json]           Repaired, skipped, renamed and duplicate skills, with reasons
 dsh-skills-anywhere check <files...> [--json] Explicit local files; strict parser gate by default
-dsh-skills-anywhere mcp                       Serve the same skills to any MCP client over stdio
+dsh-skills-anywhere mcp                       Serve skills to configured clients over stdio MCP
 ```
 
 All commands accept `--cwd <dir>`. For `check`, it resolves the named files; other
@@ -227,7 +256,10 @@ The CLI uses the same parsing code as the plugin and never needs dsh running.
 
 ## Use as an MCP server
 
-Skills are not a dsh-only idea, and neither is this provider. `dsh-skills-anywhere mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio that exposes the identical pool (agent directories, Claude Code marketplaces, git sources, same dedupe and rename rules) to any MCP client:
+`dsh-skills-anywhere mcp` starts a local
+[Model Context Protocol](https://modelcontextprotocol.io) server over stdio.
+It exposes the same configured sources, deduplication and naming rules through
+the following tools. Connect a compatible client using its MCP configuration:
 
 | Tool | What it does |
 | --- | --- |
@@ -320,6 +352,15 @@ The `dsh-skills-anywhere/tools` row accepts `findLimit` (default 10), `findMaxLi
 2. Entries pointing at the **same file** (symlinks) collapse to the first. Entries with the **same name and byte-identical body** collapse to the first. Both appear in `doctor` as hidden duplicates.
 3. Entries that still **share a name** but differ are all kept. If one of them is yours (an agent directory) it keeps the bare name and the others are prefixed with their plugin, repository, or agent (`telegram-configure`). If every member comes from a marketplace or a git source, all of them are prefixed, so you get `discord-access` and `telegram-access` rather than a meaningless bare `access`. `doctor` lists the renames.
 4. The dsh registry then merges this provider's candidates with the built-in ones by rank.
+
+## Recorded research examples
+
+[Inspect 27 GPU trials](https://noteflowai.github.io/evalarc/skill-impact/index.html)
+comparing no skill, direct delivery and MCP delivery, with independent task
+grading and all failures retained. Separate composition and session-handoff
+pilots are described in the [research guide](docs/research-pilots.md).
+These small experiments examine delivery and task outcomes; they do not
+establish a general accuracy or memory benefit.
 
 ## Security notes
 
