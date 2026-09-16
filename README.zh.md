@@ -1,21 +1,23 @@
 # dsh-skills-anywhere
 
-**你的技能，随处可用。** [Agent Skill](https://agentskills.io) 装一次，所有 Agent 都能用：既是 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）的实时技能提供器，也是 Claude Code、Cursor、Codex 等的 MCP 服务器。
+**跨工具发现与加载技能。** 将本地目录和已配置 Git 源中的
+[Agent Skills](https://agentskills.io) 汇入统一目录，通过
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）实时提供器
+或本地 stdio MCP 服务器按需访问。
 
 [English](README.md) | 中文
 
-**检查自己的 `SKILL.md`。** Hugging Face 演示现可在浏览器中并排检查严格模式与宽容模式，
+**检查自己的 `SKILL.md`。** Hugging Face 演示可在浏览器中并排检查严格模式与宽容模式，
 查看字段修复、调用设置并下载检查报告。文件不会上传；检查范围是本项目的解析行为，
-网页和每份下载报告都会列出指令引用的外部来源、它们是否被钉在不可变版本上，以及作者声明的工具范围。这是一份枚举，不代表安全审计、不对意图下判断，也不是所有客户端的兼容认证。
+报告列出识别到的外部来源地址、完整提交号形式与作者工具声明；
+引用内容、脚本行为及客户端兼容性需要单独验证。
 
 [![本地技能检查：解析结果、外部来源地址及作者工具声明。](docs/source-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
 **[体验 Hugging Face 交互演示](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)**：在示例工作区中查看技能来源、处理重名、调整目录预算，并搜索未列出的技能。无需安装或模型 API。[演示原理](docs/HUGGINGFACE.md)。
 
-本地目录清单比较会分别显示两侧验证状态；示例加载过程中替换任一文件，也能保留另一侧的结果。文件仍只在浏览器中处理。
-
-打开详情后可用键盘返回原技能行；清空搜索保留目录预算和 Pin／Hide 设置，
-分享链接明确显示恢复后的视图。本地文件读取有进度反馈，清空输入也会取消旧读取。
+查看技能指令、比较目录清单或分享目录视图。键盘导航保留选中行与目录设置，
+用于本地复核的文件始终在浏览器中处理。
 
 [![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
@@ -26,33 +28,38 @@
 
 社区目录已收录：[Awesome DeepSeek Harness](https://github.com/Dominic789654/awesome-deepseek-harness) · [Awesome Gemini CLI](https://github.com/Piebald-AI/awesome-gemini-cli). [推广与核验记录](docs/PROMOTION.md)。
 
-Agent Skills 天生就是可移植的：一个带 `SKILL.md` 的文件夹。但每个 Agent 都只看自己的目录，于是你给 Claude Code 装的技能 Codex、Cursor 和 DeepSeek Harness 看不见，反过来也一样。`dsh-skills-anywhere` 直接从这些目录原地读取，然后把它们送到所有地方：在 dsh 里是一个实时的技能提供器，在 Claude Code、Cursor、Codex 等任何 MCP 客户端里是一个 MCP 服务器。
+不同客户端使用的项目级、用户级和插件目录存在差异。Skills Anywhere 原地发现
+已配置来源中的 `SKILL.md`，通过 dsh 或已连接本地服务器的 MCP 客户端提供统一目录。
+目录定义描述发现路径；已测试的协议连接单独记录在[兼容矩阵](docs/MCP-COMPATIBILITY.md)中。
 
 <p align="center"><img src="docs/demo.gif" alt="dsh-skills-anywhere list 找到来自 Claude Code、Codex、Cursor、Gemini CLI、Goose、Windsurf、Kiro 的技能，再从 GitHub 加入 anthropics/skills" width="880"></p>
 
 在 dsh 里，它在内置的 `ctx.skills` 注册表上多注册一个提供器，模型原有的 `skill` 工具和 `/name` 调用方式不变，只是能看到更多技能：
 
-- **其他 Agent 的技能目录。** 开箱支持 60+ 个 Agent：Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose、OpenCode、Roo、Cline、Qwen Code、Trae 等，项目级与用户级都覆盖。
+- **预定义的 Agent 目录。** 包括 Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose 等项目级和用户级路径，具体见[目录注册表](src/agents.ts)。
 - **Claude Code 插件市场。** 嵌套在 `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` 里的技能，包括 Anthropic 官方市场。
-- **任意装满技能的 git 仓库。** 指向 `anthropics/skills`、某个子目录、分支、标签或提交即可。浅克隆到本地缓存，后台刷新，并用 lock 文件锁定版本。
-- **零拷贝、零软链接。** 文件在哪就从哪读取，每次加载都重新读。你在 Cursor 里改了技能，dsh 立刻看到。不需要导入，也不需要同步。
+- **已配置的 Git 源。** 指定技能仓库、子目录、分支、标签或提交；提供器维护本地检出，并在 lock 文件中记录实际提交。
+- **原地读取本地文件。** 每次加载重新读取已有技能，无需复制到各客户端目录。Git 源使用下文说明的托管缓存。
 
 几百个技能会让每次模型请求都变得臃肿，所以提供器带有**目录预算**：默认最多 50 个技能进入模型的会话目录，其余的通过插件新增的两个小工具一次 `find_skills` 调用即可到达，`/name` 调用不受影响。
 
-这套技能池**在 dsh 之外也能用**：`dsh-skills-anywhere mcp` 把它作为 [MCP](https://modelcontextprotocol.io) 服务器提供给任何 MCP 客户端（Claude Code、Cursor、Codex、Windsurf……），暴露 `find_skills` / `open_skill` 工具和 `skill://` 资源。技能装一次，所有 Agent 都能用。
+这套技能池**在 dsh 之外也能用**：`dsh-skills-anywhere mcp` 通过工具和
+`skill://` 资源供已配置的 [MCP](https://modelcontextprotocol.io) 客户端发现和加载。
+具体工作流取决于客户端对工具调用、资源和技能指令的支持。
 
-它还会**去重**软链接和字节级相同的副本（`skills` CLI 会把同一份技能链接到多个 Agent）、**修复**常见的 frontmatter 偏差而不是悄悄丢掉技能，并对**同名冲突**（`discord/configure` 与 `telegram/configure`）自动加前缀，保证每个技能都能被调用。附带一个小 CLI，让你清楚看到 dsh 会看到什么、为什么。
+提供器会**去重**软链接和字节相同的条目，支持文档中列明的 frontmatter **修复**，
+并对 `discord/configure`、`telegram/configure` 等**重名条目**添加前缀。
+CLI 展示实际发布的目录、跳过的条目及每项变更的原因。
 
-## 0.12.0：技能加载回执
+## 检查技能交付
 
-成功的 MCP `open_skill` 调用会返回省略源文件路径字段的加载回执，关联指令正文、原始 SKILL.md 与可选目录摘要。调用方可将回执关联到实际工具 span，再与任务评估结果一起检查。回执不代表指令已经执行或权限已经强制限制。[数据契约](docs/LOAD-RECEIPTS.md) · [EvalArc 评估工作台](https://noteflowai.github.io/evalarc/trace-workbench/)。
+成功的 MCP `open_skill` 调用返回加载回执，关联已交付的指令正文、原始 SKILL.md
+与可选目录摘要。调用方可将回执关联到工具 span，再与任务结果一起检查。
+回执记录交付事实；指令遵循与权限执行需要分别检查。
+[数据契约](docs/LOAD-RECEIPTS.md) ·
+[EvalArc 评估工作台](https://noteflowai.github.io/evalarc/trace-workbench/index.html)。
 
-## 0.10.0：有原始证据的研究场景
-
-[查看 27 次真实 GPU 技能评测](https://noteflowai.github.io/evalarc/skill-impact/)，并阅读[完整方法与限制](docs/research-pilots.md)。新增[实景 Blender 编辑](https://noteflowai.github.io/robot-reel/scene-lab/)与[官方 LIBERO-Plus 子集回放](https://noteflowai.github.io/robot-reel/libero-plus/)，把原始记录、技能交付与独立验收连接起来。失败尝试全部保留；不宣称技能提分、完整基准成绩或真机效果。
-
-
-## 试一个真实的物理 AI 工作流
+## 示例：复核机器人记录
 
 通过 MCP 加载 Microduck 帧复盘技能，让 Agent 先调用 Robot Reel 校验原始
 关节记录，再整理有依据的结论。
@@ -68,11 +75,11 @@ MCP `open_skill` 返回原始文件的 SHA-256。传入 `check --json` 或之前
 作者刚设置的禁用标志立即生效，不受目录缓存影响。
 [固定文件版本的使用说明](docs/VERIFIED-LOADS.md)。
 
-**支持 MCP 2026-07-28：** 本地 stdio 命令可与旧版及新版协议客户端协商；
+**MCP 协议支持：** 本地 stdio 命令支持旧版初始化与 2026-07-28 协议握手；
 四种 SDK 配置和安装后的 npm 包均通过真实子进程验证。
 [兼容范围与嵌入迁移说明](docs/MCP-COMPATIBILITY.md)。这不代表所有品牌客户端都已端到端认证。
 
-**v0.9：审核技能目录里的全部文件。** `bundle /path/to/skill --json` 生成目录清单，
+**审核技能目录里的全部文件。** `bundle /path/to/skill --json` 生成目录清单，
 可比较脚本／资源的新增、删除和内容变化，再通过 MCP `expected_bundle_sha256` 按审核指纹加载。
 [首页对比区](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)展示“说明没变、脚本已变”，
 也支持在本地浏览器比较自己的两份清单。[流程与边界](docs/BUNDLES.md)。
@@ -97,7 +104,7 @@ npx dsh-skills-anywhere add anthropics/skills
 
 照常启动 dsh。技能目录里现在包含了上面所有内容；用 `skill` 工具或 `/技能名` 加载，与之前完全一样。
 
-在一台只装了 Claude Code 的机器上，`list` 已经能找到官方插件市场里的 31 个技能，而这些 dsh 自己一个都看不到：
+以下为目录发现的输出示例，路径与数量取决于本地安装和已配置来源：
 
 ```
 $ npx dsh-skills-anywhere list
@@ -148,7 +155,11 @@ allowBuilds:
 | **Claude Code 插件市场**及已安装插件缓存 | `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` | `anywhere-claude-plugins` | 580 |
 | **git 源** | `anthropics/skills`、`vercel-labs/agent-skills/skills` | `anywhere-source` | 700 |
 
-在 dsh 注册表里同名技能由 rank 小的胜出。内置根目录保留原有 rank（`.dsh/skills` 100、`.agents/skills` 200、`~/.dsh/skills` 400、`~/.agents/skills` 500），所以你专门为 dsh 写的技能永远优先于别处的同名技能。`.agents/skills` 与 `.dsh/skills` 不会被重复扫描。
+在 dsh 注册表里，同名技能按较小的 rank 优先。内置目录保留原值：
+`.dsh/skills` 为 100、`.agents/skills` 为 200、`~/.dsh/skills` 为 400、
+`~/.agents/skills` 为 500。不同来源按这些数值共同排序，例如 rank 250 的
+Agent 项目级条目优先于 rank 400 的 dsh 用户级条目。
+内置 `.agents/skills` 与 `.dsh/skills` 目录不会被重复扫描。
 
 运行 `npx dsh-skills-anywhere agents` 查看完整 Agent 表以及本机存在哪些目录。
 
@@ -172,7 +183,12 @@ npx dsh-skills-anywhere add o/r --ref 3f2a9c1 --rank 300           # 锁定提�
 
 源来自三个地方，按顺序合并：插件配置 `config.sources`、用户文件 `~/.dsh/skills-anywhere/sources.json`、项目文件 `<project>/.dsh/skills-anywhere.json`（提交到仓库即可与团队共享）。CLI 负责编辑后两者。
 
-每个仓库只浅克隆一次到 `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>`（指定了分支、标签或提交时为 `<repo>@<ref>`，同一仓库的多个 ref 不会共用一个检出），在 dsh 启动时、每隔 `syncIntervalMs`（默认 6 小时）以及源文件变化时刷新。每个源解析出的提交写入 `~/.dsh/skills-anywhere/lock.json`。发现过程只读缓存，因此刷新失败意味着"昨天的技能"，而不是空目录。刷新带来变化时立即使目录失效；dsh 永远不等待网络。
+每个仓库在 `~/.dsh/skills-anywhere/cache/<host>/<owner>/<repo>` 维护本地检出；
+指定分支、标签或提交时使用 `<repo>@<ref>`。后台同步在启动时、
+每隔 `syncIntervalMs`（默认 6 小时）以及来源配置变化时运行，
+实际提交写入 `~/.dsh/skills-anywhere/lock.json`。
+发现过程读取已有缓存。刷新失败时保留已有检出；从未同步成功的源没有可用缓存技能。
+成功更新后使目录缓存失效，发现过程无需等待网络同步。
 
 ## 目录预算与 `find_skills` / `open_skill` 工具
 
@@ -199,7 +215,7 @@ dsh 会把每个模型可调用技能的名称和描述放进会话，每次请�
 
 ## CLI
 
-**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.6.0 check
+**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.12.0 check
 skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析器，
 批量检查明确指定的文件，输出带文件摘要的 JSON 报告和 CI 退出码。
 默认严格解析，`--lenient` 接受提供者的修复，`--fail-on-repair` 要求没有修复。
@@ -207,20 +223,23 @@ skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析
 
 ```
 dsh-skills-anywhere list [--all] [--json]     提供器发布的技能（--all 显示被隐藏的重复项）
-dsh-skills-anywhere agents [--json]           支持的 Agent 及本机存在的目录
+dsh-skills-anywhere agents [--json]           Agent 目录定义及本机存在的路径
 dsh-skills-anywhere sources [--json]          已配置的 git 源及已同步的提交
 dsh-skills-anywhere add <source> [--ref] [--path] [--rank] [--project]
 dsh-skills-anywhere remove <source> [--project]
 dsh-skills-anywhere sync [--force] [--json]   立即克隆或刷新全部源
 dsh-skills-anywhere doctor [--json]           被修复、跳过、重命名、去重的技能及原因
-dsh-skills-anywhere mcp                       通过 stdio 把同一批技能提供给任意 MCP 客户端
+dsh-skills-anywhere mcp                       通过 stdio MCP 向已配置客户端提供技能
 ```
 
 所有命令支持 `--cwd <dir>` 指定项目。CLI 与插件走同一套代码，无需 dsh 运行。
 
 ## 作为 MCP 服务器使用
 
-技能不是 dsh 独有的概念，这个提供器也不是。`dsh-skills-anywhere mcp` 启动一个基于 stdio 的 [Model Context Protocol](https://modelcontextprotocol.io) 服务器，把完全相同的技能池（Agent 目录、Claude Code 市场、git 源，以及同样的去重与重命名规则）提供给任何 MCP 客户端：
+`dsh-skills-anywhere mcp` 启动本地 stdio
+[Model Context Protocol](https://modelcontextprotocol.io) 服务器，
+通过以下工具提供相同的已配置来源、去重与命名规则。
+在兼容客户端的 MCP 配置中注册该服务器即可连接：
 
 | 工具 | 作用 |
 | --- | --- |
@@ -313,6 +332,13 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 2. 指向**同一文件**（软链接）的条目折叠为第一个；**同名且正文字节相同**的条目折叠为第一个。两者都在 `doctor` 中显示为隐藏的重复项。
 3. 仍然**同名**但内容不同的条目全部保留。如果其中有你自己的（来自 Agent 目录），它保持原名，其余加上插件、仓库或 Agent 前缀（如 `telegram-configure`）；如果全部来自市场或 git 源，则全部加前缀，得到 `discord-access`、`telegram-access` 而不是一个没有意义的 `access`。`doctor` 会列出重命名。
 4. 随后 dsh 注册表按 rank 把本提供器的候选与内置候选合并。
+
+## 研究示例
+
+[查看 27 次 GPU 试验](https://noteflowai.github.io/evalarc/skill-impact/index.html)，
+对照无技能、直接交付与 MCP 交付，保留独立任务评分和全部失败记录。
+技能组合与会话接续试验单独列于[研究说明](docs/research-pilots.md)。
+这些小规模实验检查交付过程和任务结果，不足以确立普遍的准确率或记忆效果收益。
 
 ## 安全说明
 
