@@ -10,6 +10,7 @@
 /* Keep explicit navigation and recovery usable in a narrow embedded workspace. */
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--mint);outline-offset:4px}
+.diagnostics summary{min-height:44px;padding:10px 0}
 [tabindex="-1"]{scroll-margin-block:24px}
 .skip-link{position:absolute;left:18px;top:-100px;z-index:2;background:var(--mint);color:var(--bg);padding:12px 16px}
 .skip-link:focus{top:10px}

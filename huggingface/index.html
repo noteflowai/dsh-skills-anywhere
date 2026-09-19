@@ -103,7 +103,12 @@
         </div>
         <div class="lab-actions"><button id="bundle-download-reviewed" type="button" disabled>Download reviewed manifest</button><button id="bundle-download-current" type="button" disabled>Download current manifest</button></div>
         <p>For your own files: run <code>dsh-skills-anywhere bundle /path/to/skill --json</code>, save the output outside the skill directory, and open the manifests above. <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/BUNDLES.md">Directory review &amp; CI guide &#8599;</a></p>
-        <p class="muted">Each manifest is limited to 1 MiB and stays in this page, outside browser storage and share links. The comparison covers recorded paths, sizes and content hashes; it does not scan your directory or freeze files for execution. Review script behavior, external dependencies, author identity and permissions separately.</p>
+        <p class="muted">Compares paths, sizes and content hashes from the two manifests. Each file is limited to 1 MiB and stays in this page, outside browser storage and share links.</p>
+        <details class="diagnostics" id="bundle-methods">
+          <summary>How to use the comparison</summary>
+          <p>Generate fresh manifests with the CLI to capture the files currently in each directory. This page compares those records; it does not scan your directory. An MCP bundle hash checks the recorded file contents at loading time, and files can change afterward.</p>
+          <p>Review script behavior, external dependencies, author identity and execution permissions before running a skill. The <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/BUNDLES.md">directory review guide</a> explains the manifest scope.</p>
+        </details>
       </section>
       <section class="local-check" id="check" aria-labelledby="check-title">
         <div class="eyebrow">BRING ONE FILE. SEE BOTH MODES.</div>
@@ -122,10 +127,15 @@
         <div id="check-results" class="check-results" hidden>
           <article><h3>Provider strict mode <span id="check-strict-state"></span></h3><pre id="check-strict-details" tabindex="0"></pre></article>
           <article><h3>Provider lenient mode <span id="check-lenient-state"></span></h3><pre id="check-lenient-details" tabindex="0"></pre></article>
-          <article class="source-review"><h3>External source review <span id="check-source-state"></span></h3><p class="muted">A full-commit address can identify a revision. This offline check does not verify remote bytes, redirects or linked instructions. Unknown URL layouts remain unverified.</p><ul id="check-sources"></ul></article>
-          <article><h3>Author-declared tools</h3><pre id="check-tools" tabindex="0"></pre><p class="muted">A declaration is carried to the client; it is not an enforced permission boundary. The client controls tool access.</p><details><summary>Use a source-address gate in CI</summary><pre tabindex="0">dsh-skills-anywhere check --require-pinned-sources path/to/SKILL.md</pre><p class="muted">Requires recognized full-commit addresses on GitHub or Hugging Face. It does not verify content or assess intent.</p></details></article>
+          <article class="source-review"><h3>External source review <span id="check-source-state"></span></h3><p class="muted">Offline URL classification. Remote content and unknown address layouts remain unverified.</p><ul id="check-sources"></ul></article>
+          <article><h3>Author-declared tools</h3><pre id="check-tools" tabindex="0"></pre><p class="muted">Declared by the author. Your client controls tool permissions.</p><details><summary>Use a source-address gate in CI</summary><pre tabindex="0">dsh-skills-anywhere check --require-pinned-sources path/to/SKILL.md</pre><p class="muted">Requires recognized full-commit addresses on GitHub or Hugging Face; remote content remains unverified.</p></details></article>
         </div>
-        <p class="muted">Results describe this provider's parsing behavior. Unknown metadata may be preserved without taking effect. Specification conformance, referenced resources, script behavior and client compatibility need separate checks. Your input stays in this page, outside browser storage and share links.</p>
+        <details class="diagnostics" id="check-methods">
+          <summary>What these checks cover</summary>
+          <p>The strict and lenient results describe this provider's parsing behavior. Unknown metadata may be preserved without taking effect. Check the <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md">parser contract</a> and <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/MCP-COMPATIBILITY.md">tested client connections</a> for your workflow; parser acceptance alone does not establish specification conformance or client compatibility.</p>
+          <p>Source checks recognize URL forms, including full-commit addresses. They do not fetch remote bytes, follow redirects or review linked instructions. Script behavior and execution permissions require separate review.</p>
+          <p>Your input stays in this page, outside browser storage and share links.</p>
+        </details>
       </section>
       <section class="install-section" id="install">
         <div><div class="eyebrow">BRING YOUR OWN SKILLS</div><h2>Take it into your workflow.</h2><p>Install the published package on your machine to use real skill directories. Your client controls what a loaded skill can do.</p><a href="https://github.com/noteflowai/dsh-skills-anywhere#quick-start" target="_blank" rel="noopener noreferrer">Read the setup guide &#8599;</a></div>

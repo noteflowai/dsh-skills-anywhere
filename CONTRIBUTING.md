@@ -71,6 +71,13 @@ mis-parsed.
 
 ## Sharing the project
 
+Lead public introductions with discovery, review and loading workflows. State
+what each check measures next to its result, and keep detailed parsing and
+compatibility boundaries in linked guides or named disclosure panels. Directory
+discovery, instruction delivery and task success are separate claims. Review
+both READMEs and the Hugging Face page together; keep naming history and industry
+research in their own documents.
+
 See [publication and community submissions](docs/PROMOTION.md) for existing
 threads, reviewed channel rules and version-specific introduction material.
 Check that record before opening a new directory or newsletter submission.
