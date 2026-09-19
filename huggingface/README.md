@@ -83,23 +83,22 @@ hashes identify reviewed bytes. Author authenticity, referenced content,
 script behavior and execution permissions require their own checks; the
 client controls tool access and files may change after loading.
 
-## Research examples
+## Integration examples and measured outcomes
 
-[Inspect 27 recorded Qwen3-8B attempts](https://noteflowai.github.io/evalarc/skill-impact/)
-across no-skill, direct-delivery and MCP conditions, with independent grading
-and all failures retained.
-[Composition and public-session handoff records](https://noteflowai.github.io/evalarc/research/)
-are separate small pilots. These public-development records document the
-experiments; general skill or memory efficacy requires separate evaluation.
+Connect delivery receipts and retrieved history with separately computed task
+checks. The linked reports retain tool results, delivered programs and failures.
 
-[Use a selected-session Funes MCP entrypoint](https://github.com/noteflowai/dsh-skills-anywhere/tree/main/examples/funes-handoff)
-and [inspect six actual continuations](https://noteflowai.github.io/evalarc/funes-handoff/index.html).
-The source example exposes recall and turn reading for one reviewed public
-session. The six attempts comprise three without memory and three with MCP
-memory tools; the latter make two retrieval calls each. All six retrieval calls
-succeed, while all six programs remain unchanged and 0/3 attempts meet full
-acceptance in either group. This is a local source example; the Space displays
-its published evidence.
+| Workflow | Evidence | Recorded result |
+| --- | --- | --- |
+| Skill delivery | [27 Qwen3-8B attempts](https://noteflowai.github.io/evalarc/skill-impact/) across three engineering profiles comparing no skill, direct delivery and MCP | No direct-delivery or MCP attempt fully resolves the task. The no-skill condition resolves 2/3 attempts in the final profile. |
+| Selected-session handoff | [Six continuations](https://noteflowai.github.io/evalarc/funes-handoff/), three without memory and three with MCP memory tools | All six retrieval calls succeed. All six programs remain unchanged; each condition resolves 0/3 tasks. |
+
+The [Funes MCP source example](https://github.com/noteflowai/dsh-skills-anywhere/tree/main/examples/funes-handoff)
+provides local recall and turn-reading tools for one reviewed public session.
+This Space displays the published evidence. These small public development
+experiments evaluate specific workflows; general skill or memory benefits require
+separate evaluation. See the [research guide](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/research-pilots.md)
+for methods, composition controls and separate cohort records.
 
 ## 中文
 

@@ -373,17 +373,18 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 3. 仍然**同名**但内容不同的条目全部保留。如果其中有你自己的（来自 Agent 目录），它保持原名，其余加上插件、仓库或 Agent 前缀（如 `telegram-configure`）；如果全部来自市场或 git 源，则全部加前缀，得到 `discord-access`、`telegram-access` 而不是一个没有意义的 `access`。`doctor` 会列出重命名。
 4. 随后 dsh 注册表按 rank 把本提供器的候选与内置候选合并。
 
-## 研究示例
+## 集成示例与实测结果
 
-[查看 27 次 GPU 试验](https://noteflowai.github.io/evalarc/skill-impact/index.html)，
-对照无技能、直接交付与 MCP 交付，保留独立任务评分和全部失败记录。
-技能组合与会话接续试验单独列于[研究说明](docs/research-pilots.md)。
-[Funes MCP 交接示例](examples/funes-handoff/README.md)为一份已审核公开会话提供检索和原文读取工具。
-独立的[六次接续报告](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
-对照无记忆组与提供 MCP 记忆工具的组，每组各三次。记忆组的六次检索调用全部成功；
-六份交付程序均未修改，两组各有 0/3 次尝试完全通过验收。
-报告保留检索原文、操作数量和逐项验收结果。
-这些小规模实验检查交付过程和任务结果，不足以确立普遍的准确率或记忆效果收益。
+通过示例将交付回执与另行计算的任务检查关联起来。
+报告保留技能指令、工具结果与每一份交付程序，便于复核完整过程。
+
+| 工作流 | 示例与证据 | 实测结果 |
+| --- | --- | --- |
+| 对照技能交付方式 | [27 次 Qwen3-8B 尝试](https://noteflowai.github.io/evalarc/skill-impact/)，分三组工程配置比较无技能、直接交付与 MCP | 直接交付与 MCP 条件均无尝试完全完成任务；最后一组配置中，无技能条件有 2/3 次完全完成。 |
+| 从指定会话继续工作 | [Funes MCP 源码示例](examples/funes-handoff/README.md)与[六次接续尝试](https://noteflowai.github.io/evalarc/funes-handoff/)，每种条件三次 | 六次检索调用全部成功；六份程序均未修改，两种条件各有 0/3 次完全完成任务。 |
+
+这些小规模公开开发实验用于评估特定工作流；普遍的技能或记忆效果收益需要另行验证。
+[研究说明](docs/research-pilots.md)集中提供复现方法、技能组合对照与各批次记录。
 
 ## 安全说明
 
