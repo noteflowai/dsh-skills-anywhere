@@ -1,5 +1,9 @@
 # Review actual behavior after composing skills
 
+[Browse the recorded runtime review](https://noteflowai.github.io/evalarc/behavior-audit/index.html)
+· [English methods](https://github.com/noteflowai/evalarc/tree/main/examples/behavior-audit)
+· [中文](https://github.com/noteflowai/evalarc/blob/main/examples/behavior-audit/README.zh-CN.md).
+
 These two instruction fixtures exercise a synthetic order-report workflow.
 Fixture A creates an allowed internal cache. Fixture B requests an additional
 submission when that cache exists. The user's contract permits only one report
@@ -29,6 +33,12 @@ Use the EvalArc `scripts.record_behavior_pilot` module with this directory's
 `skills/` pool and `examples/skill-impact/bridge.mjs`. Its frozen plan records
 the model files, source revisions, instruction hashes, conditions and budgets
 before generation. Run it only after the observer's declared controls pass.
+
+The completed L40S pilot retains all 12 Qwen3-8B attempts. None completes the
+required service submission; one sends an incomplete HTTP request and has invalid
+behavior evidence. The cache-only condition produces three correct final files,
+but no fully accepted task. Native scripted controls demonstrate the cache
+submission conflict separately; the model cohort does not establish that effect.
 
 These are AI-assisted maintainer fixtures and public development experiments.
 They provide a bounded workflow audit, not an independently authored final

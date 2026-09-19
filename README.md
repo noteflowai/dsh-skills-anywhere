@@ -416,6 +416,11 @@ checks. The reports retain instructions, tool results and every delivered progra
 | Compare skill delivery | [27 Qwen3-8B attempts](https://noteflowai.github.io/evalarc/skill-impact/) across no skill, direct delivery and MCP, in three engineering profiles | No direct-delivery or MCP attempt fully resolves the task. The no-skill condition resolves 2/3 attempts in the final profile. |
 | Continue from a selected session | [Funes MCP source example](examples/funes-handoff/README.md) and [six continuation attempts](https://noteflowai.github.io/evalarc/funes-handoff/), three per condition | All six retrieval calls succeed. All six programs remain unchanged; each condition resolves 0/3 tasks. |
 
+[Review runtime behavior](https://noteflowai.github.io/evalarc/behavior-audit/index.html)
+with the [isolated skill-composition fixtures](examples/behavior-lab/README.md).
+The report separates file acceptance, service completion and authorization across
+32 authored controls and 12 model attempts. No model attempt completes the service task.
+
 These small public development experiments evaluate specific workflows; general
 skill or memory benefits require separate evaluation. The [research guide](docs/research-pilots.md)
 keeps methods, composition controls and separate cohorts together for reproduction.
