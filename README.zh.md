@@ -7,6 +7,43 @@
 
 [English](README.md) | 中文
 
+[![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
+[![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/noteflowai/dsh-skills-anywhere/badge)](https://scorecard.dev/viewer/?uri=github.com/noteflowai/dsh-skills-anywhere)
+[![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## 从你的工作流开始
+
+| 需求 | 使用方式 |
+| --- | --- |
+| 在多个 Agent 工具中复用技能 | 汇总本地目录与 Git 源，通过 dsh 或本地 MCP 按需加载 |
+| 审核技能变更后再加载 | 比较说明文件与目录清单，要求加载内容匹配已审核的哈希 |
+| 核对 Agent 收到了哪些指令 | 保存 MCP 加载回执，关联工具调用和任务评测结果 |
+
+## 快速开始
+
+需要 Node.js 22.19+ 或 24+。CLI 和本地 MCP 服务器可独立使用；Git 源另需 Git。
+
+先查看已发现的技能：
+
+```sh
+npx dsh-skills-anywhere list
+```
+
+接入 MCP 客户端时，使用[本地服务器配置](#作为-mcp-服务器使用)。使用 DeepSeek Harness 时，安装到所用 profile：
+
+```sh
+dsh plugin --profile web add dsh-skills-anywhere
+```
+
+启动 dsh 后通过 `skill` 工具或 `/技能名` 加载。需要添加 Git 源时运行
+`npx dsh-skills-anywhere add anthropics/skills`。
+[安装详情](#安装详情与目录示例)包括发布包、源码安装和 dsh 版本要求。
+
+## 先在浏览器体验
+
 **检查自己的 `SKILL.md`。** Hugging Face 演示可在浏览器中并排检查严格模式与宽容模式，
 查看字段修复、调用设置并下载检查报告。文件不会上传；检查范围是本项目的解析行为，
 报告列出识别到的外部来源地址、完整提交号形式与作者工具声明；
@@ -19,12 +56,7 @@
 查看技能指令、比较目录清单或分享目录视图。键盘导航保留选中行与目录设置，
 用于本地复核的文件始终在浏览器中处理。
 
-[![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
-[![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/noteflowai/dsh-skills-anywhere/badge)](https://scorecard.dev/viewer/?uri=github.com/noteflowai/dsh-skills-anywhere)
-[![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+## 目录如何汇总
 
 不同客户端使用的项目级、用户级和插件目录存在差异。Skills Anywhere 原地发现
 已配置来源中的 `SKILL.md`，通过 dsh 或已连接本地服务器的 MCP 客户端提供统一目录。
@@ -75,7 +107,7 @@ MCP `open_skill` 返回原始文件的 SHA-256。传入 `check --json` 或之前
 
 **MCP 协议支持：** 本地 stdio 命令支持旧版初始化与 2026-07-28 协议握手；
 四种 SDK 配置和安装后的 npm 包均通过真实子进程验证。
-[兼容范围与嵌入迁移说明](docs/MCP-COMPATIBILITY.md)。这不代表所有品牌客户端都已端到端认证。
+[兼容范围与嵌入迁移说明](docs/MCP-COMPATIBILITY.md)。具体客户端工作流的验证范围见该矩阵。
 
 **审核技能目录里的全部文件。** `bundle /path/to/skill --json` 生成目录清单，
 可比较脚本／资源的新增、删除和内容变化，再通过 MCP `expected_bundle_sha256` 按审核指纹加载。
@@ -85,22 +117,10 @@ MCP `open_skill` 返回原始文件的 SHA-256。传入 `check --json` 或之前
 
 [![SKILL.md 未变、脚本已变：在本地比较技能目录清单。](docs/bundle-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
-## 快速开始
+## 安装详情与目录示例
 
-```sh
-# 1. 安装到你使用的 dsh profile（web 是默认的 UI profile）
-dsh plugin --profile web add dsh-skills-anywhere
-
-# 2. 不启动 dsh，直接查看模型将看到的技能
-npx dsh-skills-anywhere list
-
-# 3. 添加一整个技能仓库
-npx dsh-skills-anywhere add anthropics/skills
-```
-
-已发布到 [npm](https://www.npmjs.com/package/dsh-skills-anywhere)，带构建来源（provenance）签名；每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 也附带同一个 tarball。
-
-照常启动 dsh。技能目录里现在包含了上面所有内容；用 `skill` 工具或 `/技能名` 加载，与之前完全一样。
+已发布到 [npm](https://www.npmjs.com/package/dsh-skills-anywhere)，附有构建来源（provenance）；
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 也提供相同的 tarball。
 
 以下为目录发现的输出示例，路径与数量取决于本地安装和已配置来源：
 

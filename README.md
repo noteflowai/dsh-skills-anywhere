@@ -7,6 +7,46 @@ through a live [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harnes
 
 English | [中文](README.zh.md)
 
+[![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
+[![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/noteflowai/dsh-skills-anywhere/badge)](https://scorecard.dev/viewer/?uri=github.com/noteflowai/dsh-skills-anywhere)
+[![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+## Start with your workflow
+
+| Need | Workflow |
+| --- | --- |
+| Reuse skills across agent tools | Collect local and Git sources, then load on demand through dsh or local MCP |
+| Review changes before loading | Compare instructions and directory manifests; require the reviewed content hash |
+| Check which instructions reached an agent | Save MCP load receipts alongside tool calls and task evaluations |
+
+## Quick start
+
+Requires Node.js 22.19+ or 24+. The CLI and local MCP server work independently;
+Git sources also require Git.
+
+Inspect discovered skills:
+
+```sh
+npx dsh-skills-anywhere list
+```
+
+For an MCP client, use the [local server configuration](#use-as-an-mcp-server).
+For DeepSeek Harness, install into your chosen profile:
+
+```sh
+dsh plugin --profile web add dsh-skills-anywhere
+```
+
+Start dsh and load with its `skill` tool or `/skill-name`. To add a Git source,
+run `npx dsh-skills-anywhere add anthropics/skills`.
+[Installation details](#installation-details-and-discovery-example) cover release
+archives, source checkouts and dsh version requirements.
+
+## Try it in your browser
+
 **[Try the interactive Hugging Face playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)** — explore an example workspace, resolve name clashes, and search beyond the catalog budget. No installation or model API needed. [How it works](docs/HUGGINGFACE.md).
 
 Inspect skill instructions, compare directory manifests and share catalog views.
@@ -23,12 +63,7 @@ compatibility require separate verification.
 
 [![Local skill review showing parsing, full-commit and unverified source addresses, and author-declared tools.](docs/source-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
-[![CI](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/noteflowai/dsh-skills-anywhere/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/dsh-skills-anywhere?label=npm)](https://www.npmjs.com/package/dsh-skills-anywhere)
-[![dsh plugin](https://img.shields.io/badge/dsh-plugin-blue)](https://github.com/topics/dsh-plugin)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/noteflowai/dsh-skills-anywhere/badge)](https://scorecard.dev/viewer/?uri=github.com/noteflowai/dsh-skills-anywhere)
-[![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+## How the catalog works
 
 Clients can use different project, user and plugin directories for `SKILL.md`
 files. Skills Anywhere discovers configured sources in place and makes the
@@ -98,22 +133,10 @@ manifests locally. [Directory review and limits](docs/BUNDLES.md).
 
 [![Unchanged SKILL.md with a changed script: compare skill directory manifests locally.](docs/bundle-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
-## Quick start
+## Installation details and discovery example
 
-```sh
-# 1. Install into the dsh profile you use (web is the default UI profile)
-dsh plugin --profile web add dsh-skills-anywhere
-
-# 2. See what the model will get, without booting dsh
-npx dsh-skills-anywhere list
-
-# 3. Add a whole repository of skills
-npx dsh-skills-anywhere add anthropics/skills
-```
-
-Published on [npm](https://www.npmjs.com/package/dsh-skills-anywhere) with build provenance; every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) also carries the same tarball.
-
-Start dsh as usual. The skill catalog now includes everything above; load a skill with the `skill` tool or `/skill-name` exactly as before.
+Published on [npm](https://www.npmjs.com/package/dsh-skills-anywhere) with build provenance;
+each [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) also includes the same tarball.
 
 Example discovery output is shown below. Paths and counts depend on the local
 installation and configured sources:
