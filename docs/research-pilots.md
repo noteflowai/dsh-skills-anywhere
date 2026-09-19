@@ -1,6 +1,6 @@
 # From research ideas to inspectable evidence
 
-Recorded on 2026-09-14. These are bounded public development pilots, not leaderboard submissions.
+Initial pilots recorded on 2026-09-14; separately identified follow-ups on 2026-09-19. These are bounded public development pilots, not leaderboard submissions.
 
 | Component | What actually runs | Evidence and limitation |
 | --- | --- | --- |
@@ -13,6 +13,26 @@ Recorded on 2026-09-14. These are bounded public development pilots, not leaderb
 | Cosmos Policy | Pinned model/source checks, aligned action-chunk recorder and authenticated dependency-access preflight. | Required NVIDIA Video2World files return 403. No successful Cosmos inference or future-frame result. Model weights use NVIDIA's noncommercial research terms. |
 
 ## Inspect the experiments
+
+### Equal-length context controls: 2026-09-19
+
+[Twelve actual Qwen3-8B attempts](https://noteflowai.github.io/evalarc/context-controls/index.html)
+compare relevant robot-review guidance with unrelated prose, delivered through
+Skills Anywhere MCP. Both JSON skill-load payloads contain 476 tokens under the
+pinned tokenizer, including hashes. The same three seeds receive both conditions.
+
+The initial cohort has 48 response timeouts and 0/6 resolved tasks. A separate
+reference check passes under the same grader. A follow-up supplies the same
+persistent-request diagnostic and flush instruction to both conditions: three
+relevant-guidance programs score 87.5% with numerical errors; the three unrelated-text
+attempts submit the unchanged starter. This cohort also resolves 0/6 tasks.
+
+Both six-attempt cohorts retain complete messages, tool receipts, candidate files,
+case checks and usage. Their instructions differ and their outcomes are not pooled.
+The controls are public development evidence, not held-out or independently authored
+validation. [Methods and offline checks](https://noteflowai.github.io/evalarc/context-controls/README.md)
+include exact harness snapshots and native tokenizer receipts. These twelve attempts
+are separate from the earlier 27-trial skill pilot and three scripted Harbor controls.
 
 ### Harbor follow-up: 2026-09-19
 
