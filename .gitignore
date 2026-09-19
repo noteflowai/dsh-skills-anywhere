@@ -6,4 +6,4 @@ coverage/
 *.log
 .dsh-e2e/
 .dsh-showcase/
-huggingface/__pycache__/
+__pycache__/

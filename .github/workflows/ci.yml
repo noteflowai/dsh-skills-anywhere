@@ -22,10 +22,17 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: python3 -m unittest discover -s huggingface -p 'test_*.py'
-      - run: python3 -m unittest discover -s scripts -p 'test_release_verification.py'
+      - run: python3 -B -m unittest discover -s scripts -p 'test_release_verification.py'
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run showcase:build
       - run: pnpm run showcase:check
+      - name: Verify the publishable artifact before upload
+        run: |
+          python3 -B - <<'PY'
+          import os
+          from huggingface.publish import verify_bundle
+          verify_bundle(".dsh-showcase/site", os.environ["GITHUB_SHA"])
+          PY
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: huggingface-space
