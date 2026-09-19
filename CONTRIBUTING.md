@@ -14,12 +14,15 @@ pnpm run check     # typecheck, lint, tests, build
 Node 22.19+ (or 24+), pnpm 12, and `git` on `PATH` are required; the test suite
 creates real git repositories in temp directories.
 
-## Adding an agent
+## Adding an agent directory
 
 Add one row to `AGENTS` in `src/agents.ts` with the agent's project-level and/or
 user-level skills directory. Leave out `.agents/skills` and `.dsh/skills`: the
 built-in dsh provider already scans them. Mention the source of the paths
 (vendor docs, the `skills` CLI table) in the pull request.
+Test discovery using temporary directories. This registers a filesystem path;
+claims about a client's MCP connection or skill execution need separate tests
+and a corresponding entry in the compatibility documentation.
 
 ## Pull requests
 

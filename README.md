@@ -30,8 +30,6 @@ compatibility require separate verification.
 [![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Listed in community directories: [Awesome DeepSeek Harness](https://github.com/Dominic789654/awesome-deepseek-harness) · [Awesome Gemini CLI](https://github.com/Piebald-AI/awesome-gemini-cli). [Publication record](docs/PROMOTION.md).
-
 Clients can use different project, user and plugin directories for `SKILL.md`
 files. Skills Anywhere discovers configured sources in place and makes the
 resulting catalog available through dsh or an MCP client configured to connect
@@ -133,7 +131,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.0/dsh-skills-anywhere-0.12.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.1/dsh-skills-anywhere-0.12.1.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -366,7 +364,7 @@ establish a general accuracy or memory benefit.
 
 - The plugin **reads** skill files. It never writes to your agent directories.
 - Git sources run `git` on your machine at plugin start and on the refresh interval. Pin a commit for anything you do not fully trust, and review `lock.json`.
-- A skill is instructions the model will follow. Adding a source is a trust decision, exactly like installing a plugin.
+- Loaded skills add instructions to the agent's context. Review instructions and referenced scripts before use; the client controls execution permissions, and loading does not ensure the model follows them.
 - Skills are read with Node's filesystem API, not through dsh's sandboxed `ctx.fs`; the built-in provider does the same for its bundled root.
 
 ## Development
@@ -381,7 +379,14 @@ Tests run against the real `@deepseek-ai/dsh-skill` registry and real git reposi
 
 ## Contributing
 
-Issues and pull requests are welcome. Adding an agent is a one-line change in [`src/agents.ts`](src/agents.ts). See [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests are welcome. Add a discovery path in
+[`src/agents.ts`](src/agents.ts), cite its source and test directory discovery.
+Client integration needs separate protocol and workflow checks.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Community listings: [Awesome DeepSeek Harness](https://github.com/Dominic789654/awesome-deepseek-harness) ·
+[Awesome Gemini CLI](https://github.com/Piebald-AI/awesome-gemini-cli).
+[Publication history and verification](docs/PROMOTION.md).
 
 ## License
 

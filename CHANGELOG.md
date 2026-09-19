@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.1 — 2026-09-19
+
+- Align package, MCP registry and plugin descriptions with configured-directory discovery and skill delivery.
+- Distinguish directory coverage, tested client connections and instruction following in both READMEs and the playground.
+- This release updates public descriptions and documentation; skill discovery and MCP behavior are unchanged.
+
 ## 0.12.0 — 2026-09-15
 
 - Return a unique skills-anywhere-load-1 receipt with instruction/body digests, optional bundle identity, provider version and retained author tool declarations from successful MCP and direct loads.
