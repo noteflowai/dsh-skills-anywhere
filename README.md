@@ -132,6 +132,9 @@ require `expected_bundle_sha256` when opening through MCP. The
 [interactive bundle comparison](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 shows a script change behind unchanged instructions and compares your own
 manifests locally. [Directory review and limits](docs/BUNDLES.md).
+The digest covers recorded paths and file contents within that directory.
+External dependencies and execution permissions need separate review; files
+can change after loading.
 
 [![Unchanged SKILL.md with a changed script: compare skill directory manifests locally.](docs/bundle-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
@@ -202,7 +205,17 @@ Run `npx dsh-skills-anywhere agents` for the full agent table and which director
 
 ### Skill format
 
-Any directory with a `SKILL.md` following the [Agent Skills specification](https://agentskills.io/specification), plus dsh's flat `<name>.md` form. `name`, `description`, `license`, `compatibility`, `allowed-tools`, `metadata`, and dsh's `disable-model-invocation` / `user-invocable` are all understood. Unknown frontmatter (Claude Code's `argument-hint`, `context`, ...) is preserved under `metadata.frontmatter`. `scripts/`, `references/` and `assets/` are exposed through the skill's resource directory like any dsh skill.
+The provider reads directories containing `SKILL.md` and dsh's flat `<name>.md`
+form, using the [Agent Skills format](https://agentskills.io/specification).
+It parses `name`, `description`, `disable-model-invocation` and `user-invocable`,
+and retains `license`, `compatibility`, `allowed-tools` and `metadata`.
+
+`compatibility` and `allowed-tools` carry the author's declarations; the client
+controls runtime requirements and tool permissions. Unknown fields, including
+`argument-hint` and `context`, are preserved under `metadata.frontmatter`.
+Preserving them does not implement the originating client's behavior.
+`scripts/`, `references/` and `assets/` are exposed through the skill's resource
+directory for the consuming client to use.
 
 In the default **lenient** mode a missing name falls back to the directory, an invalid name is normalised to kebab-case, and a missing description is derived from the first paragraph. Each repair is recorded and shown by `doctor`. Set `lenient: false` to match the strict behaviour of the built-in provider.
 
