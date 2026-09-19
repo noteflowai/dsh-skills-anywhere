@@ -73,6 +73,18 @@ Watch the three jobs of the *Release* run. If the `npm` job fails, the GitHub
 release and its tarball are already published, so the tag is still usable;
 fix the npm side and re-run only the failed jobs from the Actions UI.
 
+If `npm publish` succeeded but the readback failed, check the exact public
+version before rerunning a publish. npm can accept an upload before its metadata
+and tarball are available. The readback now waits up to five minutes and checks
+both the published integrity and the downloaded bytes against the GitHub
+release archive. Authentication failures and mismatched content fail immediately.
+
+For an already published package whose MCP registration was skipped, run
+**Recover MCP registry publication** with the existing tag (for example,
+`v0.12.1`). It downloads that release's archive and tagged `server.json`, verifies
+the package identity and public npm bytes, then registers the existing package
+through GitHub OIDC. It does not upload to npm or move the release tag.
+
 ## Install instructions and the plugin manifest
 
 `README.md`, `README.zh.md` and `.claude-plugin/plugin.json` install from npm.
