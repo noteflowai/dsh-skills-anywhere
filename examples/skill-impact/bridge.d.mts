@@ -13,4 +13,8 @@ export interface ImpactBridge {
   }>
   close(): Promise<void>
 }
-export function connectBridge(route: 'direct' | 'mcp', pool: string): Promise<ImpactBridge>
+export function connectBridge(
+  route: 'direct' | 'mcp',
+  pool: string,
+  expectedPins?: unknown,
+): Promise<ImpactBridge>

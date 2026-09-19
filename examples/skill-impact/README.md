@@ -39,3 +39,25 @@ token usage and independent task checks. Include a no-skill condition; a
 length-matched irrelevant skill can distinguish extra-context effects. An open
 receipt proves which bytes were returned, not that the model used the advice.
 Public-development examples and a small pilot do not establish general gains.
+
+## Carry reviewed versions into another session
+
+To keep an earlier reviewed version across process restarts, save the first
+connection's `pins` object as a JSON file and supply it as the third argument:
+
+```sh
+node examples/skill-impact/bridge.mjs mcp /absolute/path/to/pool /absolute/path/to/reviewed-pins.json
+```
+
+The file maps each skill name to its `sha256` and `bundle_sha256`. The new
+connection requires exactly that pool and those bytes before starting MCP;
+a changed skill, additional entry or missing entry is rejected. This prevents
+a new session from silently treating a later version as the earlier review.
+Every subsequent open still enforces the same identities. The pins bind bytes
+at inspection time; they do not establish that the skill's behavior is safe.
+
+An evaluation workflow may select and preload the pinned skill before the
+successor model generates. Record that as a harness action, keep the raw MCP
+reply, and distinguish it from a model-requested search or load. When combined
+with the [selected public Funes source](../funes-handoff/README.md), keep the
+prior source, prior load and successor load separately attributable.
