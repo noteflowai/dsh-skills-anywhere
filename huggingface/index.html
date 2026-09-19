@@ -45,7 +45,7 @@
       </section>
       <section class="lab" id="workspace">
         <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2 id="workspace-title" tabindex="-1">A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
-        <p class="section-intro">Explore a prepared workspace with naming conflicts, catalog limits and a Microduck review skill. Discovery uses the package's provider at build time; search and catalog controls run in your browser. Install the local package below to connect your own directories and agent.</p>
+        <p class="section-intro">Follow a skill to its source, resolve a name clash, and search beyond the catalog limit. This prepared workspace also includes a Microduck review skill. To discover your own directories and connect an agent, install the local package below. <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/HUGGINGFACE.md">How the example is built</a>.</p>
         <div class="scenarios" aria-label="Guided examples">
           <button type="button" data-scenario="default" class="active">01 <span>Follow the sources</span></button>
           <button type="button" data-scenario="collision">02 <span>Untangle a name clash</span></button>
@@ -103,7 +103,7 @@
         </div>
         <div class="lab-actions"><button id="bundle-download-reviewed" type="button" disabled>Download reviewed manifest</button><button id="bundle-download-current" type="button" disabled>Download current manifest</button></div>
         <p>For your own files: run <code>dsh-skills-anywhere bundle /path/to/skill --json</code>, save the output outside the skill directory, and open the manifests above. <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/BUNDLES.md">Directory review &amp; CI guide &#8599;</a></p>
-        <p class="muted">Manifests stay in this page and are never stored or added to share links. Each is limited to 1 MiB. This compares recorded paths, sizes and content hashes; it does not inspect your directory, certify script safety or freeze files for later execution. Referenced files outside the skill directory, installed tools, permissions and author identity are outside the digest.</p>
+        <p class="muted">Each manifest is limited to 1 MiB and stays in this page, outside browser storage and share links. The comparison covers recorded paths, sizes and content hashes; it does not scan your directory or freeze files for execution. Review script behavior, external dependencies, author identity and permissions separately.</p>
       </section>
       <section class="local-check" id="check" aria-labelledby="check-title">
         <div class="eyebrow">BRING ONE FILE. SEE BOTH MODES.</div>
@@ -125,7 +125,7 @@
           <article class="source-review"><h3>External source review <span id="check-source-state"></span></h3><p class="muted">A full-commit address can identify a revision. This offline check does not verify remote bytes, redirects or linked instructions. Unknown URL layouts remain unverified.</p><ul id="check-sources"></ul></article>
           <article><h3>Author-declared tools</h3><pre id="check-tools" tabindex="0"></pre><p class="muted">A declaration is carried to the client; it is not an enforced permission boundary. The client controls tool access.</p><details><summary>Use a source-address gate in CI</summary><pre tabindex="0">dsh-skills-anywhere check --require-pinned-sources path/to/SKILL.md</pre><p class="muted">Requires recognized full-commit addresses on GitHub or Hugging Face. It does not verify content or assess intent.</p></details></article>
         </div>
-        <p class="muted">This checks provider parsing, not complete specification conformance, script safety, resources or compatibility with every client. Unknown metadata can be preserved without being acted on. Input is not added to share links, saved in browser storage or sent to a service.</p>
+        <p class="muted">Results describe this provider's parsing behavior. Unknown metadata may be preserved without taking effect. Specification conformance, referenced resources, script behavior and client compatibility need separate checks. Your input stays in this page, outside browser storage and share links.</p>
       </section>
       <section class="install-section" id="install">
         <div><div class="eyebrow">BRING YOUR OWN SKILLS</div><h2>Take it into your workflow.</h2><p>Install the published package on your machine to use real skill directories. Your client controls what a loaded skill can do.</p><a href="https://github.com/noteflowai/dsh-skills-anywhere#quick-start" target="_blank" rel="noopener noreferrer">Read the setup guide &#8599;</a></div>

@@ -71,7 +71,8 @@ dsh plugin --profile web add dsh-skills-anywhere
 - **已配置的 Git 源。** 指定技能仓库、子目录、分支、标签或提交；提供器维护本地检出，并在 lock 文件中记录实际提交。
 - **原地读取本地文件。** 每次加载重新读取已有技能，无需复制到各客户端目录。Git 源使用下文说明的托管缓存。
 
-几百个技能会让每次模型请求都变得臃肿，所以提供器带有**目录预算**：默认最多 50 个技能进入模型的会话目录，其余的通过插件新增的两个小工具一次 `find_skills` 调用即可到达，`/name` 调用不受影响。
+**目录预算**控制进入模型会话目录的技能摘要数量，默认最多 50 个。
+其他允许调用的技能仍可通过 `find_skills` 搜索并按需加载，`/name` 调用方式不变。
 
 这套技能池**在 dsh 之外也能用**：`dsh-skills-anywhere mcp` 通过工具和
 `skill://` 资源供已配置的 [MCP](https://modelcontextprotocol.io) 客户端发现和加载。
@@ -265,7 +266,12 @@ dsh-skills-anywhere mcp                       通过 stdio MCP 向已配置客�
 | `find_skills` | 按关键词搜索名称、描述与来源 |
 | `open_skill` | 加载某个技能的完整指令，以及其脚本和参考文件所在目录 |
 
-技能同时以 `skill://<名称>` 资源（带自动补全）暴露，方便支持 @ 引用资源的客户端。frontmatter 设置了 `disable-model-invocation: true` 的技能永远不会被列出或打开。该服务器完全不需要安装 dsh。
+技能同时以 `skill://<名称>` 资源提供，并为支持资源引用的客户端提供自动补全。
+MCP 工具与资源入口会排除 frontmatter 设置了 `disable-model-invocation: true`
+的技能。服务器可独立于 dsh 运行。
+
+下面提供客户端配置示例。自动连接检查覆盖[兼容矩阵](docs/MCP-COMPATIBILITY.md)
+列出的四种 SDK 配置及安装后的发布包；具体应用行为取决于客户端版本及其对工具和资源的支持。
 
 **Claude Code**（作为插件安装；本仓库同时也是一个插件市场）
 
@@ -290,7 +296,14 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-服务器也已登记在 [MCP 官方目录](https://registry.modelcontextprotocol.io)，名称为 `io.github.noteflowai/dsh-skills-anywhere`，支持该目录的客户端可以按名字安装。仓库同时是一个 [Agent Plugin](https://agent-plugins.org)（根目录的 `plugin.json` 与 `mcp.json`），Cursor 等支持开放插件规范的客户端可以直接用仓库地址安装。如果客户端不是在当前项目目录里启动服务器，加上 `--cwd <dir>`。git 源会像在 dsh 中一样在启动时后台同步。编程方式：`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` 会返回 `McpServer` 和提供器，可自行挂接传输层。
+[MCP 目录](https://registry.modelcontextprotocol.io)标识为
+`io.github.noteflowai/dsh-skills-anywhere`。仓库也提供
+[Agent Plugin](https://agent-plugins.org) 清单（`plugin.json` 与 `mcp.json`），
+供支持该格式的客户端使用；请按所用客户端的流程安装。
+
+如果客户端在项目目录之外启动服务器，加上 `--cwd <dir>`。已配置的 Git 源会在启动时后台同步。
+嵌入自己的程序时，`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'`
+返回 `McpServer` 和提供器，传输层接入方式见[嵌入与迁移指南](docs/MCP-COMPATIBILITY.md#embedding-the-server)。
 
 ## 在 dsh web 界面里浏览和开关技能
 
