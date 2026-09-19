@@ -383,6 +383,12 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 | 对照技能交付方式 | [27 次 Qwen3-8B 尝试](https://noteflowai.github.io/evalarc/skill-impact/)，分三组工程配置比较无技能、直接交付与 MCP | 直接交付与 MCP 条件均无尝试完全完成任务；最后一组配置中，无技能条件有 2/3 次完全完成。 |
 | 从指定会话继续工作 | [Funes MCP 源码示例](examples/funes-handoff/README.md)与[六次接续尝试](https://noteflowai.github.io/evalarc/funes-handoff/)，每种条件三次 | 六次检索调用全部成功；六份程序均未修改，两种条件各有 0/3 次完全完成任务。 |
 
+[运行期行为报告](https://noteflowai.github.io/evalarc/behavior-audit/index.html)与
+[隔离技能组合示例](examples/behavior-lab/README.md)分别展示最终文件验收、服务提交和授权检查。
+报告保留 32 个原生脚本对照及全部 12 次模型尝试；模型没有完成所需服务提交。
+[中文方法](https://github.com/noteflowai/evalarc/blob/main/examples/behavior-audit/README.zh-CN.md)
+提供复现步骤和结果的解释范围。
+
 这些小规模公开开发实验用于评估特定工作流；普遍的技能或记忆效果收益需要另行验证。
 [研究说明](docs/research-pilots.md)集中提供复现方法、技能组合对照与各批次记录。
 
