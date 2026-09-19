@@ -58,3 +58,40 @@ it('resource-bearing skills require a resource protocol, not silent omission', a
   const { connectBridge } = await import('../examples/skill-impact/bridge.mjs')
   await expect(connectBridge('direct', root)).rejects.toThrow(/SKILL.md-only/)
 })
+
+it('a new MCP session honors earlier pins instead of approving a changed skill', async () => {
+  const root = await tempDir('handoff-pins')
+  const skill = join(root, 'robot-recording-review')
+  await cp(new URL('../examples/robot-recording-review', import.meta.url), skill, { recursive: true })
+  const { connectBridge } = await import('../examples/skill-impact/bridge.mjs')
+  const first = await connectBridge('mcp', root)
+  const pins = first.pins
+  await first.close()
+  const pin = pins['robot-recording-review']
+  if (!pin) throw new Error('reviewed skill pin is missing')
+  const next = await connectBridge('mcp', root, pins)
+  try {
+    const loaded = await next.call('open_skill', { name: 'robot-recording-review' })
+    expect(loaded.view.sha256).toBe(pin.sha256)
+    expect(loaded.view.bundle_sha256).toBe(pin.bundle_sha256)
+    expect(loaded.receipt.protocol_era).toBe('modern')
+  } finally {
+    await next.close()
+  }
+  await writeFile(join(skill, 'SKILL.md'), '---\nname: robot-recording-review\ndescription: Changed after handoff.\n---\nChanged instructions.\n')
+  await expect(connectBridge('mcp', root, pins)).rejects.toThrow(/changed since the handoff/)
+  await expect(connectBridge('direct', root, pins)).rejects.toThrow(/changed since the handoff/)
+})
+
+it('handoff pins reject a different pool and malformed identities', async () => {
+  const root = await tempDir('handoff-pin-shape')
+  await cp(new URL('../examples/robot-recording-review', import.meta.url), join(root, 'robot-recording-review'), { recursive: true })
+  const { connectBridge } = await import('../examples/skill-impact/bridge.mjs')
+  const first = await connectBridge('mcp', root)
+  const pins = first.pins
+  await first.close()
+  await expect(connectBridge('mcp', root, {})).rejects.toThrow(/pool differs/)
+  await expect(connectBridge('mcp', root, { ...pins, unreviewed: pins['robot-recording-review'] })).rejects.toThrow(/pool differs/)
+  await expect(connectBridge('mcp', root, { 'robot-recording-review': { sha256: 'short', bundle_sha256: '0'.repeat(64) } })).rejects.toThrow(/exact SHA-256/)
+  await expect(connectBridge('mcp', root, null)).rejects.toThrow(/must be an object/)
+})

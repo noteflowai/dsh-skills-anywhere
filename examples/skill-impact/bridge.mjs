@@ -4,7 +4,7 @@
  * Requires a checkout with `pnpm install && pnpm build`.
  * Never discovers the caller's installed skills or private agent history.
  */
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -28,7 +28,30 @@ function options(pool, isolated) {
   }
 }
 
-export async function connectBridge(route, pool) {
+function requirePins(actual, expected) {
+  if (!expected || typeof expected !== 'object' || Array.isArray(expected)) {
+    throw new Error('reviewed pins must be an object')
+  }
+  const names = Object.keys(expected).toSorted()
+  if (!names.length || JSON.stringify(names) !== JSON.stringify(Object.keys(actual).toSorted())) {
+    throw new Error('reviewed skill pool differs from the handoff pins')
+  }
+  for (const name of names) {
+    const pin = expected[name]
+    if (!pin || typeof pin !== 'object' || Array.isArray(pin)
+      || Object.keys(pin).toSorted().join(',') !== 'bundle_sha256,sha256'
+      || typeof pin.sha256 !== 'string' || typeof pin.bundle_sha256 !== 'string'
+      || !/^[a-f0-9]{64}$/.test(pin.sha256)
+      || !/^[a-f0-9]{64}$/.test(pin.bundle_sha256)) {
+      throw new Error('reviewed pin requires exact SHA-256 identities')
+    }
+    if (pin.sha256 !== actual[name].sha256 || pin.bundle_sha256 !== actual[name].bundle_sha256) {
+      throw new Error('reviewed skill changed since the handoff pins were recorded')
+    }
+  }
+}
+
+export async function connectBridge(route, pool, expectedPins) {
   if (!['direct', 'mcp'].includes(route)) throw new Error('route must be direct or mcp')
   const isolated = await mkdtemp(join(tmpdir(), 'skill-impact-'))
   const api = createSkillsAnywhereServer(options(resolve(pool), isolated))
@@ -46,6 +69,7 @@ export async function connectBridge(route, pool) {
       pins.set(skill.name, { sha256: opened.sha256, bundle_sha256: opened.bundle.sha256 })
     }
     if (!pins.size) throw new Error('skill pool is empty')
+    if (expectedPins !== undefined) requirePins(Object.fromEntries(pins), expectedPins)
     if (route === 'mcp') {
       client = new Client({ name: 'skills-anywhere-impact', version: '1' }, { versionNegotiation: { mode: 'auto' } })
       transport = new StdioClientTransport({
@@ -138,12 +162,18 @@ export async function connectBridge(route, pool) {
 }
 
 async function main() {
-  const [route, pool, isolated] = process.argv.slice(2)
+  const [route, pool, third] = process.argv.slice(2)
   if (route === 'server') {
-    await runStdio(options(pool, isolated))
+    await runStdio(options(pool, third))
     return
   }
-  const bridge = await connectBridge(route, pool ?? join(dirname(entry), '..'))
+  let expectedPins
+  if (third !== undefined) {
+    const raw = await readFile(third)
+    if (raw.byteLength > 65536) throw new Error('reviewed pin file exceeds 64 KiB')
+    expectedPins = JSON.parse(raw.toString('utf8'))
+  }
+  const bridge = await connectBridge(route, pool ?? join(dirname(entry), '..'), expectedPins)
   const lines = createInterface({ input: process.stdin, crlfDelay: Infinity })
   process.stdout.write(`${JSON.stringify({ ready: true, route, pins: bridge.pins })}\n`)
   try {

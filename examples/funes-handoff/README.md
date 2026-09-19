@@ -110,3 +110,22 @@ Counts of repeated commands or identical writes describe operations,
 including exact matches with the selected prior session. Repeating a check can
 be useful; these counts are not estimates of wasted work, human time saved or
 general memory efficacy.
+
+## Preserve the predecessor's reviewed skill
+
+Use EvalArc's `prepare_skill_handoff.py` with the original skill file and the
+predecessor's actual MCP load record. It preserves the original instruction and
+bundle hashes. The skill-impact bridge accepts these reviewed pins at startup
+and rejects changed bytes before opening a new MCP session; see the
+[bridge contract](../skill-impact/README.md).
+
+The recorder's `--skill-bridge` option preloads that fixed skill through MCP in
+both conditions before model generation. This workflow-selected action is
+recorded separately from a model-requested load and from historical retrieval.
+Run the EvalArc recorder from its own checkout with `PYTHONPATH=src`.
+
+[Carry the reviewed skill into a new session](https://noteflowai.github.io/evalarc/skill-handoff/):
+a separate six-attempt cohort reuses the predecessor's exact skill bytes through
+workflow MCP preloads. All six preloads succeed; the memory group retrieves six
+results. All six programs remain unchanged and no task passes full acceptance.
+The report connects original pins, delivery receipts, retrieved history and task checks.

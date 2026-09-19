@@ -14,6 +14,33 @@ Initial pilots recorded on 2026-09-14; separately identified follow-ups on 2026-
 
 ## Inspect the experiments
 
+### Pinned skill across model sessions: 2026-09-19
+
+[Follow six continuations](https://noteflowai.github.io/evalarc/skill-handoff/)
+from the earliest published Qwen3-8B session that loaded the robot-review skill
+over MCP. Its outcome was already known when selected. Each Qwen3-4B continuation
+receives the same original skill through a workflow-selected MCP preload; three
+also have Funes tools for requesting the prior history. Original skill and bundle
+hashes are checked when opening the new provider process.
+
+All six workflow preloads succeed. The memory group requests six successful
+retrievals, but all six programs remain unchanged, score 0% and fail full task
+acceptance. These are delivery and retrieval observations on a public development
+task, with model outcomes reported separately. This cohort uses a different
+predecessor from the earlier no-additional-skill handoff and is not pooled with it.
+
+The [offline evidence](https://noteflowai.github.io/evalarc/skill-handoff/skill-handoff.zip)
+retains all six attempts, 120 frozen files, original and successor MCP receipts,
+model-file identities and independent grades. Scripted controls separately check
+changed skill versions, empty retrieval, rejected path overrides and source
+removal. The unchanged baseline was executed after the cohort.
+
+The shared editable Python environment imported core code from the main checkout.
+Observations during and after execution matched all 54 core source files to the
+frozen copy; their original collection times are retained. The subsequent recorder
+requires its own checkout at startup. [Methods and verification](https://noteflowai.github.io/evalarc/skill-handoff/README.md)
+describe this provenance and distinguish workflow preloads from model actions.
+
 ### Agent-requested Funes MCP handoff: 2026-09-19
 
 [Six actual continuations](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
