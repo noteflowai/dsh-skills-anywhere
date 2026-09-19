@@ -114,7 +114,8 @@ MCP `open_skill` 返回原始文件的 SHA-256。传入 `check --json` 或之前
 可比较脚本／资源的新增、删除和内容变化，再通过 MCP `expected_bundle_sha256` 按审核指纹加载。
 [首页对比区](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)展示“说明没变、脚本已变”，
 也支持在本地浏览器比较自己的两份清单。[流程与边界](docs/BUNDLES.md)。
-指纹覆盖目录内文件内容，不认证作者或脚本安全，也不锁定后续执行时的文件。
+指纹覆盖该目录内记录的路径与文件内容。外部依赖和执行权限需要另行审核；
+文件在加载后仍可能变化。
 
 [![SKILL.md 未变、脚本已变：在本地比较技能目录清单。](docs/bundle-review.png)](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)
 
@@ -184,7 +185,15 @@ Agent 项目级条目优先于 rank 400 的 dsh 用户级条目。
 
 ### 技能格式
 
-任何包含符合 [Agent Skills 规范](https://agentskills.io/specification) 的 `SKILL.md` 的目录，以及 dsh 的平铺 `<name>.md` 形式。支持 `name`、`description`、`license`、`compatibility`、`allowed-tools`、`metadata`，以及 dsh 的 `disable-model-invocation` / `user-invocable`。未知的 frontmatter 字段（如 Claude Code 的 `argument-hint`、`context`）保留在 `metadata.frontmatter` 下。`scripts/`、`references/`、`assets/` 与普通 dsh 技能一样通过资源目录暴露。
+提供器读取包含 `SKILL.md` 的目录及 dsh 的平铺 `<name>.md` 文件，
+采用 [Agent Skills 格式](https://agentskills.io/specification)。
+解析 `name`、`description`、`disable-model-invocation` 与 `user-invocable`，
+并保留 `license`、`compatibility`、`allowed-tools` 和 `metadata`。
+
+`compatibility` 与 `allowed-tools` 是作者声明，运行环境要求和工具权限由客户端管理。
+`argument-hint`、`context` 等未知字段保留在 `metadata.frontmatter` 中；
+保留字段不代表实现了原客户端的对应行为。`scripts/`、`references/`、`assets/`
+通过技能资源目录提供给调用方使用。
 
 默认的**宽松模式**下：缺少 name 时回退到目录名，非法 name 归一化为 kebab-case，缺少 description 时取正文第一段。每次修复都会记录并由 `doctor` 展示。设置 `lenient: false` 可与内置提供器的严格行为保持一致。
 
