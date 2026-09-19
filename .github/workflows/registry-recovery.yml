@@ -1,0 +1,60 @@
+name: Recover MCP registry publication
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag whose npm archive is already published
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Validate the requested tag
+        id: version
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          tag = os.environ["RELEASE_TAG"]
+          if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?", tag):
+              raise ValueError("Expected an existing version tag")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"version={tag[1:]}\n")
+          PY
+      - name: Download the existing release and its MCP definition
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern 'dsh-skills-anywhere-*.tgz' --dir "$RUNNER_TEMP/release"
+          git fetch --depth=1 origin "refs/tags/$RELEASE_TAG"
+          git show FETCH_HEAD:server.json > "$RUNNER_TEMP/server.json"
+      - name: Verify public npm bytes against the GitHub release
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python3 scripts/verify_npm_release.py "$RUNNER_TEMP"/release/*.tgz \
+            --expected-version "$RELEASE_VERSION" --server "$RUNNER_TEMP/server.json"
+      - name: Install the pinned MCP publisher
+        run: |
+          curl -fsSL https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/mcp-publisher.tar.gz"
+          cd "$RUNNER_TEMP"
+          echo 'a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  mcp-publisher.tar.gz' | sha256sum --check
+          tar xzf mcp-publisher.tar.gz mcp-publisher
+      - name: Register the already published package
+        run: |
+          cd "$RUNNER_TEMP"
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
