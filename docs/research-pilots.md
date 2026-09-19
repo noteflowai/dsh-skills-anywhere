@@ -6,13 +6,44 @@ Initial pilots recorded on 2026-09-14; separately identified follow-ups on 2026-
 | --- | --- | --- |
 | Robot recording review | Qwen3-8B writes code using a non-networked Docker workspace; Skills Anywhere serves a fixed skill through real MCP or a direct adapter; EvalArc independently grades it. | 27 trials across three engineering profiles. All failures retained. No skill accuracy gain; profiles change task context/discovery and cannot be pooled. |
 | Skill composition | Four selected skill conditions × three seeds, with a synthetic private marker and exact public-output contract. | 3/12 correct outputs; no marker found in public files or plain model text. Eight explicit grader controls pass. Literal marker scanning is not a general leakage detector. |
-| Session handoff | Funes 1.3.0 indexes one explicitly selected public Qwen3-8B session; Qwen3-4B continues its candidate with/without fixed retrieved context. | Separate local model sessions, not native Claude/Codex execution. No private history discovery, automatic publication or training. |
+| Session handoff | Funes 1.3.0 indexes one explicitly selected public Qwen3-8B session. An initial six-trial pilot injects fixed context; a separate six-trial follow-up lets Qwen3-4B request retrieval through standard MCP. | All follow-up programs remain unchanged at 87.5%, with 0/6 resolved tasks. Separate local model sessions, not native branded-client restore. |
 | Harbor | Native task export, oracle/NOP execution, independent import, ATIF 1.8 exports validated with Harbor 0.23.0. | Upstream reward and independently measured acceptance remain separate. Lightweight import is narrower than full upstream schema validation. |
 | Scene creation | Real CC0 photogrammetry, Blender 4.5.13 OptiX on L40S, Spark 2.2.0 viewer and an OpenEnv 0.4.2 numeric action interface. | Surface Gaussians are mesh-derived, not trained 3DGS. Collision heightfield is separate and cannot represent overhangs. No RL or aesthetic-quality gain claimed. |
 | LIBERO-Plus | Actual native camera and light changes, one paired initial state, pinned SmolVLA on L40S. | 77-action baseline success, 220-action camera step limit, 87-action light success. Not the full benchmark or real hardware. |
 | Cosmos Policy | Pinned model/source checks, aligned action-chunk recorder and authenticated dependency-access preflight. | Required NVIDIA Video2World files return 403. No successful Cosmos inference or future-frame result. Model weights use NVIDIA's noncommercial research terms. |
 
 ## Inspect the experiments
+
+### Agent-requested Funes MCP handoff: 2026-09-19
+
+[Six actual continuations](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
+start from the same public Qwen3-8B program. Qwen3-4B receives the same task,
+initial instructions, protocol diagnostic and interaction budget, with two
+additional memory tools in the Funes condition. Three model seeds are paired
+in alternating order. The recorder connects through Skills Anywhere's
+[standard MCP source example](https://github.com/noteflowai/dsh-skills-anywhere/tree/main/examples/funes-handoff),
+which calls native Funes MCP against the selected session.
+
+The three memory trials each call recall and read: six successful retrieval
+results in total. None of the six trials writes a file. Every program remains
+unchanged at 87.5% and fails the centimeter and millimeter coordinate checks
+under two public evaluation seeds. Successful example commands and protocol
+responses do not establish numerical correctness.
+
+The report compares command strings and identical file writes with the prior
+session, separately from repetitions inside each continuation. Each memory
+trial runs one command also found in the prior session; baseline trials skip
+commands entirely. These are operation counts, not evidence of reduced work
+or time saved. The six earlier trials with pre-injected context remain a
+separate cohort.
+
+The source export, program, native receipts, recorder snapshot, model-file
+identities, operation counts and independent grades are included in the
+[offline bundle](https://noteflowai.github.io/evalarc/funes-handoff/funes-handoff.zip).
+Separate native MCP controls exercise retrieval, an empty range, a rejected
+memory-path override and removal of the selected Parquet. Those scripted
+controls are not additional agent trials. This example does not install
+history hooks, collect private sessions or establish general memory efficacy.
 
 ### Equal-length context controls: 2026-09-19
 

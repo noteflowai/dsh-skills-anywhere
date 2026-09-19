@@ -92,6 +92,13 @@ and all failures retained.
 are separate small pilots. These public-development records document the
 experiments; general skill or memory efficacy requires separate evaluation.
 
+[Use a selected-session Funes MCP entrypoint](https://github.com/noteflowai/dsh-skills-anywhere/tree/main/examples/funes-handoff)
+and [inspect six actual continuations](https://noteflowai.github.io/evalarc/funes-handoff/index.html).
+The source example exposes recall and turn reading for one reviewed public
+session. Six retrieval results succeed, while all programs remain unchanged
+and no task fully passes. This is a local source example; the Space displays
+its published evidence.
+
 ## 中文
 
 Skills Anywhere 汇总本地目录与 Git 源中的技能，支持按需发现、变更复核与版本固定加载。

@@ -100,7 +100,13 @@ protocol connections. The adapter does not bypass the MCP entrypoint.
 
 Small public-development continuation trials compare this route with a
 no-memory condition using the same starter, task, diagnostic and interaction
-budget. Counts of repeated commands or identical writes describe operations,
+budget. [Inspect the six recorded continuations](https://noteflowai.github.io/evalarc/funes-handoff/index.html):
+the memory condition retrieves six results, but all six programs remain unchanged
+and none fully resolves the task. The downloadable evidence includes a prepared
+`source/` directory, exact recorder and MCP source snapshots, model-file identities,
+and native checks for empty, rejected and missing-source requests.
+
+Counts of repeated commands or identical writes describe operations,
 including exact matches with the selected prior session. Repeating a check can
 be useful; these counts are not estimates of wasted work, human time saved or
 general memory efficacy.

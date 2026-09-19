@@ -399,6 +399,10 @@ The `dsh-skills-anywhere/tools` row accepts `findLimit` (default 10), `findMaxLi
 comparing no skill, direct delivery and MCP delivery, with independent task
 grading and all failures retained. Separate composition and session-handoff
 pilots are described in the [research guide](docs/research-pilots.md).
+The [Funes MCP handoff example](examples/funes-handoff/README.md) adds scoped
+recall and turn-reading tools for one reviewed public session. A separate
+[six-trial continuation report](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
+retains retrieved passages, unchanged programs, operation counts and failed acceptance.
 These small experiments examine delivery and task outcomes; they do not
 establish a general accuracy or memory benefit.
 
