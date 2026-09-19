@@ -100,6 +100,7 @@ protocol connections. The adapter does not bypass the MCP entrypoint.
 
 Small public-development continuation trials compare this route with a
 no-memory condition using the same starter, task, diagnostic and interaction
-budget. Counts of repeated commands or identical writes describe operations;
-they are not estimates of wasted work, human time saved or general memory
-efficacy.
+budget. Counts of repeated commands or identical writes describe operations,
+including exact matches with the selected prior session. Repeating a check can
+be useful; these counts are not estimates of wasted work, human time saved or
+general memory efficacy.
