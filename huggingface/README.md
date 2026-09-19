@@ -55,7 +55,9 @@ The CLI and MCP server work independently of dsh. Follow the
 [installation guide](https://github.com/noteflowai/dsh-skills-anywhere#quick-start)
 for your client and the
 [compatibility matrix](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/MCP-COMPATIBILITY.md)
-for tested protocol configurations. Git sources additionally require Git and
+for the four tested SDK configurations and installed-package checks.
+Client configuration examples are documented separately from those checks.
+Git sources additionally require Git and
 use a managed local checkout.
 
 - [Check a file in CI](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/CHECKING.md)

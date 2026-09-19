@@ -81,7 +81,9 @@ Inside dsh, it registers one extra provider on the built-in `ctx.skills` registr
 - **Configured Git sources.** Select a skill repository, subdirectory, branch, tag or commit. The provider maintains a local checkout and records its resolved commit in a lock file.
 - **Local files read in place.** Existing skills are re-read when loaded, without copying them into each client's directory. Git sources use the managed cache described below.
 
-Hundreds of skills would bloat every model request, so the provider keeps a **catalog budget**: at most 50 skills enter the model's session catalog by default, and the rest stay one `find_skills` call away through two small tools the plugin adds, with `/name` invocation untouched.
+The **catalog budget** controls how many skill summaries enter the model's
+session catalog: up to 50 by default. Other eligible skills remain searchable
+through `find_skills` and can be loaded on demand. `/name` invocation is unchanged.
 
 The same pool is available **outside dsh** through `dsh-skills-anywhere mcp`.
 Configured [MCP](https://modelcontextprotocol.io) clients can discover and open
@@ -288,7 +290,15 @@ the following tools. Connect a compatible client using its MCP configuration:
 | `find_skills` | Keyword search across names, descriptions and origins |
 | `open_skill` | Load one skill's instructions plus the directory its scripts and references live in |
 
-Skills are also exposed as `skill://<name>` resources (with completion), for clients that let you @-mention resources. Skills whose frontmatter sets `disable-model-invocation: true` are never listed or opened. The server needs no dsh installation at all.
+Skills are also exposed as `skill://<name>` resources with completion for clients
+that support resource references. The MCP tools and resources exclude skills
+whose frontmatter sets `disable-model-invocation: true`. The server runs
+independently of dsh.
+
+The examples below show client configuration. Automated connection checks cover
+the four SDK configurations and installed package in the
+[compatibility matrix](docs/MCP-COMPATIBILITY.md); application-specific behavior
+depends on the client version and its support for tools and resources.
 
 **Claude Code** (as a plugin; this repo doubles as a plugin marketplace)
 
@@ -313,7 +323,16 @@ command = "npx"
 args = ["-y", "dsh-skills-anywhere", "mcp"]
 ```
 
-The server is also listed in the [official MCP registry](https://registry.modelcontextprotocol.io) as `io.github.noteflowai/dsh-skills-anywhere`, so registry-aware clients can install it by name. The repository is also an [Agent Plugin](https://agent-plugins.org) (`plugin.json` + `mcp.json` at the root), so Cursor and other open-plugin clients can install it from the repository URL. Add `--cwd <dir>` when the client does not start the server inside the project you are working on. Git sources sync in the background on start, exactly as in dsh. Programmatic use: `import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns the `McpServer` and the provider so you can attach your own transport.
+The [MCP registry](https://registry.modelcontextprotocol.io) identifier is
+`io.github.noteflowai/dsh-skills-anywhere`. The repository also includes
+[Agent Plugin](https://agent-plugins.org) manifests (`plugin.json` and `mcp.json`)
+for clients that support that format. Follow your client's installation flow.
+
+Add `--cwd <dir>` when the client starts the server outside your project.
+Configured Git sources sync in the background at startup. To embed the server,
+`import { createSkillsAnywhereServer } from 'dsh-skills-anywhere/mcp'` returns
+the `McpServer` and provider; see the
+[transport and migration guide](docs/MCP-COMPATIBILITY.md#embedding-the-server).
 
 ## Browse and toggle skills in the dsh web UI
 
