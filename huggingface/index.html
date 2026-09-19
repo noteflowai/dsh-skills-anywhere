@@ -19,11 +19,11 @@
     <main id="top">
       <section class="hero">
         <div>
-          <div class="eyebrow"><span class="live-dot"></span> AGENT SKILLS, WITHOUT THE SILOS</div>
+          <div class="eyebrow"><span class="live-dot"></span> DISCOVER &middot; REVIEW &middot; LOAD</div>
           <h1>Your skills.<br><span>Across tools.</span></h1>
-          <p class="lede">One shared pool for your coding agents.<br>Explore how discovery, search and a smaller<br class="wide-only"> model catalog fit together.</p>
+          <p class="lede">Find skills across your tools, review changes,<br class="wide-only"> and load the version you checked.<br>Try the catalog and file checks in your browser.</p>
           <a class="primary" href="#workspace">Explore the workspace <span aria-hidden="true">&#8595;</span></a>
-          <p class="hero-note">Open source &middot; MIT &middot; No sign-up</p>
+          <p class="hero-note">Browser demo &middot; Local files stay on your device &middot; MIT</p>
           <a id="robot-start" href="#workspace">Try the Microduck review workflow &#8594;</a>
           <p><a href="#bundle">Spot a script change behind unchanged instructions &#8595;</a></p>
         </div>
@@ -38,16 +38,14 @@
           <span class="orbit-caption">Read where they live. Load when needed.</span>
         </div>
       </section>
-      <section class="local-check" aria-label="Recorded model pilot"><div class="eyebrow">RECORDED GPU PILOT</div><h2>A skill receipt is only the beginning.</h2><p class="section-intro">Inspect 27 Qwen3-8B attempts across no-skill, direct-delivery and MCP conditions, with independent EvalArc grading. These public-development records document delivery and task outcomes; they do not establish a general accuracy benefit. Every failure remains inspectable.</p><p><a href="https://noteflowai.github.io/evalarc/skill-impact/">Explore the Skill Impact Lab &nearr;</a> &nbsp; <a href="https://noteflowai.github.io/evalarc/research/">Composition and cross-model handoff evidence &nearr;</a></p></section>
-      <section class="local-check" aria-label="Skill delivery receipts"><div class="eyebrow">NEW / FOLLOW A REAL LOAD</div><h2>Which instructions reached the agent?</h2><p class="section-intro">MCP loads now return a receipt with instruction and optional bundle hashes. Attach it to your tool span, then inspect expected skills and evaluator results together. A delivery receipt does not assert task success.</p><p><a href="https://noteflowai.github.io/evalarc/trace-mcp/">Inspect an actual local MCP delivery &nearr;</a> &nbsp; <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/LOAD-RECEIPTS.md">Use receipts in your recorder &nearr;</a></p></section>
       <section class="facts" aria-label="Project capabilities">
         <div><strong id="agent-count">68</strong><span>agent directory definitions</span></div>
-        <div><strong>0</strong><span>copies or symlinks to maintain</span></div>
+        <div><strong>In place</strong><span>read local skill directories</span></div>
         <div><strong>On demand</strong><span>search first, load one skill</span></div>
       </section>
       <section class="lab" id="workspace">
         <div class="section-head"><div><div class="eyebrow">TRY IT HERE</div><h2 id="workspace-title" tabindex="-1">A workspace with a few surprises.</h2></div><span class="pill">Example workspace</span></div>
-        <p class="section-intro">These authored files were scanned by the real provider at build time. They include a usable Microduck review skill alongside fictional examples. Budget and search run the project's shared code in your browser. This example does not scan your computer or run a skill.</p>
+        <p class="section-intro">Explore a prepared workspace with naming conflicts, catalog limits and a Microduck review skill. Discovery uses the package's provider at build time; search and catalog controls run in your browser. Install the local package below to connect your own directories and agent.</p>
         <div class="scenarios" aria-label="Guided examples">
           <button type="button" data-scenario="default" class="active">01 <span>Follow the sources</span></button>
           <button type="button" data-scenario="collision">02 <span>Untangle a name clash</span></button>
@@ -133,7 +131,9 @@
         <div><div class="eyebrow">BRING YOUR OWN SKILLS</div><h2>Take it into your workflow.</h2><p>Install the published package on your machine to use real skill directories. Your client controls what a loaded skill can do.</p><a href="https://github.com/noteflowai/dsh-skills-anywhere#quick-start" target="_blank" rel="noopener noreferrer">Read the setup guide &#8599;</a></div>
         <div class="install-card"><div class="install-tabs" role="tablist" aria-label="Installation method"><button type="button" role="tab" id="tab-cli" data-install="cli" aria-controls="install-panel" aria-selected="true">Explore CLI</button><button type="button" role="tab" id="tab-dsh" data-install="dsh" aria-controls="install-panel" aria-selected="false" tabindex="-1">DeepSeek Harness</button><button type="button" role="tab" id="tab-mcp" data-install="mcp" aria-controls="install-panel" aria-selected="false" tabindex="-1">MCP clients</button></div><div id="install-panel" role="tabpanel" aria-labelledby="tab-cli"><pre id="install-command" tabindex="0"></pre><p id="install-note"></p><button id="copy-install" type="button">Copy command</button></div><p class="muted">Node.js 22.19+ or 24+ &middot; Git for repository sources</p></div>
       </section>
-      <footer><div class="brand"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></div><p>Independent community project by Note Flow AI. Example skills are MIT licensed.<br>Directory coverage does not imply every client or skill script has been tested.</p><a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/discussions" target="_blank" rel="noopener noreferrer">Feedback &#8599;</a><p class="build-meta" id="build-meta"></p></footer>
+      <section class="local-check" aria-label="Skill delivery receipts"><div class="eyebrow">INSPECT SKILL DELIVERY</div><h2>Trace a load to its instructions.</h2><p class="section-intro">MCP loads return a receipt with instruction and optional bundle hashes. Save it alongside a tool call to identify the delivered version, then review task outcomes separately.</p><p><a href="https://noteflowai.github.io/evalarc/trace-mcp/">Inspect an actual local MCP delivery &nearr;</a> &nbsp; <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/LOAD-RECEIPTS.md">Use receipts in your recorder &nearr;</a></p></section>
+      <section class="local-check" aria-label="Recorded model pilot"><div class="eyebrow">RESEARCH EXAMPLE / RECORDED GPU PILOT</div><h2>Inspect delivery and task outcomes.</h2><p class="section-intro">Explore 27 Qwen3-8B attempts across no-skill, direct-delivery and MCP conditions, with independent EvalArc grading and all failures retained. These public-development trials support inspection of this experiment; general skill efficacy requires separate evaluation.</p><p><a href="https://noteflowai.github.io/evalarc/skill-impact/">Explore the Skill Impact Lab &nearr;</a> &nbsp; <a href="https://noteflowai.github.io/evalarc/research/">Composition and cross-model handoff evidence &nearr;</a></p></section>
+      <footer><div class="brand"><span class="brand-icon" aria-hidden="true">&#10035;</span> skills<span>anywhere</span></div><p>Independent community project by Note Flow AI. Example skills are MIT licensed.<br>Agent names above identify discovery directories. See the <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/MCP-COMPATIBILITY.md">tested protocol configurations</a> for connection coverage. The Space provides browser checks and examples; skill execution uses your local client.</p><a href="https://huggingface.co/spaces/glayguo/dsh-skills-anywhere/discussions" target="_blank" rel="noopener noreferrer">Feedback &#8599;</a><p class="build-meta" id="build-meta"></p></footer>
     </main>
   </div>
 </body>
