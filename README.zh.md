@@ -26,8 +26,6 @@
 [![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-社区目录已收录：[Awesome DeepSeek Harness](https://github.com/Dominic789654/awesome-deepseek-harness) · [Awesome Gemini CLI](https://github.com/Piebald-AI/awesome-gemini-cli). [推广与核验记录](docs/PROMOTION.md)。
-
 不同客户端使用的项目级、用户级和插件目录存在差异。Skills Anywhere 原地发现
 已配置来源中的 `SKILL.md`，通过 dsh 或已连接本地服务器的 MCP 客户端提供统一目录。
 目录定义描述发现路径；已测试的协议连接单独记录在[兼容矩阵](docs/MCP-COMPATIBILITY.md)中。
@@ -119,7 +117,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.0/dsh-skills-anywhere-0.12.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.1/dsh-skills-anywhere-0.12.1.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -344,7 +342,7 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 
 - 插件只**读取**技能文件，绝不写入你的 Agent 目录。
 - git 源会在插件启动和刷新周期在本机运行 `git`。对不完全信任的源请锁定提交，并检查 `lock.json`。
-- 技能是模型会遵循的指令。添加一个源就是一次信任决策，与安装插件无异。
+- 加载技能会把指令加入 Agent 上下文。使用前应检查指令及引用脚本；执行权限由客户端控制，加载成功不保证模型遵循指令。
 - 技能通过 Node 文件系统 API 读取，而非 dsh 沙箱化的 `ctx.fs`；内置提供器读取自带根目录时也是如此。
 
 ## 开发
@@ -359,7 +357,13 @@ pnpm pack             # 生成 tarball，供 `dsh plugin --profile <name> add ./
 
 ## 参与贡献
 
-欢迎 issue 与 PR。新增一个 Agent 只需在 [`src/agents.ts`](src/agents.ts) 里加一行。详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+欢迎 issue 与 PR。在 [`src/agents.ts`](src/agents.ts) 中添加发现路径时，
+请注明来源并验证目录发现行为。客户端接入需要单独检查协议与工作流。
+详见[贡献指南](CONTRIBUTING.md)。
+
+社区收录：[Awesome DeepSeek Harness](https://github.com/Dominic789654/awesome-deepseek-harness) ·
+[Awesome Gemini CLI](https://github.com/Piebald-AI/awesome-gemini-cli)。
+[发布历史与核验记录](docs/PROMOTION.md)。
 
 ## 许可证
 
