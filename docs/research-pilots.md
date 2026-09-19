@@ -14,6 +14,22 @@ Recorded on 2026-09-14. These are bounded public development pilots, not leaderb
 
 ## Inspect the experiments
 
+### Harbor follow-up: 2026-09-19
+
+[Three native controls](https://noteflowai.github.io/evalarc/harbor-controls/index.html)
+now cover a correct program (answer reward 1.0 / program score 1.0), a clock
+fault (0.8 / 0.8), and correct answers paired with the faulty program (1.0 / 0.8).
+Only the reference passes strict independent acceptance. Each control executed
+in a non-root Docker agent environment with a separate verifier; native ATIF
+passes Harbor 0.23.0's full schema. Original answers, collected programs,
+command outputs and independent evaluations are downloadable.
+
+This is a scripted artifact-verification experiment, not model inference or an
+unknown Harbor vulnerability. Task 0.2.0 adds weighted answer reward; task 0.1.0
+retains its original binary reward. The preliminary CLI argument error is retained
+with the completed experiment. Cosmos dependency access was rechecked on
+2026-09-19: both required Video2World files still return authenticated HTTP 403.
+
 - [Skill Impact Lab: all 27 trials](https://noteflowai.github.io/evalarc/skill-impact/)
 - [Composition, handoff and Harbor records](https://noteflowai.github.io/evalarc/research/)
 - [Captured scene and native edits](https://noteflowai.github.io/robot-reel/scene-lab/)
