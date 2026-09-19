@@ -406,21 +406,19 @@ The `dsh-skills-anywhere/tools` row accepts `findLimit` (default 10), `findMaxLi
 3. Entries that still **share a name** but differ are all kept. If one of them is yours (an agent directory) it keeps the bare name and the others are prefixed with their plugin, repository, or agent (`telegram-configure`). If every member comes from a marketplace or a git source, all of them are prefixed, so you get `discord-access` and `telegram-access` rather than a meaningless bare `access`. `doctor` lists the renames.
 4. The dsh registry then merges this provider's candidates with the built-in ones by rank.
 
-## Recorded research examples
+## Integration examples and measured outcomes
 
-[Inspect 27 GPU trials](https://noteflowai.github.io/evalarc/skill-impact/index.html)
-comparing no skill, direct delivery and MCP delivery, with independent task
-grading and all failures retained. Separate composition and session-handoff
-pilots are described in the [research guide](docs/research-pilots.md).
-The [Funes MCP handoff example](examples/funes-handoff/README.md) adds scoped
-recall and turn-reading tools for one reviewed public session. A separate
-[six-trial continuation report](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
-compares three attempts without memory and three with the MCP tools. The memory
-group's six retrieval calls succeed; all six programs remain unchanged, and
-0/3 attempts meet full acceptance in either group. The report retains retrieved
-passages, operation counts and acceptance checks.
-These small experiments examine delivery and task outcomes; they do not
-establish a general accuracy or memory benefit.
+Use the examples to connect delivery receipts with separately computed task
+checks. The reports retain instructions, tool results and every delivered program.
+
+| Workflow | Example and evidence | Recorded result |
+| --- | --- | --- |
+| Compare skill delivery | [27 Qwen3-8B attempts](https://noteflowai.github.io/evalarc/skill-impact/) across no skill, direct delivery and MCP, in three engineering profiles | No direct-delivery or MCP attempt fully resolves the task. The no-skill condition resolves 2/3 attempts in the final profile. |
+| Continue from a selected session | [Funes MCP source example](examples/funes-handoff/README.md) and [six continuation attempts](https://noteflowai.github.io/evalarc/funes-handoff/), three per condition | All six retrieval calls succeed. All six programs remain unchanged; each condition resolves 0/3 tasks. |
+
+These small public development experiments evaluate specific workflows; general
+skill or memory benefits require separate evaluation. The [research guide](docs/research-pilots.md)
+keeps methods, composition controls and separate cohorts together for reproduction.
 
 ## Security notes
 
