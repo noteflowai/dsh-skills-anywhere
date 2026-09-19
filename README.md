@@ -402,7 +402,10 @@ pilots are described in the [research guide](docs/research-pilots.md).
 The [Funes MCP handoff example](examples/funes-handoff/README.md) adds scoped
 recall and turn-reading tools for one reviewed public session. A separate
 [six-trial continuation report](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
-retains retrieved passages, unchanged programs, operation counts and failed acceptance.
+compares three attempts without memory and three with the MCP tools. The memory
+group's six retrieval calls succeed; all six programs remain unchanged, and
+0/3 attempts meet full acceptance in either group. The report retains retrieved
+passages, operation counts and acceptance checks.
 These small experiments examine delivery and task outcomes; they do not
 establish a general accuracy or memory benefit.
 

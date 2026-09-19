@@ -95,8 +95,10 @@ experiments; general skill or memory efficacy requires separate evaluation.
 [Use a selected-session Funes MCP entrypoint](https://github.com/noteflowai/dsh-skills-anywhere/tree/main/examples/funes-handoff)
 and [inspect six actual continuations](https://noteflowai.github.io/evalarc/funes-handoff/index.html).
 The source example exposes recall and turn reading for one reviewed public
-session. Six retrieval results succeed, while all programs remain unchanged
-and no task fully passes. This is a local source example; the Space displays
+session. The six attempts comprise three without memory and three with MCP
+memory tools; the latter make two retrieval calls each. All six retrieval calls
+succeed, while all six programs remain unchanged and 0/3 attempts meet full
+acceptance in either group. This is a local source example; the Space displays
 its published evidence.
 
 ## 中文

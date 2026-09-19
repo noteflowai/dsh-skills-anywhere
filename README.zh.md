@@ -371,7 +371,9 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 技能组合与会话接续试验单独列于[研究说明](docs/research-pilots.md)。
 [Funes MCP 交接示例](examples/funes-handoff/README.md)为一份已审核公开会话提供检索和原文读取工具。
 独立的[六次接续报告](https://noteflowai.github.io/evalarc/funes-handoff/index.html)
-保留检索原文、未修改的程序、操作数量和未通过的验收结果。
+对照无记忆组与提供 MCP 记忆工具的组，每组各三次。记忆组的六次检索调用全部成功；
+六份交付程序均未修改，两组各有 0/3 次尝试完全通过验收。
+报告保留检索原文、操作数量和逐项验收结果。
 这些小规模实验检查交付过程和任务结果，不足以确立普遍的准确率或记忆效果收益。
 
 ## 安全说明
