@@ -383,6 +383,13 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 | 对照技能交付方式 | [27 次 Qwen3-8B 尝试](https://noteflowai.github.io/evalarc/skill-impact/)，分三组工程配置比较无技能、直接交付与 MCP | 直接交付与 MCP 条件均无尝试完全完成任务；最后一组配置中，无技能条件有 2/3 次完全完成。 |
 | 从指定会话继续工作 | [Funes MCP 源码示例](examples/funes-handoff/README.md)与[六次接续尝试](https://noteflowai.github.io/evalarc/funes-handoff/)，每种条件三次 | 六次检索调用全部成功；六份程序均未修改，两种条件各有 0/3 次完全完成任务。 |
 
+[复核独立来源 SWE 任务](https://noteflowai.github.io/evalarc/independent-swe/index.html)：
+另一组固定实验在 Astropy、pytest、SymPy 三个公开任务上保留四条件共 36 次尝试。
+直接加载与 MCP 预加载交付相同指令，无关内容组也匹配初始提示长度。
+没有尝试获得原生验收：31 次有可判读报告，5 次因上游基础设施标记而保留为不确定；
+8 次产生非空补丁。[中文方法与离线记录](https://github.com/noteflowai/evalarc/blob/main/examples/independent-swe/README.zh-CN.md)
+分别呈现工具失败、原始评分标签和不完整用量。
+
 [携带前序会话的固定技能版本继续工作](https://noteflowai.github.io/evalarc/skill-handoff/)：
 另一组独立保存的六次尝试均由工作流通过 MCP 预加载相同的历史技能。
 六次加载均成功，记忆组合计成功检索六次；六份程序均未修改，完整任务验收为 0/6。
@@ -394,7 +401,7 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 [中文方法](https://github.com/noteflowai/evalarc/blob/main/examples/behavior-audit/README.zh-CN.md)
 提供复现步骤和结果的解释范围。
 
-这些小规模公开开发实验用于评估特定工作流；普遍的技能或记忆效果收益需要另行验证。
+这些小规模公开任务研究用于评估特定工作流；普遍的技能或记忆效果收益需要另行验证。
 [研究说明](docs/research-pilots.md)集中提供复现方法、技能组合对照与各批次记录。
 
 ## 安全说明

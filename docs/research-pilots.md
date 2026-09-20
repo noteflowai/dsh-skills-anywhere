@@ -125,3 +125,30 @@ A wheel-packaging issue found while installing LIBERO-Plus already had an upstre
 ## Versioned public data
 
 [Noteflow Research Pilots on Hugging Face](https://huggingface.co/datasets/glayguo/noteflow-research-pilots/tree/v2026-09-14) publishes all 45 agent trials, native Blender downloads, OpenEnv controls and the three Plus recordings. Publication revision `d42ad1d0e1073029254e9e5c3980541a3b166c92`: all 184 file identities were checked through the anonymous Hub API.
+
+## Independent-source SWE workflow review
+
+[Review independent-source SWE tasks](https://noteflowai.github.io/evalarc/independent-swe/index.html):
+a separate fixed cohort records 36 attempts on Astropy, pytest and SymPy across
+four workflow conditions. Direct and MCP preloads deliver identical guidance;
+an unrelated MCP control matches the prompt length. No attempt obtains native
+acceptance: 31 have assessable reports and five remain uncertain after upstream
+infrastructure flags. Eight attempts produce nonempty patches.
+[Methods and offline records](https://github.com/noteflowai/evalarc/tree/main/examples/independent-swe)
+keep tool failures, native labels and incomplete usage visible.
+
+The cohort uses three public source tasks, not robot trajectories. Its generic
+skill was frozen before task selection; a separate development case was excluded.
+The four conditions share the model, tool API, source images and interaction budget.
+Workflow preloading is not autonomous skill discovery, and repeated seeds do not
+create additional independent tasks. The results do not establish a skill benefit.
+
+The offline ZIP includes exact requests, model responses, native reports, source
+and model identities, patches and six upstream controls. Its `review/index.html`
+works without a server. Five pytest reports contain both offline build-dependency
+installation failures and candidate errors; retain the original label without
+assigning a sole cause. The 95% aggregate-rule comparison is separate from native
+acceptance and preserves unknown evidence.
+
+[Structured dataset](https://huggingface.co/datasets/glayguo/evalarc-independent-swe)
+retains all 36 rows, including unavailable outcomes and incomplete usage.
