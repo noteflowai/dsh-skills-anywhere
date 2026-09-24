@@ -54,6 +54,35 @@ function textOf(result: unknown): string {
 }
 
 describe('MCP server', () => {
+  it('serves the shared .agents directories that only dsh itself would otherwise read', async () => {
+    const home = await tempDir('mcp-shared-home')
+    const project = await tempDir('mcp-shared-project')
+    await mkdir(join(project, '.git'))
+    await writeSkill(join(project, '.agents', 'skills'), 'portable-review', 'Kept where Codex, Amp and Zed look')
+    await writeSkill(join(home, '.agents', 'skills'), 'portable-notes', 'User-level shared skill')
+    // Same name in a Claude Code project directory: dsh ranks .agents/skills (200) above .claude/skills (250).
+    await writeSkill(join(project, '.claude', 'skills'), 'portable-review', 'Claude copy', { body: 'Claude body' })
+    const config = { home, dshHome: join(home, '.dsh'), sync: false }
+    const shared = createSkillsAnywhereServer({ cwd: project, config, log: quietLogger() })
+    const excluded = createSkillsAnywhereServer({ cwd: project, config: { ...config, excludeAgents: ['agents'] }, log: quietLogger() })
+    const optedOut = createSkillsAnywhereServer({ cwd: project, config: { ...config, sharedDirs: false }, log: quietLogger() })
+    try {
+      const names = async (mcp: SkillsAnywhereMcp) => (await mcp.refresh()).skills.map(skill => skill.name).toSorted()
+      const report = await shared.refresh()
+      // The shared copy keeps the name; the conflicting Claude Code copy is renamed, as between any two agents.
+      expect(report.skills.map(skill => [skill.name, skill.rank, skill.origin]).toSorted()).toEqual([
+        ['claude-code-portable-review', 250, { kind: 'agent', agent: 'claude-code', scope: 'project' }],
+        ['portable-notes', 500, { kind: 'agent', agent: 'agents', scope: 'user' }],
+        ['portable-review', 200, { kind: 'agent', agent: 'agents', scope: 'project' }],
+      ])
+      expect(await names(excluded)).toEqual(['portable-review'])
+      expect(await names(optedOut)).toEqual(['portable-review'])
+      expect((await optedOut.refresh()).skills[0]!.origin).toEqual({ kind: 'agent', agent: 'claude-code', scope: 'project' })
+    } finally {
+      await Promise.all([shared.close(), excluded.close(), optedOut.close()])
+    }
+  })
+
   it('returns one path-free delivery identity per successful load and no receipt on rejection', async () => {
     const { client, home } = await harness()
     const first = await client.callTool({ name: 'open_skill', arguments: { name: 'pdf-forms', include_bundle: true } })

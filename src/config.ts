@@ -38,6 +38,12 @@ export interface Config {
   readonly agents?: boolean
   /** Agent ids (see `AGENTS`) to leave out. */
   readonly excludeAgents?: readonly string[]
+  /**
+   * Also scan the shared `.agents/skills` and `~/.agents/skills`, at dsh's own
+   * ranks for them (200 and 500). Off inside dsh, whose built-in provider
+   * already reads them; the standalone MCP server turns it on.
+   */
+  readonly sharedDirs?: boolean
   /** Extra project-relative skill directories scanned like an agent's. */
   readonly extraProjectDirs?: readonly string[]
   /** Extra absolute (or `~/`) skill directories scanned like an agent's user root. */
@@ -78,6 +84,8 @@ export interface Config {
 }
 
 export const DEFAULT_RANKS = { project: 250, user: 550, claudePlugins: 580, sources: 700 } as const
+/** dsh's built-in ranks for `.agents/skills` and `~/.agents/skills`, reused when `sharedDirs` is on. */
+export const SHARED_RANKS = { project: 200, user: 500 } as const
 export const DEFAULT_SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000
 export const DEFAULT_SYNC_TIMEOUT_MS = 120_000
 export const DEFAULT_MAX_DEPTH = 5
@@ -97,6 +105,7 @@ export const Config: Schema<Config> = z.object({
   providerName: z.string().default('skills-anywhere'),
   agents: z.boolean().default(true),
   excludeAgents: z.array(z.string()).default([]),
+  sharedDirs: z.boolean().default(false),
   extraProjectDirs: z.array(z.string()).default([]),
   extraUserDirs: z.array(z.string()).default([]),
   claudePlugins: z.boolean().default(true),
@@ -131,6 +140,7 @@ export interface ResolvedConfig {
   readonly providerName: string
   readonly agents: boolean
   readonly excludeAgents: ReadonlySet<string>
+  readonly sharedDirs: boolean
   readonly extraProjectDirs: readonly string[]
   readonly extraUserDirs: readonly string[]
   readonly claudePlugins: boolean
@@ -176,6 +186,7 @@ export function resolveConfig(config: Config = {}, env: Record<string, string | 
     providerName: config.providerName ?? 'skills-anywhere',
     agents: config.agents ?? true,
     excludeAgents: new Set(config.excludeAgents ?? []),
+    sharedDirs: config.sharedDirs ?? false,
     extraProjectDirs: (config.extraProjectDirs ?? []).map(dir => dir.replace(/^\.?\/+/, '')),
     extraUserDirs: (config.extraUserDirs ?? []).map(dir => resolve(expandHome(dir, home))),
     claudePlugins: config.claudePlugins ?? true,

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Serve the shared `.agents/skills` and `~/.agents/skills` from the standalone MCP server, at dsh's own ranks for them (200 and 500). They are the default skill location for Codex, Amp, Goose, Zed and Letta Code, but were deliberately skipped because dsh's built-in provider reads them; over MCP nothing else did, so a Claude Code user never saw skills installed there. Inside dsh the plugin still leaves them to the built-in provider. New `sharedDirs` option; `excludeAgents: ['agents']` also turns them off. `agents` lists the row and whether it exists.
+- Add documented skill directories: Cline project `.cline/skills` and `.clinerules/skills`, Droid (Factory) project `.factory/skills`, Kimi CLI `.kimi/skills` (project and user) and Letta Code `~/.letta/skills`.
+
 ## 0.13.0 — 2026-09-25
 
 - Scan the project-level skill directories that Cursor (`.cursor/skills`), Gemini CLI (`.gemini/skills`), GitHub Copilot (`.github/skills`) and OpenCode (`.opencode/skills`) document, in addition to their user directories. Skills there now appear as `anywhere-project` at rank 250; `excludeAgents` still skips them per agent.

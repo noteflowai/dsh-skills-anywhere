@@ -66,7 +66,7 @@ dsh plugin --profile web add dsh-skills-anywhere
 
 在 dsh 里，它在内置的 `ctx.skills` 注册表上多注册一个提供器，模型原有的 `skill` 工具和 `/name` 调用方式不变，只是能看到更多技能：
 
-- **预定义的 Agent 目录。** 包括 Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose 等项目级和用户级路径，具体见[目录注册表](src/agents.ts)。
+- **预定义的 Agent 目录。** 包括 Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose、Cline、Kimi CLI、Letta Code 等项目级和用户级路径，具体见[目录注册表](src/agents.ts)。通过 MCP 时还包括共享的 `.agents/skills` 约定，因此自身不读取该目录的客户端（例如 Claude Code）也能看到安装在那里的技能。
 - **Claude Code 插件市场。** 嵌套在 `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` 里的技能，包括 Anthropic 官方市场。
 - **已配置的 Git 源。** 指定技能仓库、子目录、分支、标签或提交；提供器维护本地检出，并在 lock 文件中记录实际提交。
 - **原地读取本地文件。** 每次加载重新读取已有技能，无需复制到各客户端目录。Git 源使用下文说明的托管缓存。
@@ -179,7 +179,10 @@ allowBuilds:
 `.dsh/skills` 为 100、`.agents/skills` 为 200、`~/.dsh/skills` 为 400、
 `~/.agents/skills` 为 500。不同来源按这些数值共同排序，例如 rank 250 的
 Agent 项目级条目优先于 rank 400 的 dsh 用户级条目。
-内置 `.agents/skills` 与 `.dsh/skills` 目录不会被重复扫描。
+在 dsh 内，内置 `.agents/skills` 与 `.dsh/skills` 目录不会被重复扫描。
+独立运行的 MCP 服务器旁边没有内置提供器，因此它也会以相同的 rank（200 与 500）提供共享的
+`.agents/skills` 与 `~/.agents/skills`（Codex、Amp、Goose、Zed 与 Letta Code 的默认位置）。
+嵌入 `createSkillsAnywhereServer` 时可传入 `sharedDirs: false` 或排除 `agents` id。
 
 运行 `npx dsh-skills-anywhere agents` 查看完整 Agent 表以及本机存在哪些目录。
 
@@ -343,6 +346,7 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 | `providerName` | `skills-anywhere` | 在 `ctx.skills` 上的提供器名 |
 | `agents` | `true` | 扫描其他 Agent 的技能目录 |
 | `excludeAgents` | `[]` | 跳过的 Agent id（见 `agents` 命令） |
+| `sharedDirs` | dsh 中为 `false`，MCP 服务器为 `true` | 同时扫描 dsh 内置提供器已读取的 `.agents/skills` 与 `~/.agents/skills` |
 | `extraProjectDirs` | `[]` | 额外的项目相对技能目录 |
 | `extraUserDirs` | `[]` | 额外的绝对路径或 `~/` 技能目录 |
 | `claudePlugins` | `true` | 扫描 Claude Code 插件市场与缓存 |

@@ -265,7 +265,9 @@ function isRenamed(skill: { metadata: Record<string, unknown> }): boolean {
   return typeof (skill.metadata.skillsAnywhere as { renamedFrom?: unknown } | undefined)?.renamedFrom === 'string'
 }
 
-async function agents(cli: Cli, config: ResolvedConfig): Promise<number> {
+async function agents(cli: Cli, dshConfig: ResolvedConfig): Promise<number> {
+  // Report every row, including the shared one that only the MCP server reads.
+  const config = { ...dshConfig, sharedDirs: true }
   const provider = new SkillsAnywhereProvider(config, logger())
   try {
     const roots = await provider.roots(cli.cwd)
@@ -278,6 +280,7 @@ async function agents(cli: Cli, config: ResolvedConfig): Promise<number> {
         label: agent.label,
         project: agent.project ?? null,
         user: agent.user !== undefined ? `~/${agent.user}` : null,
+        shared: agent.shared ?? false,
         present: (projectRoot !== undefined && existing.has(projectRoot.path)) || (userRoot !== undefined && existing.has(userRoot.path)),
       }
     })
@@ -289,7 +292,7 @@ async function agents(cli: Cli, config: ResolvedConfig): Promise<number> {
         ...rows.map(row => [row.label, row.id, row.project ?? '-', row.user ?? '-', row.present ? 'yes' : '']),
       ]))
       console.log(`\n${rows.length} agents supported; ${rows.filter(row => row.present).length} have a skills directory on this machine.`)
-      console.log('(.agents/skills and .dsh/skills are handled by the built-in dsh provider.)')
+      console.log('(Shared .agents/skills: the MCP server reads it; inside dsh the built-in provider does, as it does .dsh/skills.)')
     }
     return 0
   } finally {

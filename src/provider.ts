@@ -21,7 +21,7 @@ import type {
   SkillProviderObservation,
 } from '@deepseek-ai/dsh-skill'
 import { AGENTS } from './agents.ts'
-import { projectSourcesFile, type ResolvedConfig } from './config.ts'
+import { projectSourcesFile, SHARED_RANKS, type ResolvedConfig } from './config.ts'
 import { discover, findProjectRoot, type DiscoveredSkill, type DiscoveryReport, type SkillRoot } from './discover.ts'
 import { originGroup, originLabel } from './origin.ts'
 import { applyCatalogBudget, type CatalogState } from './catalog.ts'
@@ -360,11 +360,12 @@ export class SkillsAnywhereProvider implements SkillProvider {
     if (config.agents && projectRoot !== undefined) {
       for (const agent of AGENTS) {
         if (agent.project === undefined || config.excludeAgents.has(agent.id)) continue
+        if (agent.shared && !config.sharedDirs) continue
         roots.push({
           path: join(projectRoot, agent.project),
           project: projectRoot,
           source: 'anywhere-project',
-          rank: config.ranks.project,
+          rank: agent.shared ? SHARED_RANKS.project : config.ranks.project,
           mode: 'flat',
           origin: { kind: 'agent', agent: agent.id, scope: 'project' },
           label: `${agent.id} (project)`,
@@ -388,13 +389,14 @@ export class SkillsAnywhereProvider implements SkillProvider {
       const seen = new Set<string>()
       for (const agent of AGENTS) {
         if (agent.user === undefined || config.excludeAgents.has(agent.id)) continue
+        if (agent.shared && !config.sharedDirs) continue
         const path = join(config.home, agent.user)
         if (seen.has(path)) continue
         seen.add(path)
         roots.push({
           path,
           source: 'anywhere-user',
-          rank: config.ranks.user,
+          rank: agent.shared ? SHARED_RANKS.user : config.ranks.user,
           mode: 'flat',
           origin: { kind: 'agent', agent: agent.id, scope: 'user' },
           label: `${agent.id} (user)`,
