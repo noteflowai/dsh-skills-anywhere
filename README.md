@@ -159,7 +159,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.1/dsh-skills-anywhere-0.12.1.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.13.0/dsh-skills-anywhere-0.13.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -190,7 +190,7 @@ Pin a commit (`github:noteflowai/dsh-skills-anywhere#<sha>`) if you want the ins
 
 | Where | Example | dsh source label | Default rank |
 |---|---|---|---|
-| Another agent's **project** skills | `<project>/.claude/skills/*` | `anywhere-project` | 250 |
+| Another agent's **project** skills | `<project>/.claude/skills/*`, `<project>/.cursor/skills/*` | `anywhere-project` | 250 |
 | Another agent's **user** skills | `~/.codex/skills/*`, `~/.cursor/skills/*` | `anywhere-user` | 550 |
 | **Claude Code plugin marketplaces** and the installed-plugin cache | `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` | `anywhere-claude-plugins` | 580 |
 | **Git sources** | `anthropics/skills`, `vercel-labs/agent-skills/skills` | `anywhere-source` | 700 |

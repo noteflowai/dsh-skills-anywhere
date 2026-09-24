@@ -27,12 +27,15 @@ export interface AgentSpec {
 export const AGENTS: readonly AgentSpec[] = [
   { id: 'claude-code', label: 'Claude Code', project: '.claude/skills', user: '.claude/skills' },
   { id: 'codex', label: 'OpenAI Codex', user: '.codex/skills' },
-  { id: 'cursor', label: 'Cursor', user: '.cursor/skills' },
-  { id: 'gemini-cli', label: 'Gemini CLI', user: '.gemini/skills' },
-  { id: 'github-copilot', label: 'GitHub Copilot', user: '.copilot/skills' },
+  // Project directories below follow each agent's own docs:
+  // https://cursor.com/docs/context/skills, https://geminicli.com/docs/cli/skills/,
+  // https://docs.github.com/en/copilot/concepts/agents/about-agent-skills, https://opencode.ai/docs/skills/
+  { id: 'cursor', label: 'Cursor', project: '.cursor/skills', user: '.cursor/skills' },
+  { id: 'gemini-cli', label: 'Gemini CLI', project: '.gemini/skills', user: '.gemini/skills' },
+  { id: 'github-copilot', label: 'GitHub Copilot', project: '.github/skills', user: '.copilot/skills' },
   { id: 'antigravity', label: 'Antigravity', user: '.gemini/antigravity/skills' },
   { id: 'antigravity-cli', label: 'Antigravity CLI', user: '.gemini/antigravity-cli/skills' },
-  { id: 'opencode', label: 'OpenCode', user: '.config/opencode/skills' },
+  { id: 'opencode', label: 'OpenCode', project: '.opencode/skills', user: '.config/opencode/skills' },
   { id: 'universal', label: 'Amp / Replit / Universal', user: '.config/agents/skills' },
   { id: 'windsurf', label: 'Windsurf', project: '.windsurf/skills', user: '.codeium/windsurf/skills' },
   { id: 'kiro-cli', label: 'Kiro CLI', project: '.kiro/skills', user: '.kiro/skills' },
