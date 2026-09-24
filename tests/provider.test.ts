@@ -99,12 +99,27 @@ describe('SkillsAnywhereProvider inside the dsh registry', () => {
     await writeSkill(join(home, '.claude', 'skills'), 'from-claude-user')
     await writeSkill(join(home, '.codex', 'skills'), 'from-codex')
     await writeSkill(join(project, '.claude', 'skills'), 'from-claude-project')
-    await writeSkill(join(project, '.cursor', 'skills'), 'not-a-cursor-project-dir') // cursor has no project dir in the table
+    await writeSkill(join(project, '.cursor', 'skills'), 'from-cursor-project')
+    await writeSkill(join(project, '.gemini', 'skills'), 'from-gemini-project')
+    await writeSkill(join(project, '.github', 'skills'), 'from-copilot-project')
+    await writeSkill(join(project, '.opencode', 'skills'), 'from-opencode-project')
+    await writeSkill(join(project, '.codex', 'skills'), 'not-a-codex-project-dir') // Codex documents .agents/skills for repositories
     const ctx = await mount(home)
 
     const summaries = await ctx.skills.list({ cwd: project })
-    expect(summaries.map(skill => skill.name)).toEqual(['from-claude-project', 'from-claude-user', 'from-codex'])
-    expect(summaries.map(skill => skill.source)).toEqual(['anywhere-project', 'anywhere-user', 'anywhere-user'])
+    expect(summaries.map(skill => skill.name)).toEqual([
+      'from-claude-project', 'from-claude-user', 'from-codex', 'from-copilot-project',
+      'from-cursor-project', 'from-gemini-project', 'from-opencode-project',
+    ])
+    expect(Object.fromEntries(summaries.map(skill => [skill.name, skill.source]))).toEqual({
+      'from-claude-project': 'anywhere-project',
+      'from-claude-user': 'anywhere-user',
+      'from-codex': 'anywhere-user',
+      'from-copilot-project': 'anywhere-project',
+      'from-cursor-project': 'anywhere-project',
+      'from-gemini-project': 'anywhere-project',
+      'from-opencode-project': 'anywhere-project',
+    })
     expect(summaries.every(skill => skill.provider === 'skills-anywhere')).toBe(true)
 
     const loaded = await ctx.skills.get('from-codex', { cwd: project })

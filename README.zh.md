@@ -139,7 +139,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.12.1/dsh-skills-anywhere-0.12.1.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.13.0/dsh-skills-anywhere-0.13.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -170,7 +170,7 @@ allowBuilds:
 
 | 位置 | 示例 | dsh source 标签 | 默认 rank |
 |---|---|---|---|
-| 其他 Agent 的**项目级**技能 | `<project>/.claude/skills/*` | `anywhere-project` | 250 |
+| 其他 Agent 的**项目级**技能 | `<project>/.claude/skills/*`、`<project>/.cursor/skills/*` | `anywhere-project` | 250 |
 | 其他 Agent 的**用户级**技能 | `~/.codex/skills/*`、`~/.cursor/skills/*` | `anywhere-user` | 550 |
 | **Claude Code 插件市场**及已安装插件缓存 | `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` | `anywhere-claude-plugins` | 580 |
 | **git 源** | `anthropics/skills`、`vercel-labs/agent-skills/skills` | `anywhere-source` | 700 |
