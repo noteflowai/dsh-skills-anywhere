@@ -90,4 +90,4 @@ runs:
         INPUT_REQUIRE_PINNED_SOURCES: ${{ inputs.require-pinned-sources }}
         INPUT_ALLOW_EMPTY: ${{ inputs.allow-empty }}
         INPUT_REPORT: ${{ inputs.report }}
-      run: node "$GITHUB_ACTION_PATH/action/check.mjs"
+      run: node "$GITHUB_ACTION_PATH/action/check.ts"

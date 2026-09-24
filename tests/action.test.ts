@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parse as parseYaml } from 'yaml'
@@ -33,6 +33,12 @@ describe('action.yml', () => {
     inputs: Record<string, { default?: string }>
     runs: { using: string; steps: { run?: string; uses?: string }[] }
   }
+
+  it('runs scripts that exist in this checkout', () => {
+    const scripts = action.runs.steps.flatMap(step => [...(step.run ?? '').matchAll(/\$GITHUB_ACTION_PATH\/([\w./-]+)/g)].map(match => match[1]!))
+    expect(scripts).toEqual(['action/check.ts'])
+    for (const script of scripts) expect(existsSync(join(root, script))).toBe(true)
+  })
 
   it('runs the release that contains it by default', () => {
     expect(action.inputs.version?.default).toBe(pkg.version)
