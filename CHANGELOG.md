@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.0 — 2026-09-25
+
+- Scan the project-level skill directories that Cursor (`.cursor/skills`), Gemini CLI (`.gemini/skills`), GitHub Copilot (`.github/skills`) and OpenCode (`.opencode/skills`) document, in addition to their user directories. Skills there now appear as `anywhere-project` at rank 250; `excludeAgents` still skips them per agent.
+- Verify each npm release by waiting for the public version and comparing its integrity and downloaded bytes with the GitHub release archive. Add a manual workflow that registers an already published version in the MCP registry without republishing it.
+- Add an isolated Funes MCP handoff example for one selected public session, require reviewed skill pins when the skill-impact bridge opens a handoff session, and add behavior-lab fixtures with recorded runtime reviews.
+- Rework both READMEs and the Hugging Face page to lead with skill workflows and separate directory coverage, tested client connections and measured outcomes. Keep Python caches out of the Space source identity.
+
 ## 0.12.1 — 2026-09-19
 
 - Align package, MCP registry and plugin descriptions with configured-directory discovery and skill delivery.
