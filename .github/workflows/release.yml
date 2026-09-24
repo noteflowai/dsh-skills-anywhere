@@ -113,11 +113,16 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Install mcp-publisher
+      - name: Install the pinned MCP publisher
+        # Same version and digest as registry-recovery.yml; tests/workflows.test.ts
+        # keeps them in step. The job holds an OIDC token, so never run `latest`.
         run: |
-          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
-          ./mcp-publisher --help >/dev/null
+          curl -fsSL https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/mcp-publisher.tar.gz"
+          (cd "$RUNNER_TEMP" && echo 'a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  mcp-publisher.tar.gz' | sha256sum --check)
+          tar xzf "$RUNNER_TEMP/mcp-publisher.tar.gz" -C "$RUNNER_TEMP" mcp-publisher
+          "$RUNNER_TEMP/mcp-publisher" --help >/dev/null
       - name: Authenticate with GitHub OIDC
-        run: ./mcp-publisher login github-oidc
+        run: '"$RUNNER_TEMP/mcp-publisher" login github-oidc'
       - name: Publish server.json
-        run: ./mcp-publisher publish
+        run: '"$RUNNER_TEMP/mcp-publisher" publish'
