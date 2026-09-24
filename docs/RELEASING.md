@@ -88,6 +88,10 @@ through GitHub OIDC. It does not upload to npm or move the release tag.
 ## Install instructions and the plugin manifest
 
 `README.md`, `README.zh.md` and `.claude-plugin/plugin.json` install from npm.
+The GitHub Action (`action.yml`) installs the npm version in its `version`
+input default, so a workflow using `noteflowai/dsh-skills-anywhere@v<version>`
+runs exactly that release; the sync script rewrites that default and the `npx`
+pins in both READMEs and `docs/CHECKING.md` as well.
 The plugin manifest pins `dsh-skills-anywhere@<version>` so Claude Code users
 get exactly the released build; `scripts/sync-version.mjs` bumps that pin (and
 any remaining tarball URL) together with `package.json`.

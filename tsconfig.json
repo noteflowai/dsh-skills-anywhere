@@ -27,6 +27,7 @@
     "jsx": "react-jsx"
   },
   "include": [
+    "action",
     "src",
     "tests",
     "huggingface",

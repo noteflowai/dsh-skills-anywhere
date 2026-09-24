@@ -42,6 +42,18 @@ dsh plugin --profile web add dsh-skills-anywhere
 `npx dsh-skills-anywhere add anthropics/skills`。
 [安装详情](#安装详情与目录示例)包括发布包、源码安装和 dsh 版本要求。
 
+**在 CI 中检查技能。** 任何保存 `SKILL.md` 的仓库都可以使用本项目的 GitHub Action（0.14.0 起）。
+被拒绝的文件和字段修复会显示为拉取请求注释，并生成作业摘要与 JSON 报告：
+
+```yaml
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: noteflowai/dsh-skills-anywhere@v0.14.0
+        with:
+          fail-on-repair: true
+```
+
+[输入、输出与检查范围](docs/CHECKING.md#use-in-github-actions)。无需模型密钥，也无需安装 DeepSeek Harness。
+
 ## 先在浏览器体验
 
 **检查自己的 `SKILL.md`。** Hugging Face 演示可在浏览器中并排检查严格模式与宽容模式，
@@ -243,11 +255,11 @@ dsh 会把每个模型可调用技能的名称和描述放进会话，每次请�
 
 ## CLI
 
-**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.12.0 check
+**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.13.0 check
 skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析器，
 批量检查明确指定的文件，输出带文件摘要的 JSON 报告和 CI 退出码。
 默认严格解析，`--lenient` 接受提供者的修复，`--fail-on-repair` 要求没有修复。
-不会扫描其他目录、同步仓库或执行技能。[命令、CI 示例与检查范围](docs/CHECKING.md)。
+不会扫描其他目录、同步仓库或执行技能。在 GitHub Actions 中，`uses: noteflowai/dsh-skills-anywhere` 会选取所有受 Git 跟踪的 `SKILL.md` 并标注结果。[命令、GitHub Action 与检查范围](docs/CHECKING.md)。
 
 ```
 dsh-skills-anywhere list [--all] [--json]     提供器发布的技能（--all 显示被隐藏的重复项）

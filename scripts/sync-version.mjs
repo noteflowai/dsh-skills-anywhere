@@ -58,8 +58,11 @@ const targets = [
       return `${JSON.stringify(json, null, 2)}\n`
     },
   },
-  { file: 'README.md', apply: text => text.replace(tarballPattern, tarball) },
-  { file: 'README.zh.md', apply: text => text.replace(tarballPattern, tarball) },
+  // The GitHub Action installs the npm release it was tagged with.
+  { file: 'action.yml', apply: text => text.replace(/^(    default: )\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/m, `$1${version}`) },
+  { file: 'docs/CHECKING.md', apply: text => text.replace(npmPinPattern, npmPin) },
+  { file: 'README.md', apply: text => text.replace(tarballPattern, tarball).replace(npmPinPattern, npmPin) },
+  { file: 'README.zh.md', apply: text => text.replace(tarballPattern, tarball).replace(npmPinPattern, npmPin) },
 ]
 
 let drift = 0

@@ -45,6 +45,20 @@ run `npx dsh-skills-anywhere add anthropics/skills`.
 [Installation details](#installation-details-and-discovery-example) cover release
 archives, source checkouts and dsh version requirements.
 
+**Check skills in CI.** Any repository that keeps `SKILL.md` files can add the
+GitHub Action (0.14.0 and later). Rejected files and repairs appear as pull
+request annotations, with a job summary and a JSON report:
+
+```yaml
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: noteflowai/dsh-skills-anywhere@v0.14.0
+        with:
+          fail-on-repair: true
+```
+
+[Inputs, outputs and scope](docs/CHECKING.md#use-in-github-actions). No model key
+or DeepSeek Harness installation is needed.
+
 ## Try it in your browser
 
 **[Try the interactive Hugging Face playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)** — explore an example workspace, resolve name clashes, and search beyond the catalog budget. No installation or model API needed. [How it works](docs/HUGGINGFACE.md).
@@ -268,10 +282,12 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
-**Check before committing.** Run `npx -y dsh-skills-anywhere@0.12.0 check
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.13.0 check
 skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
 provides batch file checks, JSON reports with file hashes, and CI exit codes.
-Checks read only the named files. [Commands, CI example and scope](docs/CHECKING.md).
+Checks read only the named files. In GitHub Actions, `uses: noteflowai/dsh-skills-anywhere`
+selects every tracked `SKILL.md` and annotates the results.
+[Commands, GitHub Action and scope](docs/CHECKING.md).
 
 ```
 dsh-skills-anywhere list [--all] [--json]     Skills the provider publishes (--all shows hidden duplicates)
