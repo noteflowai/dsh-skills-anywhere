@@ -17,6 +17,13 @@ export interface CheckOptions {
    * full-commit source addresses. It does not fetch or verify remote bytes.
    */
   readonly requirePinnedSources: boolean
+  /**
+   * Fail a file containing invisible or direction-changing characters.
+   *
+   * Off by default: some scripts use joiners legitimately. On, any listed
+   * `hiddenCharacters` entry rejects the file.
+   */
+  readonly failOnHiddenCharacters?: boolean
 }
 
 export async function checkFiles(paths: readonly string[], options: CheckOptions) {
@@ -33,9 +40,11 @@ export async function checkFiles(paths: readonly string[], options: CheckOptions
       const report = checkSkill(raw, fallback)
       const selected = report[mode]
       const unpinned = report.surface.externalSources.filter(source => !source.pinned).map(source => source.host)
+      const hidden = report.surface.hiddenCharacters.length > 0
       const passed = selected.ok
         && (!options.failOnRepair || selected.warnings.length === 0)
         && (!options.requirePinnedSources || unpinned.length === 0)
+        && (!options.failOnHiddenCharacters || !hidden)
       files.push({
         path: input, status: passed ? 'passed' as const : 'failed' as const,
         sha256: createHash('sha256').update(bytes).digest('hex'), report,
@@ -56,8 +65,9 @@ export async function checkFiles(paths: readonly string[], options: CheckOptions
   return {
     schema: 'skills-anywhere-file-check-1' as const,
     tool: { name: 'dsh-skills-anywhere', version: pkg.version },
-    mode, failOnRepair: options.failOnRepair, requirePinnedSources: options.requirePinnedSources, files, counts,
+    mode, failOnRepair: options.failOnRepair, requirePinnedSources: options.requirePinnedSources,
+    failOnHiddenCharacters: options.failOnHiddenCharacters ?? false, files, counts,
     exitCode: counts.inputErrors > 0 ? 2 : counts.failed > 0 ? 1 : 0,
-    scope: 'Provider parsing, plus an enumeration of external sources and declared tools. No verdict on intent, no payload scanning, no script or client compatibility verification.',
+    scope: 'Provider parsing, plus an enumeration of external sources, declared tools and hidden characters. No verdict on intent, no payload scanning, no script or client compatibility verification.',
   }
 }

@@ -247,6 +247,7 @@ dsh 会把每个模型可调用技能的名称和描述放进会话，每次请�
 skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析器，
 批量检查明确指定的文件，输出带文件摘要的 JSON 报告和 CI 退出码。
 默认严格解析，`--lenient` 接受提供者的修复，`--fail-on-repair` 要求没有修复。
+报告还会列出不可见字符和改变文字方向的字符（`hiddenCharacters`），`--fail-on-hidden-characters` 可据此拒绝文件。
 不会扫描其他目录、同步仓库或执行技能。[命令、CI 示例与检查范围](docs/CHECKING.md)。
 
 ```

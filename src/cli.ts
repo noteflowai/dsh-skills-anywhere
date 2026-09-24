@@ -46,6 +46,7 @@ Options
   --lenient            check: accept repairs made by the provider
   --fail-on-repair      check: fail if the selected mode needs any repairs
   --require-pinned-sources  check: fail if an external source is not pinned to an immutable revision
+  --fail-on-hidden-characters  check: fail if the file contains invisible or bidirectional control characters
   --against <file>      bundle: compare with a saved manifest outside the directory
   -h, --help           Show this help
 `
@@ -82,6 +83,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
         lenient: { type: 'boolean', default: false },
         'fail-on-repair': { type: 'boolean', default: false },
         'require-pinned-sources': { type: 'boolean', default: false },
+        'fail-on-hidden-characters': { type: 'boolean', default: false },
         against: { type: 'string' },
       },
     })
@@ -99,8 +101,8 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     console.error('--against is only available for bundle.')
     return 2
   }
-  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'] || parsed.values['require-pinned-sources'])) {
-    console.error('--lenient, --fail-on-repair and --require-pinned-sources are only available for check.')
+  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'] || parsed.values['require-pinned-sources'] || parsed.values['fail-on-hidden-characters'])) {
+    console.error('--lenient, --fail-on-repair, --require-pinned-sources and --fail-on-hidden-characters are only available for check.')
     return 2
   }
   if (command === 'bundle') {
@@ -117,7 +119,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
   }
   if (command === 'check') {
     if (positional.length === 0) {
-      console.error('usage: dsh-skills-anywhere check <files...> [--lenient] [--fail-on-repair] [--require-pinned-sources] [--json]')
+      console.error('usage: dsh-skills-anywhere check <files...> [--lenient] [--fail-on-repair] [--require-pinned-sources] [--fail-on-hidden-characters] [--json]')
       return 2
     }
     const { checkFiles } = await import('./check-files.ts')
@@ -126,6 +128,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
       lenient: parsed.values.lenient ?? false,
       failOnRepair: parsed.values['fail-on-repair'] ?? false,
       requirePinnedSources: parsed.values['require-pinned-sources'] ?? false,
+      failOnHiddenCharacters: parsed.values['fail-on-hidden-characters'] ?? false,
     })
     if (parsed.values.json) {
       console.log(JSON.stringify(result, null, 2))
@@ -147,6 +150,10 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
           }
           if (surface.declaredTools.length > 0) {
             console.log(`  Declared tools: ${JSON.stringify(surface.declaredTools.join(', '))}`)
+          }
+          for (const hidden of surface.hiddenCharacters) {
+            const required = result.failOnHiddenCharacters ? ' (not allowed)' : ''
+            console.log(`  Hidden characters: ${hidden.codePoint} ${hidden.name} x${hidden.count}, line${hidden.lines.length === 1 ? '' : 's'} ${hidden.lines.join(', ')}${required}`)
           }
         }
       }

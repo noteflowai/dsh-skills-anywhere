@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- List invisible and direction-changing characters (bidi controls, zero-width characters, Unicode tag characters and supplementary variation selectors) in every `check` report as `hiddenCharacters`, with code point, name, count and lines. Add `--fail-on-hidden-characters` to reject files that contain them. Leading byte order marks, emoji joiners and subdivision-flag tags are not listed.
+
 ## 0.13.0 — 2026-09-25
 
 - Scan the project-level skill directories that Cursor (`.cursor/skills`), Gemini CLI (`.gemini/skills`), GitHub Copilot (`.github/skills`) and OpenCode (`.opencode/skills`) document, in addition to their user directories. Skills there now appear as `anywhere-project` at rank 250; `excludeAgents` still skips them per agent.
