@@ -15,10 +15,11 @@ function summarize(result: ParseResult) {
 }
 
 /** Read the reachable surface from whichever parse succeeded, if either did. */
-function surfaceOf(result: ParseResult) {
-  if (!result.ok) return readSkillSurface('', [])
+function surfaceOf(result: ParseResult, raw: string) {
+  // Hidden characters are read from the raw file, so they are listed even when parsing fails.
+  if (!result.ok) return readSkillSurface('', [], raw)
   const declared = result.skill.metadata.allowedTools
-  return readSkillSurface(result.skill.content, Array.isArray(declared) ? declared as string[] : [])
+  return readSkillSurface(result.skill.content, Array.isArray(declared) ? declared as string[] : [], raw)
 }
 
 /** A bounded, local comparison of the provider's two parsing modes. */
@@ -33,7 +34,7 @@ export function checkSkill(raw: string, fallbackName: string) {
     lenient: summarize(parseSkillMarkdown(raw, { fallbackName, lenient: true })),
     // Independent of the parsing gate: a skill that passes strict parsing can
     // still take its instructions from somewhere a reviewer never looked.
-    surface: surfaceOf(parseSkillMarkdown(raw, { fallbackName, lenient: true })),
+    surface: surfaceOf(parseSkillMarkdown(raw, { fallbackName, lenient: true }), raw),
   }
 }
 

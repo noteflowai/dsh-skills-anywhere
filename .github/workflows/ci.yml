@@ -39,6 +39,60 @@ jobs:
           path: .dsh-showcase/site/
           include-hidden-files: true
           if-no-files-found: error
+  action:
+    name: GitHub Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      # Run the action against this checkout's package: the default version is
+      # the release being prepared, which is not on npm until it is tagged.
+      - name: Pack this checkout
+        id: pack
+        run: |
+          pnpm run build
+          pnpm pack --pack-destination "$RUNNER_TEMP"
+          echo "tarball=$RUNNER_TEMP/dsh-skills-anywhere-$(node -p "require('./package.json').version").tgz" >> "$GITHUB_OUTPUT"
+      - name: Check the example skills with this checkout's action
+        id: examples
+        uses: ./
+        with:
+          version: ${{ steps.pack.outputs.tarball }}
+          files: examples/**/SKILL.md
+          fail-on-repair: true
+          report: reports/examples.json
+      - name: Write a skill that strict parsing rejects
+        run: |
+          mkdir -p ci-rejected
+          printf -- '---\ndescription: A skill without a name.\n---\nBody.\n' > ci-rejected/SKILL.md
+      - name: Check the rejected skill
+        id: rejected
+        continue-on-error: true
+        uses: ./
+        with:
+          version: ${{ steps.pack.outputs.tarball }}
+          files: ci-rejected/SKILL.md
+          report: reports/rejected.json
+      - name: Verify outcomes, outputs and reports
+        env:
+          EXAMPLES_PASSED: ${{ steps.examples.outputs.passed }}
+          EXAMPLES_EXIT: ${{ steps.examples.outputs.exit-code }}
+          REJECTED_OUTCOME: ${{ steps.rejected.outcome }}
+          REJECTED_EXIT: ${{ steps.rejected.outputs.exit-code }}
+        run: |
+          EXPECTED="$(git ls-files ':(glob)examples/**/SKILL.md' | wc -l)"
+          test "$EXAMPLES_EXIT" = 0 && test "$EXAMPLES_PASSED" = "$EXPECTED"
+          test "$REJECTED_OUTCOME" = failure && test "$REJECTED_EXIT" = 1
+          node -e '
+            const [examples, rejected] = process.argv.slice(1).map(file => JSON.parse(require("fs").readFileSync(file, "utf8")))
+            if (examples.counts.passed !== Number(process.env.EXAMPLES_PASSED) || examples.exitCode !== 0) process.exit(1)
+            if (rejected.files[0].report.strict.reason !== "frontmatter requires name" || rejected.exitCode !== 1) process.exit(1)
+          ' reports/examples.json reports/rejected.json
   check:
     name: Node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

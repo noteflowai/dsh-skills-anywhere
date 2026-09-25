@@ -104,20 +104,32 @@ describe('SkillsAnywhereProvider inside the dsh registry', () => {
     await writeSkill(join(project, '.github', 'skills'), 'from-copilot-project')
     await writeSkill(join(project, '.opencode', 'skills'), 'from-opencode-project')
     await writeSkill(join(project, '.codex', 'skills'), 'not-a-codex-project-dir') // Codex documents .agents/skills for repositories
+    await writeSkill(join(project, '.clinerules', 'skills'), 'from-cline-rules')
+    await writeSkill(join(project, '.factory', 'skills'), 'from-droid-project')
+    await writeSkill(join(project, '.kimi', 'skills'), 'from-kimi-project')
+    await writeSkill(join(home, '.letta', 'skills'), 'from-letta')
+    // dsh's built-in filesystem provider reads the shared roots; the plugin must not publish them twice.
+    await writeSkill(join(project, '.agents', 'skills'), 'dsh-reads-project-agents')
+    await writeSkill(join(home, '.agents', 'skills'), 'dsh-reads-user-agents')
     const ctx = await mount(home)
 
     const summaries = await ctx.skills.list({ cwd: project })
     expect(summaries.map(skill => skill.name)).toEqual([
-      'from-claude-project', 'from-claude-user', 'from-codex', 'from-copilot-project',
-      'from-cursor-project', 'from-gemini-project', 'from-opencode-project',
+      'from-claude-project', 'from-claude-user', 'from-cline-rules', 'from-codex', 'from-copilot-project',
+      'from-cursor-project', 'from-droid-project', 'from-gemini-project', 'from-kimi-project', 'from-letta',
+      'from-opencode-project',
     ])
     expect(Object.fromEntries(summaries.map(skill => [skill.name, skill.source]))).toEqual({
       'from-claude-project': 'anywhere-project',
       'from-claude-user': 'anywhere-user',
+      'from-cline-rules': 'anywhere-project',
       'from-codex': 'anywhere-user',
       'from-copilot-project': 'anywhere-project',
       'from-cursor-project': 'anywhere-project',
+      'from-droid-project': 'anywhere-project',
       'from-gemini-project': 'anywhere-project',
+      'from-kimi-project': 'anywhere-project',
+      'from-letta': 'anywhere-user',
       'from-opencode-project': 'anywhere-project',
     })
     expect(summaries.every(skill => skill.provider === 'skills-anywhere')).toBe(true)

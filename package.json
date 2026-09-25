@@ -1,6 +1,6 @@
 {
   "name": "dsh-skills-anywhere",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Discover Agent Skills in configured local directories, plugin marketplaces and Git sources. Load them through DeepSeek Harness or a local stdio MCP server, with catalog budgets, content hashes and delivery receipts.",
   "keywords": [
     "deepseek-harness",
@@ -94,7 +94,7 @@
     "build": "tsdown",
     "prepare": "node -e \"process.exit(require('fs').existsSync('lib/index.js') ? 0 : 1)\" || pnpm run build",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint src tests",
+    "lint": "oxlint action src tests",
     "test": "pnpm run build && vitest run",
     "test:coverage": "pnpm run build && vitest run --coverage",
     "version": "node scripts/sync-version.mjs && git add -A",

@@ -123,3 +123,29 @@ it('enumerates the sources a skill reaches, and pins the gate on request', async
   expect(gatedPinned?.status).toBe('passed')
   expect(gated.exitCode).toBe(1)
 })
+
+it('reports hidden characters as facts and rejects them only when asked', async () => {
+  const cwd = await tempDir('check-hidden')
+  await writeFile(join(cwd, 'hidden.md'), '---\nname: hidden\ndescription: Looks ordinary.\n---\nRun the \u202Etests\u202C.\n')
+  // Hidden characters are read from the raw file even when parsing rejects it.
+  await writeFile(join(cwd, 'broken.md'), '---\nname: Broken\u200B\n---\n')
+  const options = { cwd, lenient: false, failOnRepair: false, requirePinnedSources: false }
+  const reported = await checkFiles(['hidden.md', 'broken.md'], options)
+  const [hidden, broken] = reported.files
+  if (hidden?.status === 'input_error' || broken?.status === 'input_error') throw new Error('unexpected input error')
+  expect(hidden?.status).toBe('passed')
+  expect(hidden?.report.surface.hiddenCharacters.map(entry => entry.codePoint)).toEqual(['U+202C', 'U+202E'])
+  expect(broken?.status).toBe('failed')
+  expect(broken?.report.surface.hiddenCharacters).toEqual([
+    { codePoint: 'U+200B', name: 'ZERO WIDTH SPACE', kind: 'zero-width', count: 1, lines: [2] },
+  ])
+  expect(reported.failOnHiddenCharacters).toBe(false)
+
+  const gated = await checkFiles(['hidden.md'], { ...options, failOnHiddenCharacters: true })
+  expect(gated).toMatchObject({ failOnHiddenCharacters: true, exitCode: 1, files: [{ status: 'failed' }] })
+
+  const out: string[] = []
+  vi.spyOn(console, 'log').mockImplementation((...args: unknown[]) => { out.push(args.map(String).join(' ')) })
+  expect(await main(['check', 'hidden.md', '--fail-on-hidden-characters', '--cwd', cwd])).toBe(1)
+  expect(out).toContain('  Hidden characters: U+202E RIGHT-TO-LEFT OVERRIDE x1, line 5 (not allowed)')
+})

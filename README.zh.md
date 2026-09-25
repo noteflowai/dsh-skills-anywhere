@@ -42,6 +42,19 @@ dsh plugin --profile web add dsh-skills-anywhere
 `npx dsh-skills-anywhere add anthropics/skills`。
 [安装详情](#安装详情与目录示例)包括发布包、源码安装和 dsh 版本要求。
 
+**在 CI 中检查技能。** 任何保存 `SKILL.md` 的仓库都可以使用本项目的 GitHub Action（0.14.0 起）。
+被拒绝的文件、字段修复和隐藏字符会显示为拉取请求注释，并生成作业摘要与 JSON 报告：
+
+```yaml
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: noteflowai/dsh-skills-anywhere@v0.14.0
+        with:
+          fail-on-repair: true
+          fail-on-hidden-characters: true
+```
+
+[输入、输出与检查范围](docs/CHECKING.md#use-in-github-actions)。无需模型密钥，也无需安装 DeepSeek Harness。
+
 ## 先在浏览器体验
 
 **检查自己的 `SKILL.md`。** Hugging Face 演示可在浏览器中并排检查严格模式与宽容模式，
@@ -66,7 +79,7 @@ dsh plugin --profile web add dsh-skills-anywhere
 
 在 dsh 里，它在内置的 `ctx.skills` 注册表上多注册一个提供器，模型原有的 `skill` 工具和 `/name` 调用方式不变，只是能看到更多技能：
 
-- **预定义的 Agent 目录。** 包括 Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose 等项目级和用户级路径，具体见[目录注册表](src/agents.ts)。
+- **预定义的 Agent 目录。** 包括 Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot、Windsurf、Kiro、Goose、Cline、Kimi CLI、Letta Code 等项目级和用户级路径，具体见[目录注册表](src/agents.ts)。通过 MCP 时还包括共享的 `.agents/skills` 约定，因此自身不读取该目录的客户端（例如 Claude Code）也能看到安装在那里的技能。
 - **Claude Code 插件市场。** 嵌套在 `~/.claude/plugins/marketplaces/*/plugins/*/skills/*` 里的技能，包括 Anthropic 官方市场。
 - **已配置的 Git 源。** 指定技能仓库、子目录、分支、标签或提交；提供器维护本地检出，并在 lock 文件中记录实际提交。
 - **原地读取本地文件。** 每次加载重新读取已有技能，无需复制到各客户端目录。Git 源使用下文说明的托管缓存。
@@ -139,7 +152,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.13.0/dsh-skills-anywhere-0.13.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.14.0/dsh-skills-anywhere-0.14.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -179,7 +192,10 @@ allowBuilds:
 `.dsh/skills` 为 100、`.agents/skills` 为 200、`~/.dsh/skills` 为 400、
 `~/.agents/skills` 为 500。不同来源按这些数值共同排序，例如 rank 250 的
 Agent 项目级条目优先于 rank 400 的 dsh 用户级条目。
-内置 `.agents/skills` 与 `.dsh/skills` 目录不会被重复扫描。
+在 dsh 内，内置 `.agents/skills` 与 `.dsh/skills` 目录不会被重复扫描。
+独立运行的 MCP 服务器旁边没有内置提供器，因此它也会以相同的 rank（200 与 500）提供共享的
+`.agents/skills` 与 `~/.agents/skills`（Codex、Amp、Goose、Zed 与 Letta Code 的默认位置）。
+嵌入 `createSkillsAnywhereServer` 时可传入 `sharedDirs: false` 或排除 `agents` id。
 
 运行 `npx dsh-skills-anywhere agents` 查看完整 Agent 表以及本机存在哪些目录。
 
@@ -243,11 +259,12 @@ dsh 会把每个模型可调用技能的名称和描述放进会话，每次请�
 
 ## CLI
 
-**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.12.0 check
+**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.14.0 check
 skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析器，
 批量检查明确指定的文件，输出带文件摘要的 JSON 报告和 CI 退出码。
 默认严格解析，`--lenient` 接受提供者的修复，`--fail-on-repair` 要求没有修复。
-不会扫描其他目录、同步仓库或执行技能。[命令、CI 示例与检查范围](docs/CHECKING.md)。
+报告还会列出不可见字符和改变文字方向的字符（`hiddenCharacters`），`--fail-on-hidden-characters` 可据此拒绝文件。
+不会扫描其他目录、同步仓库或执行技能。在 GitHub Actions 中，`uses: noteflowai/dsh-skills-anywhere` 会选取所有受 Git 跟踪的 `SKILL.md` 并标注结果。[命令、GitHub Action 与检查范围](docs/CHECKING.md)。
 
 ```
 dsh-skills-anywhere list [--all] [--json]     提供器发布的技能（--all 显示被隐藏的重复项）
@@ -343,6 +360,7 @@ args = ["-y", "dsh-skills-anywhere", "mcp"]
 | `providerName` | `skills-anywhere` | 在 `ctx.skills` 上的提供器名 |
 | `agents` | `true` | 扫描其他 Agent 的技能目录 |
 | `excludeAgents` | `[]` | 跳过的 Agent id（见 `agents` 命令） |
+| `sharedDirs` | dsh 中为 `false`，MCP 服务器为 `true` | 同时扫描 dsh 内置提供器已读取的 `.agents/skills` 与 `~/.agents/skills` |
 | `extraProjectDirs` | `[]` | 额外的项目相对技能目录 |
 | `extraUserDirs` | `[]` | 额外的绝对路径或 `~/` 技能目录 |
 | `claudePlugins` | `true` | 扫描 Claude Code 插件市场与缓存 |

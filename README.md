@@ -45,6 +45,22 @@ run `npx dsh-skills-anywhere add anthropics/skills`.
 [Installation details](#installation-details-and-discovery-example) cover release
 archives, source checkouts and dsh version requirements.
 
+**Check skills in CI.** Any repository that keeps `SKILL.md` files can add the
+GitHub Action (0.14.0 and later). Rejected files, repairs and hidden
+characters appear as pull request annotations, with a job summary and a JSON
+report:
+
+```yaml
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: noteflowai/dsh-skills-anywhere@v0.14.0
+        with:
+          fail-on-repair: true
+          fail-on-hidden-characters: true
+```
+
+[Inputs, outputs and scope](docs/CHECKING.md#use-in-github-actions). No model key
+or DeepSeek Harness installation is needed.
+
 ## Try it in your browser
 
 **[Try the interactive Hugging Face playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)** — explore an example workspace, resolve name clashes, and search beyond the catalog budget. No installation or model API needed. [How it works](docs/HUGGINGFACE.md).
@@ -76,7 +92,7 @@ connections separately.
 
 Inside dsh, it registers one extra provider on the built-in `ctx.skills` registry, so the model's normal `skill` tool and `/name` invocation simply see more skills:
 
-- **Predefined agent directories.** Project and user paths for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose and other entries in the [directory registry](src/agents.ts).
+- **Predefined agent directories.** Project and user paths for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose, Cline, Kimi CLI, Letta Code and other entries in the [directory registry](src/agents.ts). Over MCP this includes the shared `.agents/skills` convention, so a client that does not read it itself (Claude Code, for example) still sees skills installed there.
 - **Claude Code plugin marketplaces.** The skills nested inside `~/.claude/plugins/marketplaces/*/plugins/*/skills/*`, including the official Anthropic marketplace.
 - **Configured Git sources.** Select a skill repository, subdirectory, branch, tag or commit. The provider maintains a local checkout and records its resolved commit in a lock file.
 - **Local files read in place.** Existing skills are re-read when loaded, without copying them into each client's directory. Git sources use the managed cache described below.
@@ -159,7 +175,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.13.0/dsh-skills-anywhere-0.13.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.14.0/dsh-skills-anywhere-0.14.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -199,7 +215,11 @@ Lower rank wins a duplicate name inside the dsh registry. The built-in dsh roots
 keep their ranks (`.dsh/skills` 100, `.agents/skills` 200, `~/.dsh/skills` 400,
 `~/.agents/skills` 500). Precedence follows these values across sources; for
 example, an agent's project entry at rank 250 precedes a dsh user entry at 400.
-The built-in `.agents/skills` and `.dsh/skills` roots are not scanned again.
+Inside dsh, the built-in `.agents/skills` and `.dsh/skills` roots are not scanned again.
+The standalone MCP server has no built-in provider beside it, so it also serves the
+shared `.agents/skills` and `~/.agents/skills` (the default location for Codex, Amp,
+Goose, Zed and Letta Code) at those same ranks, 200 and 500. Embedders of
+`createSkillsAnywhereServer` can pass `sharedDirs: false` or exclude the `agents` id.
 
 Run `npx dsh-skills-anywhere agents` for the full agent table and which directories exist on your machine.
 
@@ -268,10 +288,12 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
-**Check before committing.** Run `npx -y dsh-skills-anywhere@0.12.0 check
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.14.0 check
 skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
 provides batch file checks, JSON reports with file hashes, and CI exit codes.
-Checks read only the named files. [Commands, CI example and scope](docs/CHECKING.md).
+Checks read only the named files. In GitHub Actions, `uses: noteflowai/dsh-skills-anywhere`
+selects every tracked `SKILL.md` and annotates the results.
+[Commands, GitHub Action and scope](docs/CHECKING.md).
 
 ```
 dsh-skills-anywhere list [--all] [--json]     Skills the provider publishes (--all shows hidden duplicates)
@@ -288,6 +310,8 @@ dsh-skills-anywhere mcp                       Serve skills to configured clients
 All commands accept `--cwd <dir>`. For `check`, it resolves the named files; other
 commands use it to pick the project. `check --lenient` accepts provider repairs;
 `--fail-on-repair` rejects any reported repair in the selected mode.
+`--fail-on-hidden-characters` rejects files with invisible or direction-changing
+characters, which every report lists as `hiddenCharacters`.
 The CLI uses the same parsing code as the plugin and never needs dsh running.
 
 ## Use as an MCP server
@@ -376,6 +400,7 @@ Override the row in your profile's `cordis.patch.yml`. A patch replaces the whol
 | `providerName` | `skills-anywhere` | Provider name on `ctx.skills` |
 | `agents` | `true` | Scan other agents' skill directories |
 | `excludeAgents` | `[]` | Agent ids to skip (see `agents` command) |
+| `sharedDirs` | `false` in dsh, `true` for the MCP server | Also scan `.agents/skills` and `~/.agents/skills`, which dsh's built-in provider already reads |
 | `extraProjectDirs` | `[]` | Additional project-relative skill directories |
 | `extraUserDirs` | `[]` | Additional absolute or `~/` skill directories |
 | `claudePlugins` | `true` | Scan Claude Code plugin marketplaces and cache |

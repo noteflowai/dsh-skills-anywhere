@@ -209,7 +209,8 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
   const config = isResolved(options.config)
     ? options.config
     // No dsh registry to invalidate, so file watching would only burn handles.
-    : resolveConfig({ ...options.config, watch: false })
+    // No built-in dsh provider either, so the shared .agents roots are read here.
+    : resolveConfig({ sharedDirs: true, ...options.config, watch: false })
   const cwd = options.cwd ?? process.cwd()
   const cacheMs = Math.max(0, options.cacheMs ?? DEFAULT_CACHE_MS)
   const findLimit = Math.max(1, Math.floor(options.findLimit ?? DEFAULT_FIND_LIMIT))

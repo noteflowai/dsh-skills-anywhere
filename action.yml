@@ -1,0 +1,104 @@
+name: Check Agent Skills
+description: Check SKILL.md files in CI with strict frontmatter parsing, repair diagnostics, source and tool enumeration, and file hashes.
+author: Note Flow AI
+branding:
+  icon: check-square
+  color: blue
+
+# The checker reads the selected files only. It needs no model key, network
+# access beyond the npm install, DeepSeek Harness or repository write access.
+# See docs/CHECKING.md#use-the-github-action.
+
+inputs:
+  files:
+    description: >-
+      Newline-separated Git pathspec globs for the Markdown files to check.
+      Only files that Git tracks or would track (not ignored) are selected.
+    required: false
+    default: '**/SKILL.md'
+  lenient:
+    description: Accept recoverable frontmatter drift instead of the strict provider gate.
+    required: false
+    default: 'false'
+  fail-on-repair:
+    description: Fail a file that needs any reported repair in the selected mode.
+    required: false
+    default: 'false'
+  require-pinned-sources:
+    description: Fail a file whose external references lack a recognized full-commit address.
+    required: false
+    default: 'false'
+  fail-on-hidden-characters:
+    description: Fail a file that contains invisible or direction-changing characters.
+    required: false
+    default: 'false'
+  allow-empty:
+    description: Pass when the patterns match no files, instead of failing with exit code 2.
+    required: false
+    default: 'false'
+  report:
+    description: Where to write the JSON report, relative to the workspace.
+    required: false
+    default: skill-check.json
+  version:
+    description: >-
+      dsh-skills-anywhere version to run, or the path of a package tarball made
+      with `npm pack`. Defaults to the release that contains this action.
+    required: false
+    default: 0.14.0
+  node-version:
+    description: Node.js version for actions/setup-node. Set to an empty string to use the runner's Node.js (22.19+ or 24+).
+    required: false
+    default: '24'
+
+outputs:
+  report:
+    description: Path of the JSON report (schema skills-anywhere-file-check-1).
+    value: ${{ steps.check.outputs.report }}
+  passed:
+    description: Number of files that passed the selected gate.
+    value: ${{ steps.check.outputs.passed }}
+  failed:
+    description: Number of files that were rejected.
+    value: ${{ steps.check.outputs.failed }}
+  input-errors:
+    description: Number of files that could not be read as UTF-8 files of at most 128 KiB.
+    value: ${{ steps.check.outputs.input-errors }}
+  exit-code:
+    description: 0 when every file passes, 1 when a file is rejected, 2 for input errors or no matching files.
+    value: ${{ steps.check.outputs.exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - if: inputs.node-version != ''
+      uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version: ${{ inputs.node-version }}
+    - name: Install dsh-skills-anywhere
+      shell: bash
+      env:
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: |
+        case "$PACKAGE_VERSION" in
+          *.tgz)
+            test -f "$PACKAGE_VERSION" || { echo "::error title=dsh-skills-anywhere::no package tarball at the version path"; exit 2; }
+            PACKAGE_SPEC="$(realpath "$PACKAGE_VERSION")" ;;
+          *[!0-9A-Za-z.-]*|'') echo "::error title=dsh-skills-anywhere::version must be a plain npm version or a .tgz path"; exit 2 ;;
+          *) PACKAGE_SPEC="dsh-skills-anywhere@$PACKAGE_VERSION" ;;
+        esac
+        npm install --prefix "$RUNNER_TEMP/dsh-skills-anywhere" --no-save --ignore-scripts --no-audit --no-fund \
+          "$PACKAGE_SPEC" >/dev/null
+    - name: Check skills
+      id: check
+      shell: bash
+      env:
+        SKILLS_ANYWHERE_CLI: ${{ runner.temp }}/dsh-skills-anywhere/node_modules/dsh-skills-anywhere/lib/cli.js
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_LENIENT: ${{ inputs.lenient }}
+        INPUT_FAIL_ON_REPAIR: ${{ inputs.fail-on-repair }}
+        INPUT_REQUIRE_PINNED_SOURCES: ${{ inputs.require-pinned-sources }}
+        INPUT_FAIL_ON_HIDDEN_CHARACTERS: ${{ inputs.fail-on-hidden-characters }}
+        INPUT_ALLOW_EMPTY: ${{ inputs.allow-empty }}
+        INPUT_REPORT: ${{ inputs.report }}
+      run: node "$GITHUB_ACTION_PATH/action/check.ts"
