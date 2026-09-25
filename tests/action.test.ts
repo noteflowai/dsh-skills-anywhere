@@ -85,6 +85,17 @@ describe('untrusted text', () => {
 })
 
 describe('report rendering', () => {
+  it('reports resource issues at their source lines and only blocks when requested', async () => {
+    const cwd = await tempDir('action-resources')
+    await writeFile(join(cwd, 'SKILL.md'), skillMarkdown('check-links', 'Check links.', { body: '[missing](references/absent.md)' }))
+    const options = { cwd, lenient: false, failOnRepair: false, requirePinnedSources: false, resources: true }
+    const report = await checkFiles(['SKILL.md'], options)
+    expect(annotations(report)[0]).toMatch(/::warning file=SKILL.md,line=\d+,title=Local resource::missing: references\/absent.md/)
+    expect(summary(report)).toContain('local resources: 0/1 present')
+    const gated = await checkFiles(['SKILL.md'], { ...options, failOnResourceIssues: true })
+    expect(annotations(gated)[0]).toMatch(/^::error /)
+    expect(gated.exitCode).toBe(1)
+  })
   it('annotates rejections, required repairs and unpinned sources', async () => {
     const cwd = await tempDir('action-report')
     await writeFile(join(cwd, 'bad.md'), '---\n- not a mapping\n---\nbody\n')
@@ -140,6 +151,18 @@ describe('report rendering', () => {
 })
 
 describe('run', () => {
+  it('passes resource listing and its explicit gate through the CLI', async () => {
+    const cwd = await repository()
+    await writeSkill(join(cwd, 'skills'), 'review', 'Review code.', { body: '[guide](references/missing.md)' })
+    const out = capture()
+    expect(run({ SKILLS_ANYWHERE_CLI: cli, INPUT_RESOURCES: 'true' }, cwd)).toBe(0)
+    expect(run({ SKILLS_ANYWHERE_CLI: cli, INPUT_FAIL_ON_RESOURCE_ISSUES: 'true', INPUT_REPORT: 'gated.json' }, cwd)).toBe(1)
+    const report = JSON.parse(await readFile(join(cwd, 'gated.json'), 'utf8')) as FileCheckReport
+    expect(report.resources).toBe(true)
+    expect(report.failOnResourceIssues).toBe(true)
+    expect(out.some(line => line.startsWith('::error file=skills/review/SKILL.md,line=') && line.includes('missing.md'))).toBe(true)
+  })
+
   it('checks tracked and unignored files, then writes the report, outputs and summary', async () => {
     const cwd = await repository()
     await writeSkill(join(cwd, 'skills'), 'good')

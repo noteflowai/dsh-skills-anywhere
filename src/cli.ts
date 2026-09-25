@@ -47,6 +47,8 @@ Options
   --fail-on-repair      check: fail if the selected mode needs any repairs
   --require-pinned-sources  check: fail if an external source is not pinned to an immutable revision
   --fail-on-hidden-characters  check: fail if the file contains invisible or bidirectional control characters
+  --resources          check: inspect local Markdown link targets inside each skill directory
+  --fail-on-resource-issues  check: require every local link target to be present (implies --resources)
   --against <file>      bundle: compare with a saved manifest outside the directory
   -h, --help           Show this help
 `
@@ -84,6 +86,8 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
         'fail-on-repair': { type: 'boolean', default: false },
         'require-pinned-sources': { type: 'boolean', default: false },
         'fail-on-hidden-characters': { type: 'boolean', default: false },
+        resources: { type: 'boolean', default: false },
+        'fail-on-resource-issues': { type: 'boolean', default: false },
         against: { type: 'string' },
       },
     })
@@ -101,8 +105,8 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     console.error('--against is only available for bundle.')
     return 2
   }
-  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'] || parsed.values['require-pinned-sources'] || parsed.values['fail-on-hidden-characters'])) {
-    console.error('--lenient, --fail-on-repair, --require-pinned-sources and --fail-on-hidden-characters are only available for check.')
+  if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'] || parsed.values['require-pinned-sources'] || parsed.values['fail-on-hidden-characters'] || parsed.values.resources || parsed.values['fail-on-resource-issues'])) {
+    console.error('--lenient, --fail-on-repair, --require-pinned-sources, --fail-on-hidden-characters, --resources and --fail-on-resource-issues are only available for check.')
     return 2
   }
   if (command === 'bundle') {
@@ -129,6 +133,8 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
       failOnRepair: parsed.values['fail-on-repair'] ?? false,
       requirePinnedSources: parsed.values['require-pinned-sources'] ?? false,
       failOnHiddenCharacters: parsed.values['fail-on-hidden-characters'] ?? false,
+      resources: parsed.values.resources ?? false,
+      failOnResourceIssues: parsed.values['fail-on-resource-issues'] ?? false,
     })
     if (parsed.values.json) {
       console.log(JSON.stringify(result, null, 2))
@@ -154,6 +160,12 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
           for (const hidden of surface.hiddenCharacters) {
             const required = result.failOnHiddenCharacters ? ' (not allowed)' : ''
             console.log(`  Hidden characters: ${hidden.codePoint} ${hidden.name} x${hidden.count}, line${hidden.lines.length === 1 ? '' : 's'} ${hidden.lines.join(', ')}${required}`)
+          }
+          if (file.resources) {
+            console.log(`  Local resources: ${file.resources.counts.present}/${file.resources.counts.total} present`)
+            for (const link of file.resources.references) {
+              if (link.status !== 'present') console.log(`  Resource ${link.status}, line ${link.line}: ${JSON.stringify(link.url)}`)
+            }
           }
         }
       }

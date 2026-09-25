@@ -1,11 +1,40 @@
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
+import { createRequire } from 'node:module'
 import { copyFile, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { resolve, dirname } from 'node:path'
 import { createDemoData } from './fixture.ts'
 
 const asciiJson = (value: unknown) => JSON.stringify(value).replace(/[\u007f-\uffff]/g, c => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
 export const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
+
+async function browserNotices(root: string): Promise<string> {
+  const seen = new Set<string>()
+  const notices: string[] = []
+  async function collect(name: string, from: string): Promise<void> {
+    if (name.startsWith('@types/')) return
+    const require = createRequire(resolve(from, 'package.json'))
+    let folder = dirname(require.resolve(name))
+    let pkg: { name: string; version: string; dependencies?: Record<string, string> } | undefined
+    while (dirname(folder) !== folder) {
+      try {
+        const candidate = JSON.parse(await readFile(resolve(folder, 'package.json'), 'utf8')) as typeof pkg
+        if (candidate?.name === name) { pkg = candidate; break }
+      } catch { /* The entry point can be below the package root. */ }
+      folder = dirname(folder)
+    }
+    if (!pkg) throw new Error(`Cannot locate bundled package ${name}`)
+    const key = `${pkg.name}@${pkg.version}`
+    if (seen.has(key)) return
+    seen.add(key)
+    const licenseName = (await readdir(folder)).find(file => /^license(?:\.md|\.txt)?$/i.test(file))
+    if (!licenseName) throw new Error(`Cannot locate license for ${key}`)
+    notices.push(`${key}\n\n${await readFile(resolve(folder, licenseName), 'utf8')}`)
+    for (const dependency of Object.keys(pkg.dependencies ?? {}).sort()) await collect(dependency, folder)
+  }
+  for (const name of ['yaml', 'mdast-util-from-markdown']) await collect(name, root)
+  return `Browser parser dependencies and their license notices.\n\n${notices.join('\n\n---\n\n')}\n`
+}
 
 export async function buildShowcase(root = process.cwd()): Promise<void> {
   const dest = resolve(root, '.dsh-showcase/site')
@@ -20,10 +49,7 @@ export async function buildShowcase(root = process.cwd()): Promise<void> {
   await mkdir(dest, { recursive: true })
   for (const name of ['index.html', 'style.css', 'README.md']) await copyFile(resolve(root, 'huggingface', name), resolve(dest, name))
   await copyFile(resolve(root, 'LICENSE'), resolve(dest, 'LICENSE'))
-  const yamlPackage = JSON.parse(await readFile(resolve(root, 'node_modules/yaml/package.json'), 'utf8')) as { version: string }
-  const yamlLicense = await readFile(resolve(root, 'node_modules/yaml/LICENSE'), 'utf8')
-  await writeFile(resolve(dest, 'THIRD_PARTY_NOTICES.txt'),
-    `The browser checker bundles yaml ${yamlPackage.version} (https://github.com/eemeli/yaml).\n\n${yamlLicense}`)
+  await writeFile(resolve(dest, 'THIRD_PARTY_NOTICES.txt'), await browserNotices(root))
   await writeFile(resolve(dest, 'data.js'), `window.SKILLS_DEMO=${asciiJson(data)};\nwindow.SKILLS_BUILD=${asciiJson(source)};\n`)
   // A source link and separate hash list keep the static fixture inspectable.
   await writeFile(resolve(dest, 'workspace.json'), `${JSON.stringify({ ...source, ...data }, null, 2)}\n`)

@@ -7,7 +7,7 @@ export default defineConfig([
   {
     entry: { app: at('./app.ts') }, outDir: at('../.dsh-showcase/site'),
     platform: 'browser', format: 'iife', target: 'es2022',
-    deps: { alwaysBundle: ['yaml'] },
+    deps: { alwaysBundle: ['yaml', 'mdast-util-from-markdown'] },
     dts: false, clean: true, minify: true, fixedExtension: false,
     outExtensions: () => ({ js: '.js' }),
     outputOptions: { entryFileNames: '[name].js' },

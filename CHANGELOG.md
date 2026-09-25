@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.0
+
+- Check local Markdown resources with `check --resources`; use `--fail-on-resource-issues` for an explicit CLI/Action gate.
+- Check browser-selected skill folders locally and download line-level reports.
+- Publish three licensed, commit-pinned public skill snapshots with hash-verified, reproducible full-folder and SKILL.md-only controls.
+
 ## Unreleased
 
 ## 0.14.0 — 2026-09-25

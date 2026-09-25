@@ -36,6 +36,10 @@ interface CheckedFile {
   readonly status: 'passed' | 'failed' | 'input_error'
   readonly error?: string
   readonly unpinnedSources?: readonly string[]
+  readonly resources?: {
+    readonly counts: { readonly present: number; readonly total: number; readonly issues: number }
+    readonly references: readonly { readonly url: string; readonly line: number; readonly status: string }[]
+  }
   readonly report?: {
     readonly strict: Parse
     readonly lenient: Parse
@@ -55,6 +59,8 @@ export interface FileCheckReport {
   readonly failOnRepair: boolean
   readonly requirePinnedSources: boolean
   readonly failOnHiddenCharacters?: boolean
+  readonly resources?: boolean
+  readonly failOnResourceIssues?: boolean
   readonly files: readonly CheckedFile[]
   readonly counts: { readonly passed: number; readonly failed: number; readonly inputErrors: number }
   readonly exitCode: number
@@ -67,6 +73,8 @@ export interface ActionInputs {
   readonly failOnRepair: boolean
   readonly requirePinnedSources: boolean
   readonly failOnHiddenCharacters: boolean
+  readonly resources: boolean
+  readonly failOnResourceIssues: boolean
   readonly allowEmpty: boolean
   readonly report: string
 }
@@ -86,6 +94,8 @@ export function readInputs(env: NodeJS.ProcessEnv): ActionInputs {
     failOnRepair: booleanInput('fail-on-repair', env.INPUT_FAIL_ON_REPAIR),
     requirePinnedSources: booleanInput('require-pinned-sources', env.INPUT_REQUIRE_PINNED_SOURCES),
     failOnHiddenCharacters: booleanInput('fail-on-hidden-characters', env.INPUT_FAIL_ON_HIDDEN_CHARACTERS),
+    resources: booleanInput('resources', env.INPUT_RESOURCES),
+    failOnResourceIssues: booleanInput('fail-on-resource-issues', env.INPUT_FAIL_ON_RESOURCE_ISSUES),
     allowEmpty: booleanInput('allow-empty', env.INPUT_ALLOW_EMPTY),
     report: (env.INPUT_REPORT ?? '').trim() || 'skill-check.json',
   }
@@ -140,6 +150,11 @@ export function annotations(report: FileCheckReport): string[] {
         `${hidden.codePoint} ${hidden.name} x${hidden.count}, line${hidden.lines.length === 1 ? '' : 's'} ${hidden.lines.join(', ')}`,
         hidden.lines[0]))
     }
+    for (const link of file.resources?.references ?? []) {
+      if (link.status === 'present') continue
+      lines.push(command(report.failOnResourceIssues ? 'error' : 'warning', file.path,
+        'Local resource', `${link.status}: ${link.url}`, link.line))
+    }
     const selected = file.report[report.mode]
     if (!selected.ok) {
       lines.push(command('error', file.path, `Skill rejected (${report.mode})`, selected.reason))
@@ -178,6 +193,7 @@ function notes(report: FileCheckReport, file: CheckedFile): string {
   }
   const hidden = (file.report.surface.hiddenCharacters ?? []).reduce((total, entry) => total + entry.count, 0)
   if (hidden > 0) parts.push(`${hidden} hidden character${hidden === 1 ? '' : 's'}`)
+  if (file.resources) parts.push(`local resources: ${file.resources.counts.present}/${file.resources.counts.total} present`)
   const tools = file.report.surface.declaredTools
   if (tools.length > 0) parts.push(`declared tools: ${markdownText(tools.join(', '))}`)
   return parts.join('; ') || '—'
@@ -193,6 +209,7 @@ export function summary(report: FileCheckReport): string {
     ...(report.failOnRepair ? ['fail on repair'] : []),
     ...(report.requirePinnedSources ? ['require pinned sources'] : []),
     ...(report.failOnHiddenCharacters ? ['fail on hidden characters'] : []),
+    ...(report.failOnResourceIssues ? ['require local resources'] : report.resources ? ['inspect local resources'] : []),
   ].join(', ')
   const rows = report.files.map(file => {
     const name = file.report?.[report.mode].ok ? markdownText((file.report[report.mode] as { name: string }).name) : '—'
@@ -235,6 +252,8 @@ export function run(env: NodeJS.ProcessEnv = process.env, cwd = process.cwd()): 
     ...(inputs.failOnRepair ? ['--fail-on-repair'] : []),
     ...(inputs.requirePinnedSources ? ['--require-pinned-sources'] : []),
     ...(inputs.failOnHiddenCharacters ? ['--fail-on-hidden-characters'] : []),
+    ...(inputs.resources ? ['--resources'] : []),
+    ...(inputs.failOnResourceIssues ? ['--fail-on-resource-issues'] : []),
     '--', ...files,
   ]
   const result = spawnSync(process.execPath, args, { cwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })

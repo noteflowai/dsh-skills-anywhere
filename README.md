@@ -14,6 +14,18 @@ English | [中文](README.zh.md)
 [![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## Check a skill before moving it
+
+Find missing supporting files in the installed folder, then review bundle changes
+before loading it through MCP. [Browser folder check](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere#resources) · [Three pinned public examples](examples/resource-portability/README.md).
+
+```sh
+npx dsh-skills-anywhere@0.15.0 check path/to/SKILL.md --resources --json
+```
+
+Add `--fail-on-resource-issues` to gate CI. This checks local Markdown link targets;
+it does not inspect prose dependencies or execute the skill. [Scope and tutorial](docs/RESOURCES.md).
+
 ## Start with your workflow
 
 | Need | Workflow |
@@ -175,7 +187,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.14.0/dsh-skills-anywhere-0.14.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.15.0/dsh-skills-anywhere-0.15.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -288,7 +300,7 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
-**Check before committing.** Run `npx -y dsh-skills-anywhere@0.14.0 check
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.15.0 check
 skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
 provides batch file checks, JSON reports with file hashes, and CI exit codes.
 Checks read only the named files. In GitHub Actions, `uses: noteflowai/dsh-skills-anywhere`

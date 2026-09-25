@@ -1,0 +1,195 @@
+{
+  "schema": "skill-resource-snapshots-1",
+  "recorded_on": "2026-09-25",
+  "samples": [
+    {
+      "name": "cloudflare-security-audit",
+      "repository": "cloudflare/security-audit-skill",
+      "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "directory": "skills/security-audit",
+      "files": {
+        "AI-AND-LLM.md": {
+          "source_path": "skills/security-audit/AI-AND-LLM.md",
+          "sha256": "7335a95c43554eadefcf03ece639291bb0e038c398a179299e3887ffe06bd2ef",
+          "bytes": 10617
+        },
+        "ATTACK-CLASSES.md": {
+          "source_path": "skills/security-audit/ATTACK-CLASSES.md",
+          "sha256": "3ee4f00c6e8c9dcf6dd02dd5ac2a4ceb322e2085f3e9fbe79cf0c6330bc7ef83",
+          "bytes": 15695
+        },
+        "CLIENT-SIDE.md": {
+          "source_path": "skills/security-audit/CLIENT-SIDE.md",
+          "sha256": "613f6b98f86083e045525c5b60154ffdab122bac35f1e05eb17488e6e453370c",
+          "bytes": 8594
+        },
+        "CLOUD-AND-DEPLOYMENT.md": {
+          "source_path": "skills/security-audit/CLOUD-AND-DEPLOYMENT.md",
+          "sha256": "3c80f3088be22345e07b057c056d6ed99fe2b0304f794398964f7ccd5a496ca3",
+          "bytes": 8291
+        },
+        "DATA-ISOLATION-AND-LIFECYCLE.md": {
+          "source_path": "skills/security-audit/DATA-ISOLATION-AND-LIFECYCLE.md",
+          "sha256": "307dcb3e24d292715c4a041190e7bb135646a37eb6187619ae01d000a634a4ad",
+          "bytes": 7798
+        },
+        "DESKTOP-MOBILE-AND-LOCAL-IPC.md": {
+          "source_path": "skills/security-audit/DESKTOP-MOBILE-AND-LOCAL-IPC.md",
+          "sha256": "58eae8ee0ca6a46611c501ec5a3ab47fdff88dd7db0d8d74789bbf8bb19d8cb2",
+          "bytes": 8739
+        },
+        "HUNTING.md": {
+          "source_path": "skills/security-audit/HUNTING.md",
+          "sha256": "71c121decea1322c47c718f6e110f1a892980bb4266bd7ac55ef043a213ade09",
+          "bytes": 22446
+        },
+        "MEMORY-SAFETY-AND-BINARY.md": {
+          "source_path": "skills/security-audit/MEMORY-SAFETY-AND-BINARY.md",
+          "sha256": "7c8b0dccfb35315cca2455509674d49632b2fe37e1f3aac16c1a496a7e9924a7",
+          "bytes": 10513
+        },
+        "PROTOCOLS-RPC-AND-MESSAGING.md": {
+          "source_path": "skills/security-audit/PROTOCOLS-RPC-AND-MESSAGING.md",
+          "sha256": "8b73816fa5b3697c9c40977f0c836b40f01d6e81929ff2720fe83ce089e9a619",
+          "bytes": 7483
+        },
+        "RECONNAISSANCE.md": {
+          "source_path": "skills/security-audit/RECONNAISSANCE.md",
+          "sha256": "02ca887aca84de8ae137f1891bd2f0a54f28d3fa6da92a27f54734382b3381a2",
+          "bytes": 15902
+        },
+        "RESOURCE-EXHAUSTION-AND-AVAILABILITY.md": {
+          "source_path": "skills/security-audit/RESOURCE-EXHAUSTION-AND-AVAILABILITY.md",
+          "sha256": "4326fab5c92a0b4c420a70196254040105cd794026562130b59bf1a6db3e4baa",
+          "bytes": 7476
+        },
+        "SKILL.md": {
+          "source_path": "skills/security-audit/SKILL.md",
+          "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+          "bytes": 22026
+        },
+        "SUPPLY-CHAIN-AND-RELEASE.md": {
+          "source_path": "skills/security-audit/SUPPLY-CHAIN-AND-RELEASE.md",
+          "sha256": "f372e919940e335468ba1ae09f99026c3986a345f7fe26f8068f132e199f52a5",
+          "bytes": 7258
+        },
+        "VALIDATION-AND-REPORTING.md": {
+          "source_path": "skills/security-audit/VALIDATION-AND-REPORTING.md",
+          "sha256": "b892470cb89bb31f33403e050d4bdfbe2cdaef940ade1496fa65e32b2e129449",
+          "bytes": 17843
+        },
+        "WEB-PROTOCOL-AND-AUTH.md": {
+          "source_path": "skills/security-audit/WEB-PROTOCOL-AND-AUTH.md",
+          "sha256": "4f3066dffa23c5635859187be9b96c32f2aff29a688186b91ff0c63e47d62b5c",
+          "bytes": 12300
+        },
+        "report-schema.json": {
+          "source_path": "skills/security-audit/report-schema.json",
+          "sha256": "6575c9de4a62255699ea052ebf9a49ebfb373a32891bcd89af6f55cc84b35519",
+          "bytes": 14494
+        },
+        "validate-coverage-ledger.cjs": {
+          "source_path": "skills/security-audit/validate-coverage-ledger.cjs",
+          "sha256": "2eb280bd2e33c002916f86db9b29f9edfedb6454e5db973c766290465b868ac8",
+          "bytes": 33522
+        },
+        "validate-coverage-ledger.test.cjs": {
+          "source_path": "skills/security-audit/validate-coverage-ledger.test.cjs",
+          "sha256": "cfb9df26b03469a4279a70e7664a2a5434dd6f8c2c204e91f9b0aeb9dd71e648",
+          "bytes": 28483
+        },
+        "validate-findings.cjs": {
+          "source_path": "skills/security-audit/validate-findings.cjs",
+          "sha256": "e85f232e36bfac0f866f244da50376692d6b45c690beadcb00608b0e6c8b5283",
+          "bytes": 28806
+        },
+        "validate-findings.test.cjs": {
+          "source_path": "skills/security-audit/validate-findings.test.cjs",
+          "sha256": "b92001117a92c4161d43777a0ba2fa182a8a4d97f2304cc8c0cee5331497b73b",
+          "bytes": 26384
+        },
+        "LICENSE": {
+          "source_path": "LICENSE",
+          "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+          "bytes": 1078
+        }
+      }
+    },
+    {
+      "name": "addy-code-review",
+      "repository": "addyosmani/agent-skills",
+      "commit": "bcab6a1b8503100e8618c3b4e32cc78de43de769",
+      "directory": "skills/code-review-and-quality",
+      "files": {
+        "SKILL.md": {
+          "source_path": "skills/code-review-and-quality/SKILL.md",
+          "sha256": "8f3cabca581bbf7cb5f0add3f7454e7a4523f9d4353a6a4a217e6fa515309612",
+          "bytes": 20555
+        },
+        "LICENSE": {
+          "source_path": "LICENSE",
+          "sha256": "6f202f8bd568cd730dbb2b0d1f8e243bc74c2fa1f64dbce9b2c7ea08bd5c9fd7",
+          "bytes": 1068
+        }
+      }
+    },
+    {
+      "name": "anthropic-mcp-builder",
+      "repository": "anthropics/skills",
+      "commit": "33375500bcea98d610eb30ce10ac4e59b89c390d",
+      "directory": "skills/mcp-builder",
+      "files": {
+        "LICENSE.txt": {
+          "source_path": "skills/mcp-builder/LICENSE.txt",
+          "sha256": "bc6b3af2f331cbc7fb0da1344efb2cbe5877a31498b4d70dbc7000f3405a1362",
+          "bytes": 11345
+        },
+        "SKILL.md": {
+          "source_path": "skills/mcp-builder/SKILL.md",
+          "sha256": "0f4592dcb53cf2b5d6b7febee6b4152018b565551a1c29e3c612f57b218ab295",
+          "bytes": 9092
+        },
+        "reference/evaluation.md": {
+          "source_path": "skills/mcp-builder/reference/evaluation.md",
+          "sha256": "8c99479f8a2d22a636c38e274537aac3610879e26f34e0709825077c4576f427",
+          "bytes": 21663
+        },
+        "reference/mcp_best_practices.md": {
+          "source_path": "skills/mcp-builder/reference/mcp_best_practices.md",
+          "sha256": "80fb4369a349447cf18ecdd7494fe7938b6065377e9f08c077cec411093a3007",
+          "bytes": 7330
+        },
+        "reference/node_mcp_server.md": {
+          "source_path": "skills/mcp-builder/reference/node_mcp_server.md",
+          "sha256": "c3ba35a4f599dd53be9c6555ae72c19a7bf412cd5426576c2c08d42755482c66",
+          "bytes": 28550
+        },
+        "reference/python_mcp_server.md": {
+          "source_path": "skills/mcp-builder/reference/python_mcp_server.md",
+          "sha256": "2da52f77e675191014ca2e146a4b95aa04d0ca7dd7e2b100322df15ade685e80",
+          "bytes": 25099
+        },
+        "scripts/connections.py": {
+          "source_path": "skills/mcp-builder/scripts/connections.py",
+          "sha256": "9403668a2041568772082a8b334122c1f88daf0541fb393af4522d0094a47a6e",
+          "bytes": 4875
+        },
+        "scripts/evaluation.py": {
+          "source_path": "skills/mcp-builder/scripts/evaluation.py",
+          "sha256": "49ed1d17cdce5da101b210197740713f49b935c29d4f339542a14b132658e6f7",
+          "bytes": 12579
+        },
+        "scripts/example_evaluation.xml": {
+          "source_path": "skills/mcp-builder/scripts/example_evaluation.xml",
+          "sha256": "9272b348ddcc4b06ba562367ccd0770e018158c0068ac5116d5e34aaeff8777a",
+          "bytes": 1194
+        },
+        "scripts/requirements.txt": {
+          "source_path": "skills/mcp-builder/scripts/requirements.txt",
+          "sha256": "d5d7558b2368ecea9dfeed7d1fbc71ee9e0750bebd1282faa527d528a344c3c7",
+          "bytes": 29
+        }
+      }
+    }
+  ]
+}

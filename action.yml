@@ -32,6 +32,14 @@ inputs:
     description: Fail a file that contains invisible or direction-changing characters.
     required: false
     default: 'false'
+  resources:
+    description: Inspect local Markdown link and image targets relative to each SKILL.md directory.
+    required: false
+    default: 'false'
+  fail-on-resource-issues:
+    description: Require every local target to be present inside the skill directory; implies resources.
+    required: false
+    default: 'false'
   allow-empty:
     description: Pass when the patterns match no files, instead of failing with exit code 2.
     required: false
@@ -45,7 +53,7 @@ inputs:
       dsh-skills-anywhere version to run, or the path of a package tarball made
       with `npm pack`. Defaults to the release that contains this action.
     required: false
-    default: 0.14.0
+    default: 0.15.0
   node-version:
     description: Node.js version for actions/setup-node. Set to an empty string to use the runner's Node.js (22.19+ or 24+).
     required: false
@@ -99,6 +107,8 @@ runs:
         INPUT_FAIL_ON_REPAIR: ${{ inputs.fail-on-repair }}
         INPUT_REQUIRE_PINNED_SOURCES: ${{ inputs.require-pinned-sources }}
         INPUT_FAIL_ON_HIDDEN_CHARACTERS: ${{ inputs.fail-on-hidden-characters }}
+        INPUT_RESOURCES: ${{ inputs.resources }}
+        INPUT_FAIL_ON_RESOURCE_ISSUES: ${{ inputs.fail-on-resource-issues }}
         INPUT_ALLOW_EMPTY: ${{ inputs.allow-empty }}
         INPUT_REPORT: ${{ inputs.report }}
       run: node "$GITHUB_ACTION_PATH/action/check.ts"
