@@ -6,6 +6,7 @@
 - Keep the `npx` pins in both READMEs and `docs/CHECKING.md` in step with the release through `scripts/sync-version.mjs`; they had fallen behind at 0.12.0 and 0.11.0.
 - Serve the shared `.agents/skills` and `~/.agents/skills` from the standalone MCP server, at dsh's own ranks for them (200 and 500). They are the default skill location for Codex, Amp, Goose, Zed and Letta Code, but were deliberately skipped because dsh's built-in provider reads them; over MCP nothing else did, so a Claude Code user never saw skills installed there. Inside dsh the plugin still leaves them to the built-in provider. New `sharedDirs` option; `excludeAgents: ['agents']` also turns them off. `agents` lists the row and whether it exists.
 - Add documented skill directories: Cline project `.cline/skills` and `.clinerules/skills`, Droid (Factory) project `.factory/skills`, Kimi CLI `.kimi/skills` (project and user) and Letta Code `~/.letta/skills`.
+- List invisible and direction-changing characters (bidi controls, zero-width characters, Unicode tag characters and supplementary variation selectors) in every `check` report as `hiddenCharacters`, with code point, name, count and lines. Add `--fail-on-hidden-characters` to reject files that contain them. Leading byte order marks, emoji joiners and subdivision-flag tags are not listed.
 
 ## 0.13.0 — 2026-09-25
 

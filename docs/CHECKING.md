@@ -132,6 +132,34 @@ it tested in under an hour, and a tool that answers "clean" mostly produces
 false confidence. Each report names the risks it does not speak to in
 `notAssessed`, so a pass is not read as a clean bill of health.
 
+## Hidden characters
+
+Text a reviewer cannot see can still reach the model. Every check lists, for the
+whole file including frontmatter, the invisible and direction-changing
+characters it finds as `hiddenCharacters`, each with its code point, Unicode
+name, kind, count and up to 20 line numbers:
+
+- `bidi-control`: embeddings, overrides, isolates and marks that reorder how a
+  line is displayed (Trojan Source, CVE-2021-42574).
+- `zero-width`: zero-width spaces and joiners, word joiners and a byte order
+  mark that is not at the start of the file.
+- `tag`: the U+E0000..U+E007F tag block, which mirrors ASCII invisibly and has
+  been used to smuggle instructions into agent skills.
+- `variation-selector`: the U+E0100..U+E01EF supplement, which can carry
+  encoded bytes after an ordinary character.
+- `invisible-format`: soft hyphens, fillers and invisible math operators.
+
+A leading byte order mark, the joiners inside emoji sequences and the tag
+letters of subdivision flags are ordinary text and are not listed. The list is
+reported even when the frontmatter cannot be parsed. As with sources, listing is
+not a verdict: right-to-left marks are normal in Arabic or Hebrew prose.
+`--fail-on-hidden-characters` turns the list into a gate (available from the
+release after 0.13.0):
+
+```sh
+npx -y dsh-skills-anywhere check skills/incident-summary/SKILL.md --fail-on-hidden-characters
+```
+
 ## Declared tools travel with the skill
 
 When this project serves a skill installed for one agent to a different one, any

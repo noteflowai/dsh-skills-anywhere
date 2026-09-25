@@ -308,6 +308,8 @@ dsh-skills-anywhere mcp                       Serve skills to configured clients
 All commands accept `--cwd <dir>`. For `check`, it resolves the named files; other
 commands use it to pick the project. `check --lenient` accepts provider repairs;
 `--fail-on-repair` rejects any reported repair in the selected mode.
+`--fail-on-hidden-characters` rejects files with invisible or direction-changing
+characters, which every report lists as `hiddenCharacters`.
 The CLI uses the same parsing code as the plugin and never needs dsh running.
 
 ## Use as an MCP server
