@@ -1,0 +1,60 @@
+{
+  "kind": "Four annotated screenshots of actual UI states",
+  "duration_seconds": 30,
+  "source_files": {
+    "app.js": "1d8de7cfdb0a95c7e03d5e76c6f1debd9547016873a4b4915269a2a1dd779763",
+    "style.css": "7e0df4a147b661f56f2ba7530c5619e841a8877d9c32c62d62bc9d462f6e5988",
+    "index.html": "648415c9b415da3a48acf275db7a4b7fbc8697bc11e54a7aa95d6facd3040a15",
+    "authored_example/SKILL.md": "a17c3e138d443522cc4de07f77bb56a09a7e33811fb84f60032da4a175803d56",
+    "authored_example/references/checklist.md": "716ddcbaba6fc73d926ab344d498e3ac402d59bcdbd43fdd0162de2423738169"
+  },
+  "frames": [
+    {
+      "title": "A skill arrived. Its checklist did not.",
+      "detail": "One explicit local reference; its target is missing. No skill is executed.",
+      "selectors": [
+        "#resources"
+      ]
+    },
+    {
+      "title": "Keep the finding before changing files.",
+      "detail": "Download the local resource report. It records the referenced path and its status.",
+      "selectors": [
+        "#resources"
+      ]
+    },
+    {
+      "title": "Restore the file. Check the folder again.",
+      "detail": "The target is now present. Availability does not establish instruction quality.",
+      "selectors": [
+        "#resources"
+      ]
+    },
+    {
+      "title": "Make the same finding a CI gate.",
+      "detail": "The quickstart runs the published CLI: missing target → exit 1; restored target → exit 0.",
+      "selectors": [
+        "#resources"
+      ]
+    }
+  ],
+  "files": {
+    "ai-first-review.png": {
+      "bytes": 118447,
+      "sha256": "582fd62a14eec0f184b94708044553f5fc1c07f0f6a5550fe6fecfe928c4ca2b"
+    },
+    "ai-first-review.gif": {
+      "bytes": 207544,
+      "sha256": "41b45856159a17449c8f8477a843539deb7f30b04119c3e853f5ffcb7aa1b1c7"
+    },
+    "ai-first-review.mp4": {
+      "bytes": 175615,
+      "sha256": "919596133e44ba9b17590c0db397e7327e0e4e29141a2a167ceedae00db1b6cf"
+    },
+    "ai-first-review.vtt": {
+      "bytes": 618,
+      "sha256": "ef51c53f8a315c82948f5390a98b8fa6642f7d19757c0572e44047ba05efe4e1"
+    }
+  },
+  "scope": "One authored skill and its checklist. Four actual browser states; no skill execution or safety certification."
+}

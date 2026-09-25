@@ -39,6 +39,10 @@ cover Cloudflare, Addy Osmani and Anthropic skills; the incomplete installs are 
 Browser inventories cannot identify symlinks or empty directories. Prose, code and
 recursive dependencies are outside this check.
 
+[First review with the published CLI](https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/first-resource-check.md): Find one missing skill reference, restore it, and verify the CI gate.
+The 30-second walkthrough uses four annotated views of the actual interface,
+with captions and source hashes. No GPU or model-service account is needed.
+
 ## Start with a task
 
 | Task | Try in this Space | Continue locally |

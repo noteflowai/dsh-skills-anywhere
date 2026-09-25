@@ -26,6 +26,13 @@ npx dsh-skills-anywhere@0.15.0 check path/to/SKILL.md --resources --json
 Add `--fail-on-resource-issues` to gate CI. This checks local Markdown link targets;
 it does not inspect prose dependencies or execute the skill. [Scope and tutorial](docs/RESOURCES.md).
 
+**[First review, no clone required](docs/first-resource-check.md)** — Find one missing skill reference, restore it, and verify the CI gate.
+
+<a href="docs/first-resource-check.md"><picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/ai-first-review.png">
+  <img src="docs/assets/ai-first-review.gif" width="960" alt="Find one missing skill reference, restore it, and verify the CI gate.">
+</picture></a>
+
 ## Start with your workflow
 
 | Need | Workflow |
