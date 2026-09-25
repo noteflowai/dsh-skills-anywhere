@@ -1,6 +1,6 @@
 {
   "name": "dsh-skills-anywhere",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Discover Agent Skills in configured local directories, plugin marketplaces and Git sources. Load them through DeepSeek Harness or a local stdio MCP server, with catalog budgets, content hashes and delivery receipts.",
   "keywords": [
     "deepseek-harness",

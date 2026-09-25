@@ -39,7 +39,7 @@ inputs:
   version:
     description: dsh-skills-anywhere version to run. Defaults to the release that contains this action.
     required: false
-    default: 0.13.0
+    default: 0.14.0
   node-version:
     description: Node.js version for actions/setup-node. Set to an empty string to use the runner's Node.js (22.19+ or 24+).
     required: false

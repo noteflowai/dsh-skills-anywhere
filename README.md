@@ -173,7 +173,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.13.0/dsh-skills-anywhere-0.13.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.14.0/dsh-skills-anywhere-0.14.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -286,7 +286,7 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
-**Check before committing.** Run `npx -y dsh-skills-anywhere@0.13.0 check
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.14.0 check
 skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
 provides batch file checks, JSON reports with file hashes, and CI exit codes.
 Checks read only the named files. In GitHub Actions, `uses: noteflowai/dsh-skills-anywhere`

@@ -6,8 +6,8 @@ use the same local parser comparison. Check explicitly named files without
 starting an agent, configuring a provider or running any skill instructions:
 
 ```sh
-npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md
-npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md skills/review.md --json > skill-check.json
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md skills/review.md --json > skill-check.json
 ```
 
 The default gate uses **strict provider parsing**. Both parsing results are in
@@ -15,9 +15,9 @@ the JSON report, so you can also see the changes that lenient mode would make:
 
 ```sh
 # Accept recoverable frontmatter drift, without modifying the file.
-npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --lenient
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md --lenient
 # Require acceptance with no reported repairs, including description truncation.
-npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --fail-on-repair
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md --fail-on-repair
 ```
 
 Every report also enumerates what the skill reaches for, whether or not it
@@ -25,9 +25,9 @@ passes the parsing gate:
 
 ```sh
 # Facts only: external sources and declared tools are reported, never judged.
-npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md
 # Address gate: reject references without a recognized full-commit URL.
-npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --require-pinned-sources
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md --require-pinned-sources
 ```
 
 | Exit | Meaning |
@@ -99,7 +99,7 @@ Without the action, call the CLI directly:
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-      - run: npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --fail-on-repair --json > skill-check.json
+      - run: npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md --fail-on-repair --json > skill-check.json
 ```
 
 No model key or DeepSeek Harness installation is required. The first `npx`
@@ -153,11 +153,10 @@ A leading byte order mark, the joiners inside emoji sequences and the tag
 letters of subdivision flags are ordinary text and are not listed. The list is
 reported even when the frontmatter cannot be parsed. As with sources, listing is
 not a verdict: right-to-left marks are normal in Arabic or Hebrew prose.
-`--fail-on-hidden-characters` turns the list into a gate (available from the
-release after 0.13.0):
+`--fail-on-hidden-characters` turns the list into a gate:
 
 ```sh
-npx -y dsh-skills-anywhere check skills/incident-summary/SKILL.md --fail-on-hidden-characters
+npx -y dsh-skills-anywhere@0.14.0 check skills/incident-summary/SKILL.md --fail-on-hidden-characters
 ```
 
 ## Declared tools travel with the skill
