@@ -44,10 +44,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      # Run the action against this checkout's package: the default version is
+      # the release being prepared, which is not on npm until it is tagged.
+      - name: Pack this checkout
+        id: pack
+        run: |
+          pnpm run build
+          pnpm pack --pack-destination "$RUNNER_TEMP"
+          echo "tarball=$RUNNER_TEMP/dsh-skills-anywhere-$(node -p "require('./package.json').version").tgz" >> "$GITHUB_OUTPUT"
       - name: Check the example skills with this checkout's action
         id: examples
         uses: ./
         with:
+          version: ${{ steps.pack.outputs.tarball }}
           files: examples/**/SKILL.md
           fail-on-repair: true
           report: reports/examples.json
@@ -60,6 +75,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
+          version: ${{ steps.pack.outputs.tarball }}
           files: ci-rejected/SKILL.md
           report: reports/rejected.json
       - name: Verify outcomes, outputs and reports

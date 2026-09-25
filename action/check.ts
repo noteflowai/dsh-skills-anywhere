@@ -24,6 +24,13 @@ type Parse =
 
 interface ExternalSource { readonly host: string; readonly pinned: boolean }
 
+interface HiddenCharacter {
+  readonly codePoint: string
+  readonly name: string
+  readonly count: number
+  readonly lines: readonly number[]
+}
+
 interface CheckedFile {
   readonly path: string
   readonly status: 'passed' | 'failed' | 'input_error'
@@ -32,7 +39,12 @@ interface CheckedFile {
   readonly report?: {
     readonly strict: Parse
     readonly lenient: Parse
-    readonly surface: { readonly externalSources: readonly ExternalSource[]; readonly declaredTools: readonly string[] }
+    readonly surface: {
+      readonly externalSources: readonly ExternalSource[]
+      readonly declaredTools: readonly string[]
+      /** Absent in reports from releases before 0.14.0. */
+      readonly hiddenCharacters?: readonly HiddenCharacter[]
+    }
   }
 }
 
@@ -42,6 +54,7 @@ export interface FileCheckReport {
   readonly mode: 'strict' | 'lenient'
   readonly failOnRepair: boolean
   readonly requirePinnedSources: boolean
+  readonly failOnHiddenCharacters?: boolean
   readonly files: readonly CheckedFile[]
   readonly counts: { readonly passed: number; readonly failed: number; readonly inputErrors: number }
   readonly exitCode: number
@@ -53,6 +66,7 @@ export interface ActionInputs {
   readonly lenient: boolean
   readonly failOnRepair: boolean
   readonly requirePinnedSources: boolean
+  readonly failOnHiddenCharacters: boolean
   readonly allowEmpty: boolean
   readonly report: string
 }
@@ -71,6 +85,7 @@ export function readInputs(env: NodeJS.ProcessEnv): ActionInputs {
     lenient: booleanInput('lenient', env.INPUT_LENIENT),
     failOnRepair: booleanInput('fail-on-repair', env.INPUT_FAIL_ON_REPAIR),
     requirePinnedSources: booleanInput('require-pinned-sources', env.INPUT_REQUIRE_PINNED_SOURCES),
+    failOnHiddenCharacters: booleanInput('fail-on-hidden-characters', env.INPUT_FAIL_ON_HIDDEN_CHARACTERS),
     allowEmpty: booleanInput('allow-empty', env.INPUT_ALLOW_EMPTY),
     report: (env.INPUT_REPORT ?? '').trim() || 'skill-check.json',
   }
@@ -105,17 +120,25 @@ export function escapeProperty(value: string): string {
   return escapeData(value).replaceAll(':', '%3A').replaceAll(',', '%2C')
 }
 
-function command(level: 'error' | 'warning' | 'notice', file: string, title: string, message: string): string {
-  return `::${level} file=${escapeProperty(file)},title=${escapeProperty(title)}::${escapeData(message)}`
+function command(level: 'error' | 'warning' | 'notice', file: string, title: string, message: string, line?: number): string {
+  const at = line === undefined ? '' : `,line=${line}`
+  return `::${level} file=${escapeProperty(file)}${at},title=${escapeProperty(title)}::${escapeData(message)}`
 }
 
-/** Workflow annotations for rejected files, required repairs and applied repairs. */
+/** Workflow annotations for rejected files, repairs, unpinned sources and hidden characters. */
 export function annotations(report: FileCheckReport): string[] {
   const lines: string[] = []
   for (const file of report.files) {
     if (file.status === 'input_error' || file.report === undefined) {
       lines.push(command('error', file.path, 'Unreadable skill file', file.error ?? 'The file could not be read.'))
       continue
+    }
+    // Listed even when the frontmatter is rejected, as the report does.
+    for (const hidden of file.report.surface.hiddenCharacters ?? []) {
+      const level = report.failOnHiddenCharacters ? 'error' : 'warning'
+      lines.push(command(level, file.path, 'Hidden character',
+        `${hidden.codePoint} ${hidden.name} x${hidden.count}, line${hidden.lines.length === 1 ? '' : 's'} ${hidden.lines.join(', ')}`,
+        hidden.lines[0]))
     }
     const selected = file.report[report.mode]
     if (!selected.ok) {
@@ -153,6 +176,8 @@ function notes(report: FileCheckReport, file: CheckedFile): string {
     const unpinned = sources.filter(source => !source.pinned).length
     parts.push(`${sources.length} external host${sources.length === 1 ? '' : 's'}${unpinned > 0 ? ` (${unpinned} not pinned)` : ''}`)
   }
+  const hidden = (file.report.surface.hiddenCharacters ?? []).reduce((total, entry) => total + entry.count, 0)
+  if (hidden > 0) parts.push(`${hidden} hidden character${hidden === 1 ? '' : 's'}`)
   const tools = file.report.surface.declaredTools
   if (tools.length > 0) parts.push(`declared tools: ${markdownText(tools.join(', '))}`)
   return parts.join('; ') || '—'
@@ -167,6 +192,7 @@ export function summary(report: FileCheckReport): string {
     `${report.mode} parsing`,
     ...(report.failOnRepair ? ['fail on repair'] : []),
     ...(report.requirePinnedSources ? ['require pinned sources'] : []),
+    ...(report.failOnHiddenCharacters ? ['fail on hidden characters'] : []),
   ].join(', ')
   const rows = report.files.map(file => {
     const name = file.report?.[report.mode].ok ? markdownText((file.report[report.mode] as { name: string }).name) : '—'
@@ -208,6 +234,7 @@ export function run(env: NodeJS.ProcessEnv = process.env, cwd = process.cwd()): 
     ...(inputs.lenient ? ['--lenient'] : []),
     ...(inputs.failOnRepair ? ['--fail-on-repair'] : []),
     ...(inputs.requirePinnedSources ? ['--require-pinned-sources'] : []),
+    ...(inputs.failOnHiddenCharacters ? ['--fail-on-hidden-characters'] : []),
     '--', ...files,
   ]
   const result = spawnSync(process.execPath, args, { cwd, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })

@@ -53,8 +53,8 @@ It has no timestamp, so identical inputs and options produce a stable report.
 ## Use in GitHub Actions
 
 From **0.14.0** the repository is also a GitHub Action. It checks every
-`SKILL.md` that Git tracks, annotates rejected files and repairs on the pull
-request, writes a job summary and saves the JSON report:
+`SKILL.md` that Git tracks, annotates rejected files, repairs and hidden
+characters on the pull request, writes a job summary and saves the JSON report:
 
 ```yaml
 name: Check skills
@@ -69,6 +69,7 @@ jobs:
       - uses: noteflowai/dsh-skills-anywhere@v0.14.0 # pin a full commit SHA for immutable CI
         with:
           fail-on-repair: true
+          fail-on-hidden-characters: true
 ```
 
 | Input | Default | Meaning |
@@ -77,9 +78,10 @@ jobs:
 | `lenient` | `false` | Accept recoverable frontmatter drift (`--lenient`). |
 | `fail-on-repair` | `false` | Fail a file that needs any reported repair (`--fail-on-repair`). |
 | `require-pinned-sources` | `false` | Fail unpinned external references (`--require-pinned-sources`). |
+| `fail-on-hidden-characters` | `false` | Fail files with invisible or direction-changing characters (`--fail-on-hidden-characters`). Hidden characters are annotated either way. |
 | `allow-empty` | `false` | Pass when nothing matches. By default an empty selection fails with exit code `2`, so a mistyped pattern cannot pass silently. |
 | `report` | `skill-check.json` | Where the JSON report is written. |
-| `version` | the tagged release | npm version of the checker to install. |
+| `version` | the tagged release | npm version of the checker to install, or the path of a tarball made with `npm pack` (for example to test an unreleased build). |
 | `node-version` | `24` | Passed to `actions/setup-node`; set `''` to use the runner's Node.js 22.19+ or 24+. |
 
 Outputs are `report`, `passed`, `failed`, `input-errors` and `exit-code`; the

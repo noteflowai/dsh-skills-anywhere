@@ -46,14 +46,16 @@ run `npx dsh-skills-anywhere add anthropics/skills`.
 archives, source checkouts and dsh version requirements.
 
 **Check skills in CI.** Any repository that keeps `SKILL.md` files can add the
-GitHub Action (0.14.0 and later). Rejected files and repairs appear as pull
-request annotations, with a job summary and a JSON report:
+GitHub Action (0.14.0 and later). Rejected files, repairs and hidden
+characters appear as pull request annotations, with a job summary and a JSON
+report:
 
 ```yaml
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: noteflowai/dsh-skills-anywhere@v0.14.0
         with:
           fail-on-repair: true
+          fail-on-hidden-characters: true
 ```
 
 [Inputs, outputs and scope](docs/CHECKING.md#use-in-github-actions). No model key

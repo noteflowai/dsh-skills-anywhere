@@ -102,6 +102,35 @@ describe('report rendering', () => {
     expect(markdown).toContain('| Failed | drift\\.md | drift | 1 repair; 1 external host (1 not pinned); declared tools: Bash, Read |')
   })
 
+  it('annotates hidden characters at their first line, as errors only when they fail the file', async () => {
+    const cwd = await tempDir('action-hidden')
+    await writeFile(join(cwd, 'hidden.md'), skillMarkdown('hidden', 'd', { body: 'Safe\ntext \u202E here\u200B and \u200B' }))
+    const allowed = await checkFiles(['hidden.md'], { cwd, lenient: false, failOnRepair: false, requirePinnedSources: false }) as FileCheckReport
+    const listed = annotations(allowed)
+    expect(listed).toHaveLength(2)
+    expect(listed[0]).toMatch(/^::warning file=hidden\.md,line=\d+,title=Hidden character::U\+200B .+ x2, line \d+$/)
+    expect(listed[1]).toMatch(/^::warning file=hidden\.md,line=\d+,title=Hidden character::U\+202E /)
+    expect(summary(allowed)).toContain('| Passed | hidden\\.md | hidden | 3 hidden characters |')
+    const gated = await checkFiles(['hidden.md'], {
+      cwd, lenient: false, failOnRepair: false, requirePinnedSources: false, failOnHiddenCharacters: true,
+    }) as FileCheckReport
+    expect(annotations(gated).every(line => line.startsWith('::error file=hidden.md,line='))).toBe(true)
+    expect(summary(gated)).toContain('(strict parsing, fail on hidden characters;')
+  })
+
+  it('renders reports from releases without hidden-character listings', () => {
+    const report: FileCheckReport = {
+      schema: 'skills-anywhere-file-check-1', tool: { name: 'dsh-skills-anywhere', version: '0.13.0' }, mode: 'strict',
+      failOnRepair: false, requirePinnedSources: false, counts: { passed: 1, failed: 0, inputErrors: 0 }, exitCode: 0, scope: 's',
+      files: [{ path: 'a.md', status: 'passed', report: {
+        strict: { ok: true, name: 'a', warnings: [] }, lenient: { ok: true, name: 'a', warnings: [] },
+        surface: { externalSources: [], declaredTools: [] },
+      } }],
+    }
+    expect(annotations(report)).toEqual([])
+    expect(summary(report)).toContain('| Passed | a\\.md | a | — |')
+  })
+
   it('reports applied repairs as warnings when they are allowed', async () => {
     const cwd = await tempDir('action-lenient')
     await writeFile(join(cwd, 'drift.md'), skillMarkdown('drift', 'd', { omitName: true }))
@@ -140,6 +169,17 @@ describe('run', () => {
     const out = capture()
     expect(run({ SKILLS_ANYWHERE_CLI: cli }, cwd)).toBe(1)
     expect(out[0]).toBe('::error file=bad/SKILL.md,title=Skill rejected (strict)::frontmatter requires name')
+  })
+
+  it('passes fail-on-hidden-characters to the checker', async () => {
+    const cwd = await repository()
+    await writeSkill(join(cwd, 'skills'), 'hidden', 'hidden description', { body: 'Look \u202E here' })
+    const out = capture()
+    expect(run({ SKILLS_ANYWHERE_CLI: cli }, cwd)).toBe(0)
+    expect(run({ SKILLS_ANYWHERE_CLI: cli, INPUT_FAIL_ON_HIDDEN_CHARACTERS: 'true', INPUT_REPORT: 'gated.json' }, cwd)).toBe(1)
+    const report = JSON.parse(await readFile(join(cwd, 'gated.json'), 'utf8')) as FileCheckReport
+    expect(report.failOnHiddenCharacters).toBe(true)
+    expect(out.some(line => line.startsWith('::error file=skills/hidden/SKILL.md,line=') && line.includes('U+202E'))).toBe(true)
   })
 
   it('fails on no matching files unless empty selections are allowed', async () => {

@@ -28,6 +28,10 @@ inputs:
     description: Fail a file whose external references lack a recognized full-commit address.
     required: false
     default: 'false'
+  fail-on-hidden-characters:
+    description: Fail a file that contains invisible or direction-changing characters.
+    required: false
+    default: 'false'
   allow-empty:
     description: Pass when the patterns match no files, instead of failing with exit code 2.
     required: false
@@ -37,7 +41,9 @@ inputs:
     required: false
     default: skill-check.json
   version:
-    description: dsh-skills-anywhere version to run. Defaults to the release that contains this action.
+    description: >-
+      dsh-skills-anywhere version to run, or the path of a package tarball made
+      with `npm pack`. Defaults to the release that contains this action.
     required: false
     default: 0.14.0
   node-version:
@@ -75,10 +81,14 @@ runs:
         PACKAGE_VERSION: ${{ inputs.version }}
       run: |
         case "$PACKAGE_VERSION" in
-          *[!0-9A-Za-z.-]*|'') echo "::error title=dsh-skills-anywhere::version must be a plain npm version"; exit 2 ;;
+          *.tgz)
+            test -f "$PACKAGE_VERSION" || { echo "::error title=dsh-skills-anywhere::no package tarball at the version path"; exit 2; }
+            PACKAGE_SPEC="$(realpath "$PACKAGE_VERSION")" ;;
+          *[!0-9A-Za-z.-]*|'') echo "::error title=dsh-skills-anywhere::version must be a plain npm version or a .tgz path"; exit 2 ;;
+          *) PACKAGE_SPEC="dsh-skills-anywhere@$PACKAGE_VERSION" ;;
         esac
         npm install --prefix "$RUNNER_TEMP/dsh-skills-anywhere" --no-save --ignore-scripts --no-audit --no-fund \
-          "dsh-skills-anywhere@$PACKAGE_VERSION" >/dev/null
+          "$PACKAGE_SPEC" >/dev/null
     - name: Check skills
       id: check
       shell: bash
@@ -88,6 +98,7 @@ runs:
         INPUT_LENIENT: ${{ inputs.lenient }}
         INPUT_FAIL_ON_REPAIR: ${{ inputs.fail-on-repair }}
         INPUT_REQUIRE_PINNED_SOURCES: ${{ inputs.require-pinned-sources }}
+        INPUT_FAIL_ON_HIDDEN_CHARACTERS: ${{ inputs.fail-on-hidden-characters }}
         INPUT_ALLOW_EMPTY: ${{ inputs.allow-empty }}
         INPUT_REPORT: ${{ inputs.report }}
       run: node "$GITHUB_ACTION_PATH/action/check.ts"

@@ -43,13 +43,14 @@ dsh plugin --profile web add dsh-skills-anywhere
 [安装详情](#安装详情与目录示例)包括发布包、源码安装和 dsh 版本要求。
 
 **在 CI 中检查技能。** 任何保存 `SKILL.md` 的仓库都可以使用本项目的 GitHub Action（0.14.0 起）。
-被拒绝的文件和字段修复会显示为拉取请求注释，并生成作业摘要与 JSON 报告：
+被拒绝的文件、字段修复和隐藏字符会显示为拉取请求注释，并生成作业摘要与 JSON 报告：
 
 ```yaml
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: noteflowai/dsh-skills-anywhere@v0.14.0
         with:
           fail-on-repair: true
+          fail-on-hidden-characters: true
 ```
 
 [输入、输出与检查范围](docs/CHECKING.md#use-in-github-actions)。无需模型密钥，也无需安装 DeepSeek Harness。
