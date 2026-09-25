@@ -26,6 +26,13 @@ npx dsh-skills-anywhere@0.15.0 check path/to/SKILL.md --resources --json
 加上 `--fail-on-resource-issues` 开启 CI 门禁。此功能检查本地 Markdown 链接目标，
 不检查正文中的依赖，也不执行技能。[范围与教程](docs/RESOURCES.md)。
 
+**[首次复核，无需克隆仓库](docs/first-resource-check.md)** — 检查一个缺失的技能附件，补齐后复核 CI 门禁。
+
+<a href="docs/first-resource-check.md"><picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/ai-first-review.png">
+  <img src="docs/assets/ai-first-review.gif" width="960" alt="检查一个缺失的技能附件，补齐后复核 CI 门禁。">
+</picture></a>
+
 ## 从你的工作流开始
 
 | 需求 | 使用方式 |

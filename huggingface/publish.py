@@ -13,6 +13,7 @@ REPO = "glayguo/dsh-skills-anywhere"
 FILES = {
     "README.md", ".gitattributes", "LICENSE", "index.html", "style.css",
     "app.js", "data.js", "workspace.json", "thumbnail.png", "THIRD_PARTY_NOTICES.txt",
+    "ai-first-review.mp4", "ai-first-review.png", "ai-first-review.vtt", "ai-first-review-media.json",
 }
 INJECTION = re.compile(
     rb'(?<=<head>)<script>window\.huggingface=\{variables:\{"SPACE_CREATOR_USER_ID":"[0-9a-f]{24}"\}\};</script>'
@@ -62,7 +63,8 @@ def verify_live(folder, host, timeout=120):
             or url.query or url.fragment):
         raise ValueError("Expected the public Space host")
     pending = {name: (folder / name).read_bytes() for name in
-               ["manifest.json", "index.html", "app.js", "data.js", "style.css", "thumbnail.png"]}
+               ["manifest.json", "index.html", "app.js", "data.js", "style.css", "thumbnail.png",
+                "ai-first-review.mp4", "ai-first-review.png", "ai-first-review.vtt", "ai-first-review-media.json"]}
     deadline = time.monotonic() + timeout
     errors = {}
     while pending and time.monotonic() < deadline:
@@ -84,7 +86,7 @@ def verify_live(folder, host, timeout=120):
             time.sleep(min(3, max(0, deadline - time.monotonic())))
     if pending:
         raise ValueError(f"Public app did not match the tested bundle: {errors}")
-    return 6
+    return 10
 
 
 def publish(folder, expected_commit):

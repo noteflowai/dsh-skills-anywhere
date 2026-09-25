@@ -48,12 +48,13 @@ export async function buildShowcase(root = process.cwd()): Promise<void> {
   if (/[^\x00-\x7f]/.test(html)) throw new Error('Use HTML entities for non-ASCII landing-page text')
   await mkdir(dest, { recursive: true })
   for (const name of ['index.html', 'style.css', 'README.md']) await copyFile(resolve(root, 'huggingface', name), resolve(dest, name))
+  for (const name of ['ai-first-review.mp4', 'ai-first-review.png', 'ai-first-review.vtt', 'ai-first-review-media.json']) await copyFile(resolve(root, 'docs/assets', name), resolve(dest, name))
   await copyFile(resolve(root, 'LICENSE'), resolve(dest, 'LICENSE'))
   await writeFile(resolve(dest, 'THIRD_PARTY_NOTICES.txt'), await browserNotices(root))
   await writeFile(resolve(dest, 'data.js'), `window.SKILLS_DEMO=${asciiJson(data)};\nwindow.SKILLS_BUILD=${asciiJson(source)};\n`)
   // A source link and separate hash list keep the static fixture inspectable.
   await writeFile(resolve(dest, 'workspace.json'), `${JSON.stringify({ ...source, ...data }, null, 2)}\n`)
-  await writeFile(resolve(dest, '.gitattributes'), '*.png filter=lfs diff=lfs merge=lfs -text\n')
+  await writeFile(resolve(dest, '.gitattributes'), '*.png filter=lfs diff=lfs merge=lfs -text\n*.mp4 filter=lfs diff=lfs merge=lfs -text\n')
   await writeManifest(dest, source)
 }
 
@@ -61,7 +62,7 @@ export async function writeManifest(dest: string, source: { commit: string; dirt
   const files: Record<string, { sha256: string; bytes: number }> = {}
   for (const name of (await readdir(dest)).sort()) {
     if (name === 'manifest.json') continue
-    if (!['index.html', 'style.css', 'app.js', 'data.js', 'workspace.json', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.txt', '.gitattributes', 'thumbnail.png'].includes(name)) throw new Error(`Unexpected showcase file: ${name}`)
+    if (!['index.html', 'style.css', 'app.js', 'data.js', 'workspace.json', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.txt', '.gitattributes', 'thumbnail.png', 'ai-first-review.mp4', 'ai-first-review.png', 'ai-first-review.vtt', 'ai-first-review-media.json'].includes(name)) throw new Error(`Unexpected showcase file: ${name}`)
     const bytes = await readFile(resolve(dest, name))
     files[name] = { sha256: sha256(bytes), bytes: bytes.length }
   }

@@ -4,8 +4,9 @@ const fs = require('node:fs/promises')
 const path = require('node:path')
 const { chromium } = require('playwright')
 
+const { checkAIWalkthrough } = require('../scripts/check_ai_walkthrough.cjs')
 const root = path.resolve('.dsh-showcase/site')
-const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.png': 'image/png' }
+const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.mp4': 'video/mp4', '.vtt': 'text/vtt' }
 const server = createServer(async (request, response) => {
   const route = new URL(request.url, 'http://localhost').pathname
   if (route === '/frame') {
@@ -38,6 +39,7 @@ const server = createServer(async (request, response) => {
       await page.goto(`${origin}/frame`)
       const frame = page.frameLocator('iframe')
       await frame.locator('[data-name="review"]').waitFor()
+      await checkAIWalkthrough(frame, requests)
       assert.equal(await frame.locator('.skill-row').count(), 8)
       assert.equal(await frame.locator('#listed-count').innerText(), '3')
       assert(await frame.getByRole('button', { name: 'Inspect manual-deploy', exact: true }).isDisabled())

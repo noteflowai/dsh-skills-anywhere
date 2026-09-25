@@ -35,3 +35,5 @@ button,input:not([type=range]){min-height:44px}
 .resource-table { overflow-x: auto; margin-top: 1rem; }
 .resource-table table { width: 100%; border-collapse: collapse; text-align: left; }
 .resource-table th, .resource-table td { padding: .65rem; border-bottom: 1px solid #d9e1e5; overflow-wrap: anywhere; }
+
+.ai-tour{margin:24px 0;padding:18px;border:1px solid #48625e;border-radius:14px;background:#101b24;color:#edf5f2}.ai-tour summary{cursor:pointer;font-weight:650}.ai-tour video{display:block;width:100%;max-width:1000px;height:auto;margin:18px auto 0;background:#101618}.ai-tour p{font-size:14px;line-height:1.6}.ai-tour a{color:#80e6cf}

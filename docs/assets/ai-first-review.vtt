@@ -1,0 +1,17 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:07.500
+A skill arrived. Its checklist did not.
+One explicit local reference; its target is missing. No skill is executed.
+
+00:00:07.500 --> 00:00:15.000
+Keep the finding before changing files.
+Download the local resource report. It records the referenced path and its status.
+
+00:00:15.000 --> 00:00:22.500
+Restore the file. Check the folder again.
+The target is now present. Availability does not establish instruction quality.
+
+00:00:22.500 --> 00:00:30.000
+Make the same finding a CI gate.
+The quickstart runs the published CLI: missing target → exit 1; restored target → exit 0.
