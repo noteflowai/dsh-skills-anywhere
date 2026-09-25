@@ -54,7 +54,7 @@ export async function buildShowcase(root = process.cwd()): Promise<void> {
   await writeFile(resolve(dest, 'data.js'), `window.SKILLS_DEMO=${asciiJson(data)};\nwindow.SKILLS_BUILD=${asciiJson(source)};\n`)
   // A source link and separate hash list keep the static fixture inspectable.
   await writeFile(resolve(dest, 'workspace.json'), `${JSON.stringify({ ...source, ...data }, null, 2)}\n`)
-  await writeFile(resolve(dest, '.gitattributes'), '*.png filter=lfs diff=lfs merge=lfs -text\n')
+  await writeFile(resolve(dest, '.gitattributes'), '*.png filter=lfs diff=lfs merge=lfs -text\n*.mp4 filter=lfs diff=lfs merge=lfs -text\n')
   await writeManifest(dest, source)
 }
 
