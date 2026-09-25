@@ -1,6 +1,6 @@
 {
   "name": "dsh-skills-anywhere",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Discover Agent Skills in configured local directories, plugin marketplaces and Git sources. Load them through DeepSeek Harness or a local stdio MCP server, with catalog budgets, content hashes and delivery receipts.",
   "keywords": [
     "deepseek-harness",
@@ -99,13 +99,14 @@
     "test:coverage": "pnpm run build && vitest run --coverage",
     "version": "node scripts/sync-version.mjs && git add -A",
     "version:check": "node scripts/sync-version.mjs --check",
-    "check": "pnpm run version:check && pnpm run typecheck && pnpm run lint && pnpm run test",
+    "check": "pnpm run version:check && pnpm run typecheck && pnpm run lint && pnpm run test && node scripts/replay-resource-examples.ts",
     "showcase:build": "tsdown --config huggingface/tsdown.config.ts && node .dsh-showcase/tools/build.js --build",
     "showcase:check": "node huggingface/check.cjs && node .dsh-showcase/tools/build.js --seal"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
     "chokidar": "^5.0.0",
+    "mdast-util-from-markdown": "^2.0.3",
     "yaml": "^2.9.0",
     "zod": "^4.5.4"
   },
@@ -127,6 +128,7 @@
     "@deepseek-ai/schemastery": "^3.18.2",
     "@modelcontextprotocol/client": "2.0.0",
     "@modelcontextprotocol/sdk": "1.30.0",
+    "@types/mdast": "^4.0.4",
     "@types/node": "^22.20.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

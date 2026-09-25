@@ -13,7 +13,7 @@
       "source": "./",
       "displayName": "Skills Anywhere",
       "description": "Discover and load Agent Skills from configured local directories and Git sources through MCP tools and skill resources.",
-      "version": "0.14.0",
+      "version": "0.15.0",
       "homepage": "https://github.com/noteflowai/dsh-skills-anywhere",
       "license": "MIT",
       "keywords": [

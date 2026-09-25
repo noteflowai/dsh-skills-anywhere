@@ -3,7 +3,7 @@
   "name": "io.github.noteflowai/dsh-skills-anywhere",
   "title": "Skills Anywhere",
   "description": "Discover and load Agent Skills from configured local directories and Git sources over stdio MCP.",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "websiteUrl": "https://github.com/noteflowai/dsh-skills-anywhere#use-as-an-mcp-server",
   "repository": {
     "url": "https://github.com/noteflowai/dsh-skills-anywhere",
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "dsh-skills-anywhere",
-      "version": "0.14.0",
+      "version": "0.15.0",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

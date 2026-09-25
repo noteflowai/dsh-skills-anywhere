@@ -1,0 +1,328 @@
+{
+  "schema": "skill-resource-examples-1",
+  "scope": "Three selected snapshots, not a representative benchmark. The SKILL.md-only control is constructed locally; it is not an upstream defect. Referenced file contents are not assessed or executed.",
+  "samples": [
+    {
+      "name": "cloudflare-security-audit",
+      "repository": "cloudflare/security-audit-skill",
+      "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "directory": "skills/security-audit",
+      "original": {
+        "schema": "skills-anywhere-resources-1",
+        "method": "filesystem",
+        "references": [
+          {
+            "url": "HUNTING.md",
+            "line": 82,
+            "path": "HUNTING.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "VALIDATION-AND-REPORTING.md",
+            "line": 82,
+            "path": "VALIDATION-AND-REPORTING.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "RECONNAISSANCE.md",
+            "line": 94,
+            "path": "RECONNAISSANCE.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "HUNTING.md",
+            "line": 94,
+            "path": "HUNTING.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "RECONNAISSANCE.md",
+            "line": 172,
+            "path": "RECONNAISSANCE.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "HUNTING.md",
+            "line": 173,
+            "path": "HUNTING.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "ATTACK-CLASSES.md",
+            "line": 173,
+            "path": "ATTACK-CLASSES.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "VALIDATION-AND-REPORTING.md",
+            "line": 174,
+            "path": "VALIDATION-AND-REPORTING.md",
+            "status": "present",
+            "kind": "file"
+          }
+        ],
+        "counts": {
+          "total": 8,
+          "present": 8,
+          "issues": 0
+        },
+        "scope": "CommonMark links and images relative to the SKILL.md directory; queries and fragments are ignored. No HTML, prose/code dependencies, recursive link checking, remote fetches, content validation or execution. Outside paths are not inspected."
+      },
+      "skillOnlyControl": {
+        "schema": "skills-anywhere-resources-1",
+        "method": "selected-files",
+        "references": [
+          {
+            "url": "HUNTING.md",
+            "line": 82,
+            "path": "HUNTING.md",
+            "status": "missing"
+          },
+          {
+            "url": "VALIDATION-AND-REPORTING.md",
+            "line": 82,
+            "path": "VALIDATION-AND-REPORTING.md",
+            "status": "missing"
+          },
+          {
+            "url": "RECONNAISSANCE.md",
+            "line": 94,
+            "path": "RECONNAISSANCE.md",
+            "status": "missing"
+          },
+          {
+            "url": "HUNTING.md",
+            "line": 94,
+            "path": "HUNTING.md",
+            "status": "missing"
+          },
+          {
+            "url": "RECONNAISSANCE.md",
+            "line": 172,
+            "path": "RECONNAISSANCE.md",
+            "status": "missing"
+          },
+          {
+            "url": "HUNTING.md",
+            "line": 173,
+            "path": "HUNTING.md",
+            "status": "missing"
+          },
+          {
+            "url": "ATTACK-CLASSES.md",
+            "line": 173,
+            "path": "ATTACK-CLASSES.md",
+            "status": "missing"
+          },
+          {
+            "url": "VALIDATION-AND-REPORTING.md",
+            "line": 174,
+            "path": "VALIDATION-AND-REPORTING.md",
+            "status": "missing"
+          }
+        ],
+        "counts": {
+          "total": 8,
+          "present": 0,
+          "issues": 8
+        },
+        "scope": "CommonMark links and images relative to the SKILL.md directory; queries and fragments are ignored. No HTML, prose/code dependencies, recursive link checking, remote fetches, content validation or execution. Outside paths are not inspected."
+      }
+    },
+    {
+      "name": "addy-code-review",
+      "repository": "addyosmani/agent-skills",
+      "commit": "bcab6a1b8503100e8618c3b4e32cc78de43de769",
+      "directory": "skills/code-review-and-quality",
+      "original": {
+        "schema": "skills-anywhere-resources-1",
+        "method": "filesystem",
+        "references": [],
+        "counts": {
+          "total": 0,
+          "present": 0,
+          "issues": 0
+        },
+        "scope": "CommonMark links and images relative to the SKILL.md directory; queries and fragments are ignored. No HTML, prose/code dependencies, recursive link checking, remote fetches, content validation or execution. Outside paths are not inspected."
+      },
+      "skillOnlyControl": {
+        "schema": "skills-anywhere-resources-1",
+        "method": "selected-files",
+        "references": [],
+        "counts": {
+          "total": 0,
+          "present": 0,
+          "issues": 0
+        },
+        "scope": "CommonMark links and images relative to the SKILL.md directory; queries and fragments are ignored. No HTML, prose/code dependencies, recursive link checking, remote fetches, content validation or execution. Outside paths are not inspected."
+      }
+    },
+    {
+      "name": "anthropic-mcp-builder",
+      "repository": "anthropics/skills",
+      "commit": "33375500bcea98d610eb30ce10ac4e59b89c390d",
+      "directory": "skills/mcp-builder",
+      "original": {
+        "schema": "skills-anywhere-resources-1",
+        "method": "filesystem",
+        "references": [
+          {
+            "url": "./reference/mcp_best_practices.md",
+            "line": 58,
+            "path": "reference/mcp_best_practices.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/node_mcp_server.md",
+            "line": 62,
+            "path": "reference/node_mcp_server.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/python_mcp_server.md",
+            "line": 66,
+            "path": "reference/python_mcp_server.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/node_mcp_server.md",
+            "line": 83,
+            "path": "reference/node_mcp_server.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/python_mcp_server.md",
+            "line": 84,
+            "path": "reference/python_mcp_server.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/evaluation.md",
+            "line": 155,
+            "path": "reference/evaluation.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/mcp_best_practices.md",
+            "line": 204,
+            "path": "reference/mcp_best_practices.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/python_mcp_server.md",
+            "line": 216,
+            "path": "reference/python_mcp_server.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/node_mcp_server.md",
+            "line": 223,
+            "path": "reference/node_mcp_server.md",
+            "status": "present",
+            "kind": "file"
+          },
+          {
+            "url": "./reference/evaluation.md",
+            "line": 231,
+            "path": "reference/evaluation.md",
+            "status": "present",
+            "kind": "file"
+          }
+        ],
+        "counts": {
+          "total": 10,
+          "present": 10,
+          "issues": 0
+        },
+        "scope": "CommonMark links and images relative to the SKILL.md directory; queries and fragments are ignored. No HTML, prose/code dependencies, recursive link checking, remote fetches, content validation or execution. Outside paths are not inspected."
+      },
+      "skillOnlyControl": {
+        "schema": "skills-anywhere-resources-1",
+        "method": "selected-files",
+        "references": [
+          {
+            "url": "./reference/mcp_best_practices.md",
+            "line": 58,
+            "path": "reference/mcp_best_practices.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/node_mcp_server.md",
+            "line": 62,
+            "path": "reference/node_mcp_server.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/python_mcp_server.md",
+            "line": 66,
+            "path": "reference/python_mcp_server.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/node_mcp_server.md",
+            "line": 83,
+            "path": "reference/node_mcp_server.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/python_mcp_server.md",
+            "line": 84,
+            "path": "reference/python_mcp_server.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/evaluation.md",
+            "line": 155,
+            "path": "reference/evaluation.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/mcp_best_practices.md",
+            "line": 204,
+            "path": "reference/mcp_best_practices.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/python_mcp_server.md",
+            "line": 216,
+            "path": "reference/python_mcp_server.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/node_mcp_server.md",
+            "line": 223,
+            "path": "reference/node_mcp_server.md",
+            "status": "missing"
+          },
+          {
+            "url": "./reference/evaluation.md",
+            "line": 231,
+            "path": "reference/evaluation.md",
+            "status": "missing"
+          }
+        ],
+        "counts": {
+          "total": 10,
+          "present": 0,
+          "issues": 10
+        },
+        "scope": "CommonMark links and images relative to the SKILL.md directory; queries and fragments are ignored. No HTML, prose/code dependencies, recursive link checking, remote fetches, content validation or execution. Outside paths are not inspected."
+      }
+    }
+  ]
+}

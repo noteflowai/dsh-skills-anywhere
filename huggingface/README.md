@@ -30,6 +30,15 @@ through DeepSeek Harness or a local MCP server.
 This Space lets you explore the catalog and check files in your browser.
 Your local files stay on your device. No account or model API is needed.
 
+## Check a skill folder
+
+Select a folder to find missing local Markdown link targets before moving a skill.
+Files stay in the browser. The CLI and GitHub Action add a resource gate.
+[Three pinned public examples and exact reports](https://github.com/noteflowai/dsh-skills-anywhere/tree/main/examples/resource-portability)
+cover Cloudflare, Addy Osmani and Anthropic skills; the incomplete installs are explicit controls.
+Browser inventories cannot identify symlinks or empty directories. Prose, code and
+recursive dependencies are outside this check.
+
 ## Start with a task
 
 | Task | Try in this Space | Continue locally |

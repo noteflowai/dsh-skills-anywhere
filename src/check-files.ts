@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { basename, dirname, extname, resolve } from 'node:path'
 import { checkSkill } from './skill-check.ts'
 import { readSkillBytes } from './skill-input.ts'
+import { checkResourceFiles } from './resource-files.ts'
 
 export interface CheckOptions {
   readonly cwd: string
@@ -24,6 +25,8 @@ export interface CheckOptions {
    * `hiddenCharacters` entry rejects the file.
    */
   readonly failOnHiddenCharacters?: boolean
+  readonly resources?: boolean
+  readonly failOnResourceIssues?: boolean
 }
 
 export async function checkFiles(paths: readonly string[], options: CheckOptions) {
@@ -38,6 +41,7 @@ export async function checkFiles(paths: readonly string[], options: CheckOptions
       const raw = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes)
       const fallback = basename(path) === 'SKILL.md' ? basename(dirname(path)) : basename(path, extname(path))
       const report = checkSkill(raw, fallback)
+      const resources = options.resources || options.failOnResourceIssues ? await checkResourceFiles(raw, path) : undefined
       const selected = report[mode]
       const unpinned = report.surface.externalSources.filter(source => !source.pinned).map(source => source.host)
       const hidden = report.surface.hiddenCharacters.length > 0
@@ -45,9 +49,11 @@ export async function checkFiles(paths: readonly string[], options: CheckOptions
         && (!options.failOnRepair || selected.warnings.length === 0)
         && (!options.requirePinnedSources || unpinned.length === 0)
         && (!options.failOnHiddenCharacters || !hidden)
+        && (!options.failOnResourceIssues || resources?.counts.issues === 0)
       files.push({
         path: input, status: passed ? 'passed' as const : 'failed' as const,
         sha256: createHash('sha256').update(bytes).digest('hex'), report,
+        ...(resources ? { resources } : {}),
         ...(options.requirePinnedSources && unpinned.length > 0 ? { unpinnedSources: unpinned } : {}),
       })
     } catch (error) {
@@ -67,7 +73,9 @@ export async function checkFiles(paths: readonly string[], options: CheckOptions
     tool: { name: 'dsh-skills-anywhere', version: pkg.version },
     mode, failOnRepair: options.failOnRepair, requirePinnedSources: options.requirePinnedSources,
     failOnHiddenCharacters: options.failOnHiddenCharacters ?? false, files, counts,
+    resources: Boolean(options.resources || options.failOnResourceIssues),
+    failOnResourceIssues: options.failOnResourceIssues ?? false,
     exitCode: counts.inputErrors > 0 ? 2 : counts.failed > 0 ? 1 : 0,
-    scope: 'Provider parsing, plus an enumeration of external sources, declared tools and hidden characters. No verdict on intent, no payload scanning, no script or client compatibility verification.',
+    scope: 'Provider parsing, plus an enumeration of external sources, declared tools and hidden characters. Optional resource checks inspect CommonMark destinations inside the skill directory. No verdict on intent, no payload scanning, no script or client compatibility verification.',
   }
 }

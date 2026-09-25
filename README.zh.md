@@ -14,6 +14,18 @@
 [![Glama maintenance rating](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere/badges/score.svg)](https://glama.ai/mcp/servers/noteflowai/dsh-skills-anywhere)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## 迁移技能前，先检查附件
+
+检查安装目录中缺失的本地链接，再比较目录变更并通过 MCP 加载。
+[浏览器目录检查](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere#resources) · [三个真实固定版本样例](examples/resource-portability/README.md)。
+
+```sh
+npx dsh-skills-anywhere@0.15.0 check path/to/SKILL.md --resources --json
+```
+
+加上 `--fail-on-resource-issues` 开启 CI 门禁。此功能检查本地 Markdown 链接目标，
+不检查正文中的依赖，也不执行技能。[范围与教程](docs/RESOURCES.md)。
+
 ## 从你的工作流开始
 
 | 需求 | 使用方式 |
@@ -152,7 +164,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.14.0/dsh-skills-anywhere-0.14.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.15.0/dsh-skills-anywhere-0.15.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -259,7 +271,7 @@ dsh 会把每个模型可调用技能的名称和描述放进会话，每次请�
 
 ## CLI
 
-**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.14.0 check
+**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.15.0 check
 skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析器，
 批量检查明确指定的文件，输出带文件摘要的 JSON 报告和 CI 退出码。
 默认严格解析，`--lenient` 接受提供者的修复，`--fail-on-repair` 要求没有修复。

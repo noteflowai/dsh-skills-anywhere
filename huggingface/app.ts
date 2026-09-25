@@ -3,6 +3,7 @@ import { searchSkills } from '../src/search.ts'
 import type { DemoData, DemoSkill } from './types.ts'
 import { installSkillCheck } from './skill-check-ui.ts'
 import { installBundleComparison } from './bundle-ui.ts'
+import { installResourceCheck } from './resource-check-ui.ts'
 
 declare global {
   interface Window {
@@ -13,6 +14,7 @@ declare global {
 
 const data = window.SKILLS_DEMO
 const build = window.SKILLS_BUILD
+installResourceCheck(build)
 const names = new Set(data.skills.map(skill => skill.name))
 const availableCount = data.skills.filter(skill => skill.invocation.modelInvocable).length
 const el = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
