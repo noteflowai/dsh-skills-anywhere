@@ -6,8 +6,8 @@ use the same local parser comparison. Check explicitly named files without
 starting an agent, configuring a provider or running any skill instructions:
 
 ```sh
-npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md
-npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md skills/review.md --json > skill-check.json
+npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md
+npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md skills/review.md --json > skill-check.json
 ```
 
 The default gate uses **strict provider parsing**. Both parsing results are in
@@ -15,9 +15,9 @@ the JSON report, so you can also see the changes that lenient mode would make:
 
 ```sh
 # Accept recoverable frontmatter drift, without modifying the file.
-npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --lenient
+npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --lenient
 # Require acceptance with no reported repairs, including description truncation.
-npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --fail-on-repair
+npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --fail-on-repair
 ```
 
 Every report also enumerates what the skill reaches for, whether or not it
@@ -25,9 +25,9 @@ passes the parsing gate:
 
 ```sh
 # Facts only: external sources and declared tools are reported, never judged.
-npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md
+npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md
 # Address gate: reject references without a recognized full-commit URL.
-npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --require-pinned-sources
+npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --require-pinned-sources
 ```
 
 | Exit | Meaning |
@@ -52,7 +52,9 @@ It has no timestamp, so identical inputs and options produce a stable report.
 
 ## Use in GitHub Actions
 
-Choose the skills maintained by your repository:
+From **0.14.0** the repository is also a GitHub Action. It checks every
+`SKILL.md` that Git tracks, annotates rejected files and repairs on the pull
+request, writes a job summary and saves the JSON report:
 
 ```yaml
 name: Check skills
@@ -64,15 +66,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: noteflowai/dsh-skills-anywhere@v0.14.0 # pin a full commit SHA for immutable CI
+        with:
+          fail-on-repair: true
+```
+
+| Input | Default | Meaning |
+| --- | --- | --- |
+| `files` | `**/SKILL.md` | Newline-separated Git pathspec globs. Tracked files and untracked files that are not ignored are selected, so `node_modules` and other ignored paths are skipped. Lines starting with `:` are passed as pathspecs, for example `:(exclude)vendor/**`. |
+| `lenient` | `false` | Accept recoverable frontmatter drift (`--lenient`). |
+| `fail-on-repair` | `false` | Fail a file that needs any reported repair (`--fail-on-repair`). |
+| `require-pinned-sources` | `false` | Fail unpinned external references (`--require-pinned-sources`). |
+| `allow-empty` | `false` | Pass when nothing matches. By default an empty selection fails with exit code `2`, so a mistyped pattern cannot pass silently. |
+| `report` | `skill-check.json` | Where the JSON report is written. |
+| `version` | the tagged release | npm version of the checker to install. |
+| `node-version` | `24` | Passed to `actions/setup-node`; set `''` to use the runner's Node.js 22.19+ or 24+. |
+
+Outputs are `report`, `passed`, `failed`, `input-errors` and `exit-code`; the
+step exits with the same code as the CLI. Upload the report with
+`actions/upload-artifact` if you want to keep it, including after a failure
+(`if: always()`).
+
+The action installs the pinned npm package with `--ignore-scripts` and runs it
+with Node. It needs no model key, DeepSeek Harness or write permission. Text
+taken from a skill (names, repair messages, tool declarations) is escaped before
+it becomes an annotation or summary cell, so a file under review cannot issue
+workflow commands or render links and images in the job summary.
+
+Without the action, call the CLI directly:
+
+```yaml
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-      - run: npx -y dsh-skills-anywhere@0.11.0 check skills/incident-summary/SKILL.md --fail-on-repair --json > skill-check.json
+      - run: npx -y dsh-skills-anywhere@0.13.0 check skills/incident-summary/SKILL.md --fail-on-repair --json > skill-check.json
 ```
 
-Replace the example path with your own. No model key or DeepSeek Harness
-installation is required. The first `npx` invocation downloads the published
-package; checking after installation is local. Pin the version for repeatable CI.
+No model key or DeepSeek Harness installation is required. The first `npx`
+invocation downloads the published package; checking after installation is
+local. Pin the version for repeatable CI.
 
 ## External sources and declared tools
 

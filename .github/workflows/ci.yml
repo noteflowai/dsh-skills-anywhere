@@ -39,6 +39,44 @@ jobs:
           path: .dsh-showcase/site/
           include-hidden-files: true
           if-no-files-found: error
+  action:
+    name: GitHub Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check the example skills with this checkout's action
+        id: examples
+        uses: ./
+        with:
+          files: examples/**/SKILL.md
+          fail-on-repair: true
+          report: reports/examples.json
+      - name: Write a skill that strict parsing rejects
+        run: |
+          mkdir -p ci-rejected
+          printf -- '---\ndescription: A skill without a name.\n---\nBody.\n' > ci-rejected/SKILL.md
+      - name: Check the rejected skill
+        id: rejected
+        continue-on-error: true
+        uses: ./
+        with:
+          files: ci-rejected/SKILL.md
+          report: reports/rejected.json
+      - name: Verify outcomes, outputs and reports
+        env:
+          EXAMPLES_PASSED: ${{ steps.examples.outputs.passed }}
+          EXAMPLES_EXIT: ${{ steps.examples.outputs.exit-code }}
+          REJECTED_OUTCOME: ${{ steps.rejected.outcome }}
+          REJECTED_EXIT: ${{ steps.rejected.outputs.exit-code }}
+        run: |
+          EXPECTED="$(git ls-files ':(glob)examples/**/SKILL.md' | wc -l)"
+          test "$EXAMPLES_EXIT" = 0 && test "$EXAMPLES_PASSED" = "$EXPECTED"
+          test "$REJECTED_OUTCOME" = failure && test "$REJECTED_EXIT" = 1
+          node -e '
+            const [examples, rejected] = process.argv.slice(1).map(file => JSON.parse(require("fs").readFileSync(file, "utf8")))
+            if (examples.counts.passed !== Number(process.env.EXAMPLES_PASSED) || examples.exitCode !== 0) process.exit(1)
+            if (rejected.files[0].report.strict.reason !== "frontmatter requires name" || rejected.exitCode !== 1) process.exit(1)
+          ' reports/examples.json reports/rejected.json
   check:
     name: Node ${{ matrix.node }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

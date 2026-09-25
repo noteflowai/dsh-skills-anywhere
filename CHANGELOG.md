@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add a GitHub Action: `uses: noteflowai/dsh-skills-anywhere@<tag>` checks every tracked `SKILL.md` (or the Git pathspecs in `files`) with the same strict gate as `check`, annotates rejected files, required repairs and unpinned sources, writes a job summary and a JSON report, and exposes counts and the exit code as outputs. Skill-derived text is escaped before it reaches workflow commands or the summary. An empty selection fails unless `allow-empty` is set.
+- Keep the `npx` pins in both READMEs and `docs/CHECKING.md` in step with the release through `scripts/sync-version.mjs`; they had fallen behind at 0.12.0 and 0.11.0.
+
 ## 0.13.0 — 2026-09-25
 
 - Scan the project-level skill directories that Cursor (`.cursor/skills`), Gemini CLI (`.gemini/skills`), GitHub Copilot (`.github/skills`) and OpenCode (`.opencode/skills`) document, in addition to their user directories. Skills there now appear as `anywhere-project` at rank 250; `excludeAgents` still skips them per agent.
