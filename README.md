@@ -90,7 +90,7 @@ connections separately.
 
 Inside dsh, it registers one extra provider on the built-in `ctx.skills` registry, so the model's normal `skill` tool and `/name` invocation simply see more skills:
 
-- **Predefined agent directories.** Project and user paths for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose and other entries in the [directory registry](src/agents.ts).
+- **Predefined agent directories.** Project and user paths for Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Kiro, Goose, Cline, Kimi CLI, Letta Code and other entries in the [directory registry](src/agents.ts). Over MCP this includes the shared `.agents/skills` convention, so a client that does not read it itself (Claude Code, for example) still sees skills installed there.
 - **Claude Code plugin marketplaces.** The skills nested inside `~/.claude/plugins/marketplaces/*/plugins/*/skills/*`, including the official Anthropic marketplace.
 - **Configured Git sources.** Select a skill repository, subdirectory, branch, tag or commit. The provider maintains a local checkout and records its resolved commit in a lock file.
 - **Local files read in place.** Existing skills are re-read when loaded, without copying them into each client's directory. Git sources use the managed cache described below.
@@ -213,7 +213,11 @@ Lower rank wins a duplicate name inside the dsh registry. The built-in dsh roots
 keep their ranks (`.dsh/skills` 100, `.agents/skills` 200, `~/.dsh/skills` 400,
 `~/.agents/skills` 500). Precedence follows these values across sources; for
 example, an agent's project entry at rank 250 precedes a dsh user entry at 400.
-The built-in `.agents/skills` and `.dsh/skills` roots are not scanned again.
+Inside dsh, the built-in `.agents/skills` and `.dsh/skills` roots are not scanned again.
+The standalone MCP server has no built-in provider beside it, so it also serves the
+shared `.agents/skills` and `~/.agents/skills` (the default location for Codex, Amp,
+Goose, Zed and Letta Code) at those same ranks, 200 and 500. Embedders of
+`createSkillsAnywhereServer` can pass `sharedDirs: false` or exclude the `agents` id.
 
 Run `npx dsh-skills-anywhere agents` for the full agent table and which directories exist on your machine.
 
@@ -392,6 +396,7 @@ Override the row in your profile's `cordis.patch.yml`. A patch replaces the whol
 | `providerName` | `skills-anywhere` | Provider name on `ctx.skills` |
 | `agents` | `true` | Scan other agents' skill directories |
 | `excludeAgents` | `[]` | Agent ids to skip (see `agents` command) |
+| `sharedDirs` | `false` in dsh, `true` for the MCP server | Also scan `.agents/skills` and `~/.agents/skills`, which dsh's built-in provider already reads |
 | `extraProjectDirs` | `[]` | Additional project-relative skill directories |
 | `extraUserDirs` | `[]` | Additional absolute or `~/` skill directories |
 | `claudePlugins` | `true` | Scan Claude Code plugin marketplaces and cache |

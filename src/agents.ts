@@ -2,10 +2,13 @@
  * Where other coding agents keep their Agent Skills.
  *
  * The table follows the conventions catalogued by the `skills` CLI
- * (https://github.com/vercel-labs/skills) and each agent's own docs. Two rows
- * are deliberately absent because the shipped `@deepseek-ai/dsh-skill-filesystem`
- * provider already scans them: `.agents/skills` (project and `~/.agents/skills`)
- * and `.dsh/skills`. Re-scanning them here would only produce duplicates.
+ * (https://github.com/vercel-labs/skills) and each agent's own docs.
+ *
+ * The shared `.agents/skills` row (project and `~/.agents/skills`) is marked
+ * `shared`: inside dsh the shipped `@deepseek-ai/dsh-skill-filesystem` provider
+ * already scans it, so re-scanning would only produce duplicates. Outside dsh
+ * nothing else reads it, so the standalone MCP server does (`sharedDirs`).
+ * `.dsh/skills` stays dsh's own.
  *
  * `project` is relative to the project root (nearest ancestor with `.git`, else
  * the cwd). `user` is relative to the home directory. Either may be absent.
@@ -22,9 +25,14 @@ export interface AgentSpec {
   readonly project?: string
   /** User-level skills directory, relative to the home directory. */
   readonly user?: string
+  /** Cross-client directory that dsh's built-in provider already reads; scanned only with `sharedDirs`. */
+  readonly shared?: boolean
 }
 
 export const AGENTS: readonly AgentSpec[] = [
+  // https://agentskills.io/client-implementation/adding-skills-support: the default for Codex, Amp,
+  // Goose, Zed and Letta, and also read by Cursor, Gemini CLI, Copilot, OpenCode, Cline, Roo and others.
+  { id: 'agents', label: 'Shared .agents (Codex, Amp, Goose, Zed, ...)', project: '.agents/skills', user: '.agents/skills', shared: true },
   { id: 'claude-code', label: 'Claude Code', project: '.claude/skills', user: '.claude/skills' },
   { id: 'codex', label: 'OpenAI Codex', user: '.codex/skills' },
   // Project directories below follow each agent's own docs:
@@ -43,14 +51,20 @@ export const AGENTS: readonly AgentSpec[] = [
   { id: 'grok', label: 'Grok Build', project: '.grok/skills', user: '.grok/skills' },
   { id: 'hermes-agent', label: 'Hermes Agent', project: '.hermes/skills', user: '.hermes/skills' },
   { id: 'roo', label: 'Roo Code', project: '.roo/skills', user: '.roo/skills' },
-  { id: 'cline', label: 'Cline', user: '.cline/skills' },
+  // https://github.com/cline/cline/blob/main/apps/vscode/src/core/storage/skill-directories.ts
+  { id: 'cline', label: 'Cline', project: '.cline/skills', user: '.cline/skills' },
+  { id: 'cline-rules', label: 'Cline (.clinerules)', project: '.clinerules/skills' },
   { id: 'continue', label: 'Continue', project: '.continue/skills', user: '.continue/skills' },
   { id: 'junie', label: 'Junie', project: '.junie/skills', user: '.junie/skills' },
   { id: 'qwen-code', label: 'Qwen Code', project: '.qwen/skills', user: '.qwen/skills' },
   { id: 'trae', label: 'Trae', project: '.trae/skills', user: '.trae/skills' },
   { id: 'trae-cn', label: 'Trae CN', user: '.trae-cn/skills' },
   { id: 'augment', label: 'Augment', project: '.augment/skills', user: '.augment/skills' },
-  { id: 'droid', label: 'Droid (Factory)', user: '.factory/skills' },
+  // https://docs.factory.ai/cli/configuration/skills
+  { id: 'droid', label: 'Droid (Factory)', project: '.factory/skills', user: '.factory/skills' },
+  // https://moonshotai.github.io/kimi-cli/en/customization/skills.html, https://docs.letta.com/letta-code/skills/
+  { id: 'kimi-cli', label: 'Kimi CLI', project: '.kimi/skills', user: '.kimi/skills' },
+  { id: 'letta-code', label: 'Letta Code', user: '.letta/skills' },
   { id: 'kilo', label: 'Kilo Code', user: '.kilo/skills' },
   { id: 'deepagents', label: 'Deep Agents', user: '.deepagents/agent/skills' },
   { id: 'devin', label: 'Devin for Terminal', project: '.devin/skills', user: '.config/devin/skills' },
