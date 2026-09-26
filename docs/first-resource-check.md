@@ -43,9 +43,11 @@ npx --yes dsh-skills-anywhere@0.15.0 check review-skill/SKILL.md --fail-on-resou
 establishes that the referenced file is available; it does not assess the
 instructions, the checklist's quality or an agent's performance.
 
-In the browser, choose `review-skill` with **Open a skill folder** before and
+In the browser, choose `review-skill` with **Open your skill folder** before and
 after restoring the file. Download the resource report to keep the finding.
-The file contents and names stay in the browser.
+The file contents and names stay in the browser. Downloaded JSON reports identify
+their input as `authored-example` or `local-folder`; result images also state the
+input kind while omitting file names.
 
 ## 3. Use the check in a pull request
 

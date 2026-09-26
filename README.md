@@ -82,6 +82,8 @@ or DeepSeek Harness installation is needed.
 
 ## Try it in your browser
 
+The homepage opens with an authored resource check. Choose a skill folder to check your own links, then **Save result image** for a shareable summary of counts and scope. Images omit file names; the JSON report retains the paths needed for review.
+
 **[Try the interactive Hugging Face playground](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere)** — explore an example workspace, resolve name clashes, and search beyond the catalog budget. No installation or model API needed. [How it works](docs/HUGGINGFACE.md).
 
 Inspect skill instructions, compare directory manifests and share catalog views.

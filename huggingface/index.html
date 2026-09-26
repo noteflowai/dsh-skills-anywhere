@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore a sample Agent Skills workspace. Inspect sources, solve name collisions, and keep the model catalog focused.">
-  <title>Skills Anywhere &middot; A shared home for your skills</title>
+  <meta name="description" content="Check the files behind an Agent Skill. Find missing local references, compare bundles, and load skills across your tools. Your files stay local.">
+  <title>Skills Anywhere &middot; One skill. All its files.</title>
+  <meta property="og:title" content="Skills Anywhere | One skill. All its files.">
+  <meta property="og:description" content="Check the files behind an Agent Skill, directly in your browser. Local files stay local.">
+  <meta property="og:image" content="https://glayguo-dsh-skills-anywhere.static.hf.space/thumbnail.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="style.css">
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
@@ -20,24 +24,31 @@
       <section class="hero">
         <div>
           <div class="eyebrow"><span class="live-dot"></span> DISCOVER &middot; REVIEW &middot; LOAD</div>
-          <h1>Move a skill.<br><span>Check its files.</span></h1>
-          <p class="lede">Find missing local links before an agent needs them.<br class="wide-only"> Review supporting files and bundle changes,<br>then load skills across your tools.</p>
-          <a class="primary" href="#resources">Check a skill folder <span aria-hidden="true">&#8595;</span></a>
-          <p class="hero-note">Browser demo &middot; Local files stay on your device &middot; MIT</p>
-          <a id="robot-start" href="#workspace">Try the Microduck review workflow &#8594;</a>
-          <p><a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/examples/resource-portability/README.md">See three pinned public skill examples &#8599;</a></p>
+          <h1>One skill.<br><span>All its files.</span></h1>
+          <p class="lede">A skill is more than SKILL.md. Find missing references before you move it to another agent.</p>
+          <a class="primary" href="#resources">Try the file check <span aria-hidden="true">&#8594;</span></a>
+          <p class="hero-note">Runs in your browser &middot; No account or install</p>
         </div>
-        <div class="orbit" aria-label="Skills from coding-agent directories and plugin marketplaces flow into a shared pool">
-          <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
-          <div class="source-chip chip-one"><i>C</i> Claude Code <small>project</small></div>
-          <div class="source-chip chip-two"><i>&gt;_</i> Codex <small>user</small></div>
-          <div class="source-chip chip-three"><i>&#8599;</i> Cursor <small>user</small></div>
-          <div class="source-chip chip-four"><i>&#10022;</i> Gemini CLI <small>user</small></div>
-          <div class="source-chip chip-five"><i>+</i> Plugins <small>marketplace</small></div>
-          <div class="orbit-center"><span aria-hidden="true">&#10035;</span><strong>One skill pool</strong><small>dsh + MCP</small></div>
-          <span class="orbit-caption">Read where they live. Load when needed.</span>
-        </div>
+      <section class="local-check resource-console" id="resources" aria-labelledby="resources-title">
+        <div class="eyebrow">LIVE RESOURCE CHECK</div>
+        <h2 id="resources-title">The files behind the skill.</h2>
+        <div id="resources-summary" class="resource-summary" hidden><div><span id="resources-origin">Authored example</span><strong><span id="resources-present">1</span><small> / <span id="resources-total">3</span></small></strong><span>local link targets present</span></div><div class="resource-issue-count"><strong id="resources-issues">2</strong><span>need review</span></div></div>
+        <p class="section-intro">Try the example, or open a folder containing SKILL.md. The check reads its Markdown links and your file inventory locally.</p>
+        <div class="resource-picker"><label for="resources-folder">Open your skill folder <input id="resources-folder" type="file" webkitdirectory multiple></label></div>
+        <div class="lab-actions"><button id="resources-example" type="button">Reset example</button><button id="resources-clear" type="button">Clear local folder</button><button id="resources-download" type="button" disabled>Download resource report</button><button id="resources-image" type="button" disabled>Save result image</button></div>
+
+        <p id="resources-status" class="muted" role="status">Choose a skill folder containing SKILL.md. Its files stay in this page.</p>
+        <div id="resources-results" class="resource-table" hidden><table><thead><tr><th>Line</th><th>Link target</th><th>Result</th></tr></thead><tbody id="resources-rows"></tbody></table></div>
+        <p class="resource-privacy">Files stay on your device. Result images omit file names.</p>
+        <details class="diagnostics"><summary>Scope and command-line checks</summary>
+          <p>Checks CommonMark links, reference links and images relative to SKILL.md. Prose, code, HTML, remote URLs and nested resource contents are not dependency-scanned. Queries and fragments are ignored. A folder inventory cannot identify symlinks or empty directories; the CLI inspects filesystem metadata and reports symlinks separately.</p>
+          <pre tabindex="0">dsh-skills-anywhere check path/to/SKILL.md --resources --json
+dsh-skills-anywhere check path/to/SKILL.md --fail-on-resource-issues</pre>
+          <p><a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/RESOURCES.md">Use resource checks in CI and inspect three pinned public skills &nearr;</a></p>
+        </details>
       </section>
+      </section>
+      <div class="hero-extras"><a id="robot-start" href="#workspace">Try the Microduck review workflow &#8594;</a><p><a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/examples/resource-portability/README.md">See three pinned public skill examples &#8599;</a></p></div>
       <section class="facts" aria-label="Project capabilities">
         <div><strong id="agent-count">68</strong><span>agent directory definitions</span></div>
         <div><strong>In place</strong><span>read local skill directories</span></div>
@@ -119,21 +130,7 @@
   </video>
   <p>Four annotated views of the actual interface. No audio or new model run. <a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/first-resource-check.md" target="_blank" rel="noopener noreferrer">Run the first review locally &nearr;</a> &middot; <a href="ai-first-review.vtt">Transcript</a> &middot; <a href="ai-first-review-media.json">Source hashes</a></p>
 </details>
-      <section class="local-check" id="resources" aria-labelledby="resources-title">
-        <div class="eyebrow">MOVE THE SKILL. KEEP ITS REFERENCES.</div>
-        <h2 id="resources-title">Did the supporting files come along?</h2>
-        <p class="section-intro">Choose the folder that directly contains SKILL.md. Check whether its Markdown links and images point to files inside that folder, including after a per-skill install. Only SKILL.md is read; supporting file names stay local.</p>
-        <label for="resources-folder">Open a skill folder <input id="resources-folder" type="file" webkitdirectory multiple></label>
-        <div class="lab-actions"><button id="resources-example" type="button">Try a missing-file example</button><button id="resources-clear" type="button">Clear local folder</button><button id="resources-download" type="button" disabled>Download resource report</button></div>
-        <p id="resources-status" class="muted" role="status">Choose a skill folder containing SKILL.md. Its files stay in this page.</p>
-        <div id="resources-results" class="resource-table" hidden><table><thead><tr><th>Line</th><th>Link target</th><th>Result</th></tr></thead><tbody id="resources-rows"></tbody></table></div>
-        <details class="diagnostics"><summary>Scope and command-line checks</summary>
-          <p>Checks CommonMark links, reference links and images relative to SKILL.md. Prose, code, HTML, remote URLs and nested resource contents are not dependency-scanned. Queries and fragments are ignored. A folder inventory cannot identify symlinks or empty directories; the CLI inspects filesystem metadata and reports symlinks separately.</p>
-          <pre tabindex="0">dsh-skills-anywhere check path/to/SKILL.md --resources --json
-dsh-skills-anywhere check path/to/SKILL.md --fail-on-resource-issues</pre>
-          <p><a href="https://github.com/noteflowai/dsh-skills-anywhere/blob/main/docs/RESOURCES.md">Use resource checks in CI and inspect three pinned public skills &nearr;</a></p>
-        </details>
-      </section>
+
       <section class="local-check" id="check" aria-labelledby="check-title">
         <div class="eyebrow">BRING ONE FILE. SEE BOTH MODES.</div>
         <h2 id="check-title">How will your skill be read?</h2>
