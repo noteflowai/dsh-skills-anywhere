@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.16.0 — 2026-09-28
+
+- validate a recorded skill pick against the installed, openable shortlist. The CLI has a new command, route, with two steps. It checks a skill pick made by a classifier, an LLM or a person against the skills installed on this machine. 'route prepare <task>' runs the same discovery as list and ranks every skill by keyword with searchSkills. It then removes skills that open_skill would refuse, and only after that keeps the first 8. The output is a skills-anywhere-route-request-1 document. Each candidate has an id, description, origin, SKILL.md path and contentHash. The request also has a reserved '_none' no-match option, which can never be a valid skill name, and a choice question with criteria. An empty task, or a task with no openable match, exits 2 with a hint to try other keywords. 'route apply --request <file> --response <file> [--min-confidence X]' reads the recorded {choice, confidence?, model?} as untrusted data. Other keys are ignored and not echoed. It reports exactly one outcome: - selected (exit 0): name, origin and SKILL.md path. - no_match (exit 0). - abstain (exit 0): confidence is missing or below the threshold. - stale (exit 1): the skill was deleted, is no longer openable, or its path or content hash changed since prepare. - invalid_input (exit 2). A bad --min-confidence, or route options used on other commands, is a usage error that exits 2. Human output is one line with a recovery hint, with input-derived strings JSON-escaped. --json prints a skills-anywhere-route-result-1 document. Nothing is loaded, executed or sent over the network.
+
 ## 0.15.0
 
 - Check local Markdown resources with `check --resources`; use `--fail-on-resource-issues` for an explicit CLI/Action gate.

@@ -20,7 +20,7 @@ Find missing supporting files in the installed folder, then review bundle change
 before loading it through MCP. [Browser folder check](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere#resources) · [Three pinned public examples](examples/resource-portability/README.md).
 
 ```sh
-npx dsh-skills-anywhere@0.15.0 check path/to/SKILL.md --resources --json
+npx dsh-skills-anywhere@0.16.0 check path/to/SKILL.md --resources --json
 ```
 
 Add `--fail-on-resource-issues` to gate CI. This checks local Markdown link targets;
@@ -196,7 +196,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>Install from a git checkout or a release tarball instead of npm</summary>
 
-Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.15.0/dsh-skills-anywhere-0.15.0.tgz`). If you want an unreleased commit:
+Every [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) carries a prebuilt tarball, and both `dsh plugin add` and `npx` accept its URL directly (`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.16.0/dsh-skills-anywhere-0.16.0.tgz`). If you want an unreleased commit:
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -309,7 +309,7 @@ Author-disabled skills never count against the budget. Which skills stay listed 
 
 ## CLI
 
-**Check before committing.** Run `npx -y dsh-skills-anywhere@0.15.0 check
+**Check before committing.** Run `npx -y dsh-skills-anywhere@0.16.0 check
 skills/example/SKILL.md --fail-on-repair`. The same parser used in the playground
 provides batch file checks, JSON reports with file hashes, and CI exit codes.
 Checks read only the named files. In GitHub Actions, `uses: noteflowai/dsh-skills-anywhere`
@@ -326,7 +326,43 @@ dsh-skills-anywhere sync [--force] [--json]   Clone or refresh every source now
 dsh-skills-anywhere doctor [--json]           Repaired, skipped, renamed and duplicate skills, with reasons
 dsh-skills-anywhere check <files...> [--json] Explicit local files; strict parser gate by default
 dsh-skills-anywhere mcp                       Serve skills to configured clients over stdio MCP
+dsh-skills-anywhere route prepare <task> [--json]   Typed choice request over installed, openable skills
+dsh-skills-anywhere route apply --request <file> --response <file> [--min-confidence <x>] [--json]
 ```
+
+### Validate a recorded skill pick
+
+When a classifier, an LLM or a person picks a skill for a task, `route` checks
+that pick against the skills installed here. `route prepare` ranks every
+discovered skill with the same keyword search as `find_skills`, drops skills
+that `open_skill` would refuse, and only then keeps the first 8 as a typed
+choice request (`skills-anywhere-route-request-1`). The reserved `_none` option
+means "no listed skill fits" and can never be a skill name. Each candidate
+records its origin, SKILL.md path and content hash. Your decider writes a
+response; `route apply` reads it as untrusted data and reports exactly one
+outcome. Nothing is loaded, executed or sent over the network.
+
+```sh
+dsh-skills-anywhere route prepare "fill pdf forms" --json > req.json
+# Your decider writes resp.json, for example:
+# {"choice": "pdf-forms", "confidence": 0.86, "model": "example"}
+dsh-skills-anywhere route apply --request req.json --response resp.json --min-confidence 0.7
+```
+
+| Outcome | Exit | Meaning |
+| --- | --- | --- |
+| `selected` | 0 | Confidence meets the threshold; prints the skill's name, origin and SKILL.md path to open |
+| `no_match` | 0 | The decider chose `_none` at or above the threshold |
+| `abstain` | 0 | No confidence reported, or below `--min-confidence` |
+| `stale` | 1 | Since prepare, the chosen skill was deleted, stopped being openable, or its SKILL.md path or content hash changed (edited, or another origin took over the name). Run prepare again |
+| `invalid_input` | 2 | Unreadable or non-JSON file, wrong request schema, a choice outside the options, or a confidence that is not a number from 0 to 1 |
+
+An invalid `--min-confidence`, or `--request`/`--response`/`--min-confidence`
+on another command, also exits 2. The default of 0.7 is an uncalibrated
+placeholder, so pick a threshold from your own decider's held-out results.
+`--json` prints `skills-anywhere-route-result-1` with the outcome, choice,
+confidence, threshold and `model` (provenance only); other response keys are
+ignored. Request files contain absolute paths from this machine.
 
 All commands accept `--cwd <dir>`. For `check`, it resolves the named files; other
 commands use it to pick the project. `check --lenient` accepts provider repairs;

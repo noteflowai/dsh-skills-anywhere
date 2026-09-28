@@ -6,8 +6,9 @@
  * @module
  */
 
+import { readFile } from 'node:fs/promises'
 import { parseArgs } from 'node:util'
-import { isAbsolute, relative, sep } from 'node:path'
+import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { AGENTS } from './agents.ts'
 import { projectSourcesFile, resolveConfig, type ResolvedConfig } from './config.ts'
 import { findProjectRoot, type DiscoveryReport } from './discover.ts'
@@ -16,6 +17,9 @@ import { SkillsAnywhereProvider } from './provider.ts'
 import {
   hasGit, readLock, readSourcesFile, resolveSource, sameRepository, writeSourcesFile, type ResolvedSource, type SourceSpec,
 } from './sources.ts'
+import {
+  buildRouteRequest, evaluateRoute, formatRouteLine, invalidRoute, parseMinConfidence, routeExitCode, type RouteRequest,
+} from './route.ts'
 
 const HELP = `dsh-skills-anywhere — your skills, anywhere.
 
@@ -33,6 +37,8 @@ Commands
   check <files...>      Check explicit Markdown files locally (strict by default)
   bundle <directory>   Fingerprint a skill directory or compare a reviewed manifest
   mcp                  Serve the same skills to any MCP client over stdio
+  route prepare <task> Shortlist installed, openable skills as a typed choice request
+  route apply          Validate a recorded pick: --request <file> --response <file>
 
 Options
   --cwd <dir>          Project directory (default: current directory)
@@ -50,6 +56,9 @@ Options
   --resources          check: inspect local Markdown link targets inside each skill directory
   --fail-on-resource-issues  check: require every local link target to be present (implies --resources)
   --against <file>      bundle: compare with a saved manifest outside the directory
+  --request <file>     route apply: request written by route prepare --json
+  --response <file>    route apply: recorded decider response {choice, confidence?, model?}
+  --min-confidence <x> route apply: abstain below this confidence, 0..1 (default 0.7, uncalibrated)
   -h, --help           Show this help
 `
 
@@ -89,6 +98,9 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
         resources: { type: 'boolean', default: false },
         'fail-on-resource-issues': { type: 'boolean', default: false },
         against: { type: 'string' },
+        request: { type: 'string' },
+        response: { type: 'string' },
+        'min-confidence': { type: 'string' },
       },
     })
   } catch (error) {
@@ -107,6 +119,10 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
   }
   if (command !== 'check' && (parsed.values.lenient || parsed.values['fail-on-repair'] || parsed.values['require-pinned-sources'] || parsed.values['fail-on-hidden-characters'] || parsed.values.resources || parsed.values['fail-on-resource-issues'])) {
     console.error('--lenient, --fail-on-repair, --require-pinned-sources, --fail-on-hidden-characters, --resources and --fail-on-resource-issues are only available for check.')
+    return 2
+  }
+  if (command !== 'route' && (parsed.values.request !== undefined || parsed.values.response !== undefined || parsed.values['min-confidence'] !== undefined)) {
+    console.error('--request, --response and --min-confidence are only available for route apply.')
     return 2
   }
   if (command === 'bundle') {
@@ -197,6 +213,11 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     case 'sync': return await sync(cli, config)
     case 'doctor': return await doctor(cli, config)
     case 'mcp': return await mcp(cli)
+    case 'route': return await route(cli, config, {
+      ...(parsed.values.request !== undefined ? { request: parsed.values.request } : {}),
+      ...(parsed.values.response !== undefined ? { response: parsed.values.response } : {}),
+      ...(parsed.values['min-confidence'] !== undefined ? { minConfidence: parsed.values['min-confidence'] } : {}),
+    })
     default:
       console.error(`unknown command "${command}"\n`)
       console.error(HELP)
@@ -495,6 +516,104 @@ async function doctor(cli: Cli, config: ResolvedConfig): Promise<number> {
   }
   if (!report.complete) console.log('\nWARNING: at least one root could not be read completely; see messages above.')
   return 0
+}
+
+const ROUTE_USAGE = 'usage: dsh-skills-anywhere route prepare <task> [--json]\n' +
+  '       dsh-skills-anywhere route apply --request <file> --response <file> [--min-confidence <0..1>] [--json]'
+
+interface RouteOptions {
+  readonly request?: string
+  readonly response?: string
+  readonly minConfidence?: string
+}
+
+async function route(cli: Cli, config: ResolvedConfig, options: RouteOptions): Promise<number> {
+  const [step, ...rest] = cli.positional
+  if (step === 'prepare') return await routePrepare(cli, config, rest, options)
+  if (step === 'apply') return await routeApply(cli, config, rest, options)
+  console.error(ROUTE_USAGE)
+  return 2
+}
+
+async function routePrepare(cli: Cli, config: ResolvedConfig, words: readonly string[], options: RouteOptions): Promise<number> {
+  if (options.request !== undefined || options.response !== undefined || options.minConfidence !== undefined) {
+    console.error('--request, --response and --min-confidence are only available for route apply.')
+    return 2
+  }
+  const task = words.join(' ').trim()
+  if (task === '') {
+    console.error('Describe the task in a few keywords, for example: dsh-skills-anywhere route prepare "fill pdf forms"')
+    console.error(ROUTE_USAGE)
+    return 2
+  }
+  const { report, sourceDirs } = await collectWithSources(cli, config)
+  const built = buildRouteRequest(report.skills, task, await toolInfo())
+  if (!built.ok) {
+    console.error(`No openable skill matches ${JSON.stringify(task)}. Try other keywords, or run dsh-skills-anywhere list to see what is installed.`)
+    return 2
+  }
+  const { request } = built
+  if (cli.json) {
+    console.log(JSON.stringify(request, null, 2))
+    return 0
+  }
+  console.log(table([
+    ['ID', 'FROM', 'PATH'],
+    ...request.candidates.map(candidate => [candidate.id, candidate.origin, displayPath(candidate.path, config, sourceDirs)]),
+  ]))
+  const count = request.candidates.length
+  console.log(`\n${count} openable candidate${count === 1 ? '' : 's'} for ${JSON.stringify(task)}, plus "${request.noMatch}" for no match.`)
+  console.log('Next: save this request with --json, have your decider write {"choice": "<id>", "confidence": <0..1>}, then run dsh-skills-anywhere route apply --request <file> --response <file>')
+  return 0
+}
+
+async function routeApply(cli: Cli, config: ResolvedConfig, extra: readonly string[], options: RouteOptions): Promise<number> {
+  if (extra.length > 0 || options.request === undefined || options.response === undefined) {
+    console.error(ROUTE_USAGE)
+    return 2
+  }
+  const threshold = parseMinConfidence(options.minConfidence)
+  if (!threshold.ok) {
+    console.error(threshold.reason)
+    return 2
+  }
+  const request = await readJsonFile(resolve(cli.cwd, options.request))
+  const response = await readJsonFile(resolve(cli.cwd, options.response))
+  const result = !request.ok
+    ? invalidRoute(`request file ${JSON.stringify(options.request)} ${request.reason}`, threshold.value)
+    : !response.ok
+      ? invalidRoute(`response file ${JSON.stringify(options.response)} ${response.reason}`, threshold.value)
+      : evaluateRoute(request.value, response.value, threshold.value, (await collect(cli, config)).skills)
+  console.log(cli.json ? JSON.stringify(result, null, 2) : formatRouteLine(result))
+  return routeExitCode(result)
+}
+
+/** Read a user-supplied JSON file; the error never echoes file content. */
+async function readJsonFile(file: string): Promise<{ ok: true; value: unknown } | { ok: false; reason: string }> {
+  let text: string
+  try {
+    text = await readFile(file, 'utf8')
+  } catch {
+    return { ok: false, reason: 'cannot be read' }
+  }
+  try {
+    return { ok: true, value: JSON.parse(text) as unknown }
+  } catch {
+    return { ok: false, reason: 'is not valid JSON' }
+  }
+}
+
+/** Package name and version for request provenance; the version is informational. */
+async function toolInfo(): Promise<RouteRequest['tool']> {
+  try {
+    const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')) as { name?: unknown; version?: unknown }
+    if (manifest.name === 'dsh-skills-anywhere' && typeof manifest.version === 'string') {
+      return { name: 'dsh-skills-anywhere', version: manifest.version }
+    }
+  } catch {
+    // Missing or unreadable manifest: report no version rather than guess.
+  }
+  return { name: 'dsh-skills-anywhere', version: null }
 }
 
 async function mcp(cli: Cli): Promise<number> {
