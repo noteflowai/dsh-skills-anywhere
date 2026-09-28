@@ -20,7 +20,7 @@
 [浏览器目录检查](https://huggingface.co/spaces/glayguo/dsh-skills-anywhere#resources) · [三个真实固定版本样例](examples/resource-portability/README.md)。
 
 ```sh
-npx dsh-skills-anywhere@0.15.0 check path/to/SKILL.md --resources --json
+npx dsh-skills-anywhere@0.16.0 check path/to/SKILL.md --resources --json
 ```
 
 加上 `--fail-on-resource-issues` 开启 CI 门禁。此功能检查本地 Markdown 链接目标，
@@ -116,6 +116,35 @@ dsh plugin --profile web add dsh-skills-anywhere
 并对 `discord/configure`、`telegram/configure` 等**重名条目**添加前缀。
 CLI 展示实际发布的目录、跳过的条目及每项变更的原因。
 
+## 校验记录的技能选择
+
+当分类器、LLM 或人工为某个任务选定技能时，`route` 会对照本机已安装的技能校验这个选择。
+`route prepare` 用与 `find_skills` 相同的关键词搜索对所有已发现的技能排序，先去掉
+`open_skill` 会拒绝的技能，再保留前 8 个，生成类型化的选择请求
+（`skills-anywhere-route-request-1`）。保留选项 `_none` 表示“没有合适的技能”，
+它永远不会是合法的技能名。每个候选都记录来源、SKILL.md 路径和内容哈希。决策方写出响应后，
+`route apply` 把它当作不可信数据读取，并只报告一种结果。整个过程不加载、不执行技能，也不访问网络。
+
+```sh
+dsh-skills-anywhere route prepare "fill pdf forms" --json > req.json
+# 由决策方写出 resp.json，例如：
+# {"choice": "pdf-forms", "confidence": 0.86, "model": "example"}
+dsh-skills-anywhere route apply --request req.json --response resp.json --min-confidence 0.7
+```
+
+| 结果 | 退出码 | 含义 |
+| --- | --- | --- |
+| `selected` | 0 | 置信度达到阈值；输出要打开的技能名、来源和 SKILL.md 路径 |
+| `no_match` | 0 | 决策方以不低于阈值的置信度选择了 `_none` |
+| `abstain` | 0 | 响应未给出置信度，或置信度低于 `--min-confidence` |
+| `stale` | 1 | prepare 之后，所选技能被删除、不再可打开，或其 SKILL.md 路径或内容哈希发生变化（内容被编辑，或同名技能被其他来源取代）；请重新运行 prepare |
+| `invalid_input` | 2 | 文件无法读取或不是 JSON、请求 schema 不对、选择不在选项内，或置信度不是 0 到 1 之间的数字 |
+
+`--min-confidence` 取值无效，或在其他命令上使用 `--request`/`--response`/`--min-confidence`，
+同样以退出码 2 结束。默认值 0.7 只是未经校准的占位值，请根据自己决策方在保留测试集上的结果选择阈值。
+`--json` 输出 `skills-anywhere-route-result-1`，包含结果、选择、置信度、阈值和 `model`（仅作来源记录）；
+响应中的其他字段会被忽略。请求文件包含本机的绝对路径。
+
 ## 检查技能交付
 
 成功的 MCP `open_skill` 调用返回加载回执，关联已交付的指令正文、原始 SKILL.md
@@ -173,7 +202,7 @@ skill-creator        claude plugin skill-creator @ claude-plugins-official   ~/.
 <details>
 <summary>不用 npm：从 git 检出或 release tarball 安装</summary>
 
-每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.15.0/dsh-skills-anywhere-0.15.0.tgz`）。若需要尚未发布的提交：
+每个 [GitHub release](https://github.com/noteflowai/dsh-skills-anywhere/releases) 都附带预构建的 tarball，`dsh plugin add` 和 `npx` 都可以直接使用它的 URL（`https://github.com/noteflowai/dsh-skills-anywhere/releases/download/v0.16.0/dsh-skills-anywhere-0.16.0.tgz`）。若需要尚未发布的提交：
 
 ```sh
 dsh plugin --profile web add github:noteflowai/dsh-skills-anywhere
@@ -280,7 +309,7 @@ dsh 会把每个模型可调用技能的名称和描述放进会话，每次请�
 
 ## CLI
 
-**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.15.0 check
+**提交前检查技能。** 运行 `npx -y dsh-skills-anywhere@0.16.0 check
 skills/example/SKILL.md --fail-on-repair`，使用与在线体验相同的解析器，
 批量检查明确指定的文件，输出带文件摘要的 JSON 报告和 CI 退出码。
 默认严格解析，`--lenient` 接受提供者的修复，`--fail-on-repair` 要求没有修复。
