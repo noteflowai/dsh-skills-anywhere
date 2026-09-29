@@ -16,6 +16,14 @@ Reviewed `29917a9` / v0.16.0. Local/Git catalogs, package validation, dsh provid
 
 The open compatibility request is a way to collect demand; it is not evidence that every client integration is needed. External multi-client success and recurring usage are not yet measured in this review.
 
+## External evidence and positioning — reviewed 2026-09-29
+
+The [Agent Skills specification](https://agentskills.io/specification) defines package structure and progressive loading. [Vercel's skills CLI](https://github.com/vercel-labs/skills) already handles discovery, installation, updates and many clients. Client count, another registry or basic installation is not sufficient differentiation.
+
+The existing dsh/MCP delivery and resource/load receipts are the candidate advantage for clients without equivalent native loading. Compare SA-01/SA-03 against a native or Vercel-installed path using the same package and resource-dependent task. Record actual loaded revision/resources, setup time and compatibility failures. Preserve the distinction between declared `allowed-tools` metadata and enforced runtime permissions.
+
+Use the upstream [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref) validator as a pinned comparison fixture, alongside the normative specification; its README explicitly labels it demonstration-only, so it is not a production dependency recommendation. Within 30 days, seek two client combinations with a demonstrated recurring gap. If native clients cover the need, concentrate on compatibility fixes or upstream contributions rather than a larger catalog.
+
 ## Now
 
 | ID | Outcome | Acceptance evidence |
