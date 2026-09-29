@@ -1,5 +1,7 @@
 # dsh-skills-anywhere
 
+Product direction and acceptance milestones: [Roadmap](ROADMAP.md).
+
 **Discover and load skills across your tools.** Collect [Agent Skills](https://agentskills.io)
 from local directories and configured Git sources into one catalog, available
 through a live [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
