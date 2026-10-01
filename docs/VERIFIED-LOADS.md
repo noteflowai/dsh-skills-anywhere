@@ -39,7 +39,8 @@ Symlinked skill installations remain supported.
 The digest identifies this file's bytes. It does not certify safe instructions,
 authenticate an author, pin scripts/references beside the file, or prove model
 compliance. For a complete dependency snapshot, also pin the Git source commit
-and review the resources the skill will use. The browser checker's report is
+and review the resources the skill will use. MCP `open_skill` receipts record
+that commit as `source_commit` ([details](LOAD-RECEIPTS.md#source-commit)). The browser checker's report is
 for parser inspection; use the CLI's original-byte hash for this workflow.
 
 ## Include scripts and resources (0.9+)
