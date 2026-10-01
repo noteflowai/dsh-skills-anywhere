@@ -29,6 +29,7 @@ import { originLabel } from './origin.ts'
 import { isSkillName, parseSkillMarkdown } from './frontmatter.ts'
 import { SkillsAnywhereProvider, type ProviderLogger } from './provider.ts'
 import { searchSkills } from './search.ts'
+import { sourceCommit } from './source-commit.ts'
 
 export interface McpOptions {
   /** Project directory that selects project-level skill roots and sources. */
@@ -289,6 +290,11 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
   })
 
   async function lookup(name: string, includeBundle = false): Promise<OpenedSkill> {
+    return (await lookupDiscovered(name, includeBundle)).opened
+  }
+
+  /** Like lookup, but also returns the discovered entry (its origin decides the source commit). */
+  async function lookupDiscovered(name: string, includeBundle = false): Promise<{ opened: OpenedSkill; discovered: DiscoveredSkill }> {
     if (!isSkillName(name)) throw new Error(`invalid skill name "${name}"`)
     let report = await refresh()
     let skill = report.skills.find(entry => entry.name === name)
@@ -301,7 +307,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
     if (!skill.invocation.modelInvocable) throw new Error(`skill "${name}" is not available for model invocation (disabled by its author)`)
     const opened = await openSkill(skill, config.lenient, includeBundle)
     if (opened === undefined) throw new Error(`skill "${name}" is no longer readable at ${skill.path}`)
-    return opened
+    return { opened, discovered: skill }
   }
 
   server.registerTool('open_skill', {
@@ -340,16 +346,23 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
         bundle_sha256: z.string().nullable(),
         declared_tools: z.array(z.string()).nullable(),
         permissions_enforced: z.literal(false),
+        source_commit: z.string().nullable().describe('HEAD commit of the Git source checkout that supplied this skill. Null for other origins or when it cannot be proven. Does not cover uncommitted edits; skill_sha256 and bundle_sha256 do.'),
       }).describe('Identity of this instruction delivery. Attach to your own tool span; does not assert execution, permission enforcement or task success. Omits source path fields and instruction text; preserves author tool declarations.'),
     },
   }, async ({ name, expected_sha256, include_bundle, expected_bundle_sha256 }) => {
-    const skill = await lookup(name, include_bundle === true || expected_bundle_sha256 !== undefined)
+    const { opened: skill, discovered } = await lookupDiscovered(name, include_bundle === true || expected_bundle_sha256 !== undefined)
     if (expected_sha256 !== undefined && skill.sha256 !== expected_sha256) throw new Error('SKILL.md changed: expected_sha256 does not match; review the current file before loading instructions')
     if (expected_bundle_sha256 !== undefined && skill.bundle?.sha256 !== expected_bundle_sha256) throw new Error('Skill bundle changed: expected_bundle_sha256 does not match; review scripts and resources before loading instructions')
-    const { declaredTools, ...rest } = skill
+    // Only after both digest checks pass: a rejected load never runs git.
+    const commit = await sourceCommit(discovered, config.cacheDir, log)
+    const { declaredTools, receipt, ...rest } = skill
     return {
       content: [{ type: 'text', text: renderSkill(skill) }],
-      structuredContent: { ...rest, ...(declaredTools !== undefined ? { declared_tools: [...declaredTools] } : {}) },
+      structuredContent: {
+        ...rest,
+        ...(declaredTools !== undefined ? { declared_tools: [...declaredTools] } : {}),
+        receipt: { ...receipt, source_commit: commit },
+      },
     }
   })
 
