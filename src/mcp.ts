@@ -318,6 +318,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       expected_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require these exact SKILL.md bytes, using a hash from check --json or an earlier open_skill. Excludes referenced files.'),
       include_bundle: z.boolean().optional().describe('Also fingerprint all regular files below this skill directory; bounded reads, no execution.'),
       expected_bundle_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require the reviewed directory digest from bundle --json. Includes its scripts, references, assets and hidden files; excludes external dependencies. Implies include_bundle.'),
+      expected_source_commit: z.string().regex(/^[0-9a-f]{40}$/, 'expected_source_commit must be a full 40-character lowercase Git commit, as in receipt.source_commit').optional().describe('Require this exact Git source commit, the receipt.source_commit of an earlier open_skill. Git-source skills only; fails closed when the checkout moved or its commit cannot be proven.'),
     },
     outputSchema: {
       name: z.string(),
@@ -349,12 +350,23 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
         source_commit: z.string().nullable().describe('HEAD commit of the Git source checkout that supplied this skill. Null for other origins or when it cannot be proven. Does not cover uncommitted edits; skill_sha256 and bundle_sha256 do.'),
       }).describe('Identity of this instruction delivery. Attach to your own tool span; does not assert execution, permission enforcement or task success. Omits source path fields and instruction text; preserves author tool declarations.'),
     },
-  }, async ({ name, expected_sha256, include_bundle, expected_bundle_sha256 }) => {
+  }, async ({ name, expected_sha256, include_bundle, expected_bundle_sha256, expected_source_commit }) => {
     const { opened: skill, discovered } = await lookupDiscovered(name, include_bundle === true || expected_bundle_sha256 !== undefined)
+    // A commit pin only means something for a Git source; refuse before any git call.
+    if (expected_source_commit !== undefined && discovered.origin.kind !== 'source') {
+      throw new Error(`skill "${name}" is not from a Git source; expected_source_commit applies only to Git-source skills`)
+    }
     if (expected_sha256 !== undefined && skill.sha256 !== expected_sha256) throw new Error('SKILL.md changed: expected_sha256 does not match; review the current file before loading instructions')
     if (expected_bundle_sha256 !== undefined && skill.bundle?.sha256 !== expected_bundle_sha256) throw new Error('Skill bundle changed: expected_bundle_sha256 does not match; review scripts and resources before loading instructions')
     // Only after both digest checks pass: a rejected load never runs git.
     const commit = await sourceCommit(discovered, config.cacheDir, log)
+    if (expected_source_commit !== undefined) {
+      // Fail closed: an unprovable commit never falls back to an unchecked delivery.
+      if (commit === null) throw new Error(`source commit for "${name}" could not be proven; refusing to load with expected_source_commit`)
+      if (commit !== expected_source_commit) {
+        throw new Error(`Git source commit changed for "${name}": expected ${expected_source_commit}, found ${commit}; review the change before updating expected_source_commit`)
+      }
+    }
     const { declaredTools, receipt, ...rest } = skill
     return {
       content: [{ type: 'text', text: renderSkill(skill) }],

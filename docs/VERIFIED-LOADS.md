@@ -50,3 +50,41 @@ Use `bundle /path/to/skill --json` for a directory inventory and pass its
 the skill root, including hidden files, and rejects nested links. Default loads
 retain the single-file behavior. Directory inspection does not freeze later
 resource reads. [Complete workflow, format and limits](BUNDLES.md).
+
+## Require the reviewed source commit
+
+For a skill from a Git source, an MCP `open_skill` receipt records
+`source_commit`, the HEAD of its cache checkout. Pass that value back as
+`expected_source_commit` to refuse delivery after the checkout moves:
+
+```json
+{
+  "name": "open_skill",
+  "arguments": {
+    "name": "robot-reel-review",
+    "expected_source_commit": "<receipt.source_commit from an earlier load>"
+  }
+}
+```
+
+Checks run in this order. Each failure is a tool error with no instructions,
+rendered skill content or receipt:
+
+1. Format: the value must be a full 40-character lowercase commit; short or
+   uppercase SHAs are rejected by the input schema.
+2. Origin: a skill from an agent directory, marketplace or local directory
+   fails with `is not from a Git source`. Git does not run.
+3. Digests: `expected_sha256` and `expected_bundle_sha256` are checked with
+   their usual errors. A rejected digest still runs no Git command.
+4. Provable commit: if the checkout HEAD cannot be proven (no own `.git`
+   directory, work tree outside the cache, Git missing, failing or timing out),
+   the call fails with `could not be proven`. The stderr warning gives the
+   reason. There is no fallback to an unchecked load.
+5. Match: a different HEAD fails with `Git source commit changed`, naming the
+   expected and found commits.
+
+To approve a new revision, review it, then replace the pin with the commit
+named in the error or in a new receipt. Omitting the field keeps the previous
+behavior. The pin proves the checkout HEAD, not the absence of uncommitted or
+untracked files; combine it with `expected_bundle_sha256` to cover directory
+contents. Clients that cache tool schemas may need to reconnect to see the field.

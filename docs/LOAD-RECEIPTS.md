@@ -73,3 +73,7 @@ The field names a commit; it does not cover uncommitted edits in the cache,
 which `skill_sha256` and `bundle_sha256` do. It does not verify signatures or
 authenticate authors. The exported `openSkill()`, the dsh provider and its
 tool, and `skill://` resources do not include it and do not run Git.
+
+Pass a recorded `source_commit` back to MCP `open_skill` as
+`expected_source_commit` to refuse delivery when the checkout has moved or its
+commit cannot be proven. [Require the reviewed source commit](VERIFIED-LOADS.md#require-the-reviewed-source-commit).
