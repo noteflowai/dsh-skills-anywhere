@@ -82,9 +82,28 @@ rendered skill content or receipt:
    reason. There is no fallback to an unchecked load.
 5. Match: a different HEAD fails with `Git source commit changed`, naming the
    expected and found commits.
+6. Clean skill directory: below the skill directory, the checkout must have no
+   tracked edits or deletions, no untracked files, no ignored files (for example
+   `__pycache__`), and no files hidden by `assume-unchanged` or
+   `skip-worktree`. Otherwise the call fails with `uncommitted change(s)` and
+   a count. The message never names paths. Files elsewhere in the checkout do
+   not count. Two read-only probes run (`git status` and `git ls-files -v`,
+   with optional locks and fsmonitor disabled). Each is limited to 8 MiB of
+   output and 15 s. If a probe fails, exceeds a limit or meets a corrupt index,
+   the call fails with `could not be proven clean` and logs one
+   `source checkout not proven clean` warning with the reason.
+
+Recovery: for `uncommitted change(s)`, inspect the edits with
+`git status --ignored` and `git ls-files -v` in the cached checkout. Then
+discard them (`git checkout -- <dir>`, `git clean -fdx <dir>`), clear the flags
+(`git update-index --no-assume-unchanged` or `--no-skip-worktree`), or resync
+the source. For `could not be proven clean`, read the warning. Repair a corrupt
+index by resyncing. If the listing is too large, move bulk assets out of the
+skill directory, or pin with `expected_bundle_sha256` and no commit pin.
 
 To approve a new revision, review it, then replace the pin with the commit
 named in the error or in a new receipt. Omitting the field keeps the previous
-behavior. The pin proves the checkout HEAD, not the absence of uncommitted or
-untracked files; combine it with `expected_bundle_sha256` to cover directory
-contents. Clients that cache tool schemas may need to reconnect to see the field.
+behavior. The pin proves the checkout HEAD and a clean skill directory at load
+time. It does not freeze files that are read later and does not authenticate
+authors. `receipt.source_commit` still records HEAD, and unpinned loads skip the
+clean check. Clients that cache tool schemas may need to reconnect to see the field.
