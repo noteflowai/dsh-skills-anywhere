@@ -93,6 +93,15 @@ async function fixture(bulk: boolean): Promise<Fixture> {
   // The product's own sync path creates the cache checkout, exactly as in real use,
   // so discovery and the source-commit probes see a genuine managed clone.
   const synced = await syncSource(cached)
+  if (synced.status === 'failed') {
+    // Only synthetic local paths are passed to this diagnostic clone. Retain
+    // stderr here because syncSource deliberately returns a bounded first line.
+    try {
+      await run('git', ['clone', '-q', '--depth', '1', '--single-branch', repo, join(root, 'diagnostic-clone')], { env: gitEnv() })
+    } catch (error) {
+      throw new Error('Synthetic fixture clone failed: ' + String((error as { stderr?: unknown }).stderr ?? error))
+    }
+  }
   expect(synced.status, synced.error ?? 'managed fixture clone did not complete').toBe('cloned')
   const checkout = cached.dir
   const head = await git(checkout, 'rev-parse', 'HEAD')
