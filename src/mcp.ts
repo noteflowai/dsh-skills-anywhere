@@ -368,7 +368,10 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       }
       // The pin vouches for committed content only, so local changes below the
       // skill directory, including index-hidden ones, refuse the load as well.
-      const clean = await sourceCommitClean(discovered, config.cacheDir, log)
+      const clean = await sourceCommitClean(discovered, config.cacheDir, log, {
+        delivery: { commit: expected_source_commit, skillSha256: skill.sha256,
+          ...(skill.bundle !== undefined ? { bundle: skill.bundle } : {}) },
+      })
       if (!clean.ok) {
         if ('dirty' in clean) {
           throw new Error(`Git source checkout for "${name}" has ${clean.dirty} uncommitted change(s) below the skill directory; expected_source_commit covers committed content only. Review or discard the local edits, clear assume-unchanged/skip-worktree flags, or resync the source, before loading.`)

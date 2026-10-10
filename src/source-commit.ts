@@ -12,9 +12,11 @@
  */
 
 import { execFile } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { realpath, stat } from 'node:fs/promises'
-import { isAbsolute, join } from 'node:path'
+import { isAbsolute, join, relative, sep } from 'node:path'
 import { promisify } from 'node:util'
+import { MAX_BUNDLE_BYTES, MAX_BUNDLE_FILES, MAX_BUNDLE_FILE_BYTES, validBundlePath, type BundleManifest } from './bundle-manifest.ts'
 import type { SkillOrigin } from './discover.ts'
 import { isInside } from './sources.ts'
 
@@ -37,11 +39,17 @@ export interface SourceCommitLogger {
   warn(message: string): void
 }
 
-type Probe = { readonly ok: true; readonly sha: string; readonly dir: string } | { readonly ok: false; readonly reason: string }
+type Probe = { readonly ok: true; readonly sha: string; readonly dir: string; readonly top: string } | { readonly ok: false; readonly reason: string }
 
 export interface SourceCleanOptions {
   /** Lower the per-probe output bound (positive integer); it can never be raised. */
   readonly maxOutputBytes?: number
+  /** Bind already-read delivery bytes to immutable objects in this exact commit. */
+  readonly delivery?: {
+    readonly commit: string
+    readonly skillSha256: string
+    readonly bundle?: BundleManifest
+  }
 }
 
 /** Clean-check outcome: clean, `dirty` distinct changed paths, or an unprovable `reason`. */
@@ -105,6 +113,9 @@ async function cleanProbe(skill: SourceCommitSkill, cacheDir: string, options: S
   // Same realpath, inside-cache, own-.git and skill-inside-checkout checks as the HEAD probe.
   const located = await probe(skill.directory, cacheDir)
   if (!located.ok) return { ok: false, reason: located.reason }
+  if (options.delivery !== undefined && located.sha !== options.delivery.commit) {
+    return { ok: false, reason: 'source commit changed during delivery' }
+  }
   const cache = await realpath(cacheDir).catch(() => undefined)
   if (cache === undefined) return { ok: false, reason: 'source cache directory is not readable' }
   const env = gitEnv(cache)
@@ -138,15 +149,90 @@ async function cleanProbe(skill: SourceCommitSkill, cacheDir: string, options: S
     // Lowercase tags mark assume-unchanged; S/s mark skip-worktree. git status cannot see either.
     if (/^[a-z]$/.test(tag) || tag === 'S') paths.add(entry.slice(2))
   }
-  return paths.size === 0 ? { ok: true } : { ok: false, dirty: paths.size }
+  if (paths.size !== 0) return { ok: false, dirty: paths.size }
+  if (options.delivery !== undefined) {
+    const bound = await bindDelivery(located, env, options.delivery, limit)
+    if (!bound.ok) return bound
+    const final = await probe(skill.directory, cacheDir)
+    if (!final.ok || final.sha !== located.sha || final.dir !== located.dir || final.top !== located.top) {
+      return { ok: false, reason: 'source checkout changed during delivery' }
+    }
+  }
+  return { ok: true }
 }
 
-async function runBounded(args: readonly string[], cwd: string, env: NodeJS.ProcessEnv, maxBytes: number): Promise<Run> {
+/** Compare delivered hashes with immutable Git blobs, never a later worktree read. */
+async function bindDelivery(
+  located: Extract<Probe, { ok: true }>,
+  env: NodeJS.ProcessEnv,
+  delivery: NonNullable<SourceCleanOptions['delivery']>,
+  limit: number,
+): Promise<SourceClean> {
+  if (!SHA.test(delivery.commit) || !/^[0-9a-f]{64}$/.test(delivery.skillSha256)) {
+    return { ok: false, reason: 'invalid delivery binding' }
+  }
+  const prefix = relative(located.top, located.dir).split(sep).join('/')
+  const path = (name: string): string => prefix ? `${prefix}/${name}` : name
+  const base = ['--no-replace-objects', '--no-optional-locks', '-c', 'core.fsmonitor=false']
+  const deadline = Date.now() + CLEAN_CHECK_TIMEOUT_MS
+  const remainingTime = (): number => {
+    const remaining = deadline - Date.now()
+    if (remaining <= 0) throw new Error('delivery verification time bound exceeded')
+    return remaining
+  }
+  const digest = async (name: string, maxBytes: number): Promise<{ sha256: string; bytes: number }> => {
+    const { stdout } = await execFileAsync('git', [...base, 'show', `${delivery.commit}:${path(name)}`], {
+      cwd: located.dir, env, encoding: 'buffer', windowsHide: true,
+      timeout: remainingTime(), maxBuffer: maxBytes + 1,
+    })
+    remainingTime()
+    if (stdout.length > maxBytes) throw new Error('committed blob exceeds delivery byte bound')
+    return { sha256: createHash('sha256').update(stdout).digest('hex'), bytes: stdout.length }
+  }
+  const skill = await digest('SKILL.md', 128 * 1024)
+  if (skill.sha256 !== delivery.skillSha256) return { ok: false, reason: 'delivered SKILL.md differs from the pinned commit' }
+  if (delivery.bundle !== undefined) {
+    const files = delivery.bundle.files
+    if (files.length < 1 || files.length > MAX_BUNDLE_FILES) return { ok: false, reason: 'delivery bundle exceeds file bound' }
+    const listing = await runBounded([...base, 'ls-tree', '-r', '-l', '-z', delivery.commit, '--', '.'], located.dir, env, limit, remainingTime())
+    if (!listing.ok) return { ok: false, reason: 'committed bundle listing: ' + listing.reason }
+    remainingTime()
+    const committed = new Map<string, number>()
+    for (const entry of listing.stdout.split('\0').filter(Boolean)) {
+      const match = /^(100644|100755) blob [0-9a-f]{40} +(\d+)\t([\s\S]+)$/.exec(entry)
+      if (!match || !validBundlePath(match[3]!) || committed.has(match[3]!)) {
+        return { ok: false, reason: 'committed bundle contains unsupported entries' }
+      }
+      committed.set(match[3]!, Number(match[2]))
+    }
+    if (committed.size !== files.length) return { ok: false, reason: 'delivered bundle inventory differs from the pinned commit' }
+    let total = 0
+    for (const file of files) {
+      if (!validBundlePath(file.path) || !Number.isSafeInteger(file.bytes) || file.bytes < 0
+          || file.bytes > MAX_BUNDLE_FILE_BYTES || committed.get(file.path) !== file.bytes) {
+        return { ok: false, reason: 'delivered bundle entry differs from the pinned commit' }
+      }
+      committed.delete(file.path)
+      total += file.bytes
+      if (total > MAX_BUNDLE_BYTES) return { ok: false, reason: 'delivery bundle exceeds byte bound' }
+      const blob = await digest(file.path, file.bytes)
+      if (blob.sha256 !== file.sha256 || blob.bytes !== file.bytes) {
+        return { ok: false, reason: 'delivered bundle bytes differ from the pinned commit' }
+      }
+    }
+  }
+  return { ok: true }
+}
+
+async function runBounded(
+  args: readonly string[], cwd: string, env: NodeJS.ProcessEnv, maxBytes: number,
+  timeoutMs = CLEAN_CHECK_TIMEOUT_MS,
+): Promise<Run> {
   try {
     const result = await execFileAsync('git', [...args], {
       cwd,
       env,
-      timeout: CLEAN_CHECK_TIMEOUT_MS,
+      timeout: timeoutMs,
       maxBuffer: maxBytes,
       windowsHide: true,
     })
@@ -157,7 +243,7 @@ async function runBounded(args: readonly string[], cwd: string, env: NodeJS.Proc
     if (code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER' || /maxBuffer/i.test(message)) {
       return { ok: false, reason: 'git output exceeded the ' + maxBytes + '-byte output bound' }
     }
-    if ((error as { killed?: boolean }).killed === true) return { ok: false, reason: 'git timed out after ' + CLEAN_CHECK_TIMEOUT_MS + ' ms' }
+    if ((error as { killed?: boolean }).killed === true) return { ok: false, reason: 'git timed out after ' + timeoutMs + ' ms' }
     return { ok: false, reason: 'git failed: ' + describe(error) }
   }
 }
@@ -194,7 +280,7 @@ async function probe(directory: string, cacheDir: string): Promise<Probe> {
   if (!hasGitDir) return fail('checkout has no .git directory')
   if (dir !== top && !isInside(top, dir)) return fail('skill directory is outside the checkout')
   if (!SHA.test(sha)) return fail('git returned a malformed commit')
-  return { ok: true, sha, dir }
+  return { ok: true, sha, dir, top }
 }
 
 /** Server environment without any GIT_* override, bounded to the cache. */

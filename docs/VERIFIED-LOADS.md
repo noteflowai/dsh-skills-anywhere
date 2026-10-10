@@ -92,6 +92,13 @@ rendered skill content or receipt:
    output and 15 s. If a probe fails, exceeds a limit or meets a corrupt index,
    the call fails with `could not be proven clean` and logs one
    `source checkout not proven clean` warning with the reason.
+7. Delivery binding: the already-read `SKILL.md` hash must match the immutable
+   blob in the requested commit. When a bundle is included, its file inventory,
+   sizes and hashes must also match that commit's regular files. Git replacement
+   objects are disabled. Blob verification has a 15 s budget and uses the
+   existing skill and bundle byte limits; the checkout identity and HEAD are
+   checked again afterward. A concurrent restore cannot turn previously read
+   local edits into a pinned delivery.
 
 Recovery: for `uncommitted change(s)`, inspect the edits with
 `git status --ignored` and `git ls-files -v` in the cached checkout. Then
@@ -103,7 +110,8 @@ skill directory, or pin with `expected_bundle_sha256` and no commit pin.
 
 To approve a new revision, review it, then replace the pin with the commit
 named in the error or in a new receipt. Omitting the field keeps the previous
-behavior. The pin proves the checkout HEAD and a clean skill directory at load
-time. It does not freeze files that are read later and does not authenticate
+behavior. The pin binds delivered instructions (and an included bundle) to the
+commit and checks a clean skill directory at load time. It does not freeze files
+that are read later and does not authenticate
 authors. `receipt.source_commit` still records HEAD, and unpinned loads skip the
 clean check. Clients that cache tool schemas may need to reconnect to see the field.
