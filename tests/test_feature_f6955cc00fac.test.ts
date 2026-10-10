@@ -93,7 +93,7 @@ async function fixture(bulk: boolean): Promise<Fixture> {
   // The product's own sync path creates the cache checkout, exactly as in real use,
   // so discovery and the source-commit probes see a genuine managed clone.
   const synced = await syncSource(cached)
-  expect(synced).toMatchObject({ status: 'cloned' })
+  expect(synced.status, synced.error ?? 'managed fixture clone did not complete').toBe('cloned')
   const checkout = cached.dir
   const head = await git(checkout, 'rev-parse', 'HEAD')
   expect(head).toBe(await git(repo, 'rev-parse', 'HEAD'))
