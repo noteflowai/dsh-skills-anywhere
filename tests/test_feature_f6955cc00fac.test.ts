@@ -17,6 +17,7 @@ const NAME = 'robot-reel-review'
 const BODY = 'Step through the reel and confirm each joint fact before writing.'
 const GUIDE = 'Reviewed guide text.\n'
 const BULK_FILES = 2500
+const WRITE_BATCH_SIZE = 32
 const SLOW = 120_000
 const EXISTING_FIELDS = [
   'schema', 'load_id', 'loaded_at', 'provider', 'provider_version', 'name',
@@ -33,7 +34,10 @@ function gitEnv(): NodeJS.ProcessEnv {
 }
 
 async function git(cwd: string, ...args: string[]): Promise<string> {
-  const { stdout } = await run('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', '-c', 'init.defaultBranch=main', ...args], { cwd, env: gitEnv(), maxBuffer: 16 * 1024 * 1024 })
+  // A commit can start background maintenance that removes loose objects while
+  // syncSource's local clone copies them. Keep synthetic repositories stable;
+  // product sync and all clean-directory checks still run unchanged.
+  const { stdout } = await run('git', ['-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgsign=false', '-c', 'init.defaultBranch=main', '-c', 'gc.auto=0', '-c', 'maintenance.auto=false', ...args], { cwd, env: gitEnv(), maxBuffer: 16 * 1024 * 1024 })
   return String(stdout).trim()
 }
 
@@ -77,9 +81,11 @@ async function fixture(bulk: boolean): Promise<Fixture> {
   if (bulk) {
     const bulkDir = join(source, 'references', 'bulk')
     await mkdir(bulkDir, { recursive: true })
-    for (let start = 0; start < BULK_FILES; start += 250) {
+    // Keep the large listing while bounding simultaneous open files on runners
+    // with a small descriptor limit. This is fixture I/O, not the product bound.
+    for (let start = 0; start < BULK_FILES; start += WRITE_BATCH_SIZE) {
       const batch: Promise<void>[] = []
-      for (let index = start; index < Math.min(BULK_FILES, start + 250); index += 1) {
+      for (let index = start; index < Math.min(BULK_FILES, start + WRITE_BATCH_SIZE); index += 1) {
         batch.push(writeFile(join(bulkDir, bulkName(index)), 'synthetic bulk asset ' + index + '\n'))
       }
       await Promise.all(batch)
@@ -93,15 +99,6 @@ async function fixture(bulk: boolean): Promise<Fixture> {
   // The product's own sync path creates the cache checkout, exactly as in real use,
   // so discovery and the source-commit probes see a genuine managed clone.
   const synced = await syncSource(cached)
-  if (synced.status === 'failed') {
-    // Only synthetic local paths are passed to this diagnostic clone. Retain
-    // stderr here because syncSource deliberately returns a bounded first line.
-    try {
-      await run('git', ['clone', '-q', '--depth', '1', '--single-branch', repo, join(root, 'diagnostic-clone')], { env: gitEnv() })
-    } catch (error) {
-      throw new Error('Synthetic fixture clone failed: ' + String((error as { stderr?: unknown }).stderr ?? error))
-    }
-  }
   expect(synced.status, synced.error ?? 'managed fixture clone did not complete').toBe('cloned')
   const checkout = cached.dir
   const head = await git(checkout, 'rev-parse', 'HEAD')
