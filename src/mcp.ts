@@ -29,7 +29,7 @@ import { originLabel } from './origin.ts'
 import { isSkillName, parseSkillMarkdown } from './frontmatter.ts'
 import { SkillsAnywhereProvider, type ProviderLogger } from './provider.ts'
 import { searchSkills } from './search.ts'
-import { sourceCommit } from './source-commit.ts'
+import { sourceCommit, sourceCommitClean } from './source-commit.ts'
 
 export interface McpOptions {
   /** Project directory that selects project-level skill roots and sources. */
@@ -318,7 +318,7 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       expected_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require these exact SKILL.md bytes, using a hash from check --json or an earlier open_skill. Excludes referenced files.'),
       include_bundle: z.boolean().optional().describe('Also fingerprint all regular files below this skill directory; bounded reads, no execution.'),
       expected_bundle_sha256: z.string().regex(/^[a-f0-9]{64}$/).optional().describe('Require the reviewed directory digest from bundle --json. Includes its scripts, references, assets and hidden files; excludes external dependencies. Implies include_bundle.'),
-      expected_source_commit: z.string().regex(/^[0-9a-f]{40}$/, 'expected_source_commit must be a full 40-character lowercase Git commit, as in receipt.source_commit').optional().describe('Require this exact Git source commit, the receipt.source_commit of an earlier open_skill. Git-source skills only; fails closed when the checkout moved or its commit cannot be proven.'),
+      expected_source_commit: z.string().regex(/^[0-9a-f]{40}$/, 'expected_source_commit must be a full 40-character lowercase Git commit, as in receipt.source_commit').optional().describe('Require this exact Git source commit, the receipt.source_commit of an earlier open_skill, with no local changes below the skill directory (tracked edits, deletions, untracked or ignored files, or files hidden by assume-unchanged/skip-worktree). Git-source skills only; fails closed when the checkout moved, has local changes, or cannot be proven.'),
     },
     outputSchema: {
       name: z.string(),
@@ -365,6 +365,18 @@ export function createSkillsAnywhereServer(options: McpOptions = {}): SkillsAnyw
       if (commit === null) throw new Error(`source commit for "${name}" could not be proven; refusing to load with expected_source_commit`)
       if (commit !== expected_source_commit) {
         throw new Error(`Git source commit changed for "${name}": expected ${expected_source_commit}, found ${commit}; review the change before updating expected_source_commit`)
+      }
+      // The pin vouches for committed content only, so local changes below the
+      // skill directory, including index-hidden ones, refuse the load as well.
+      const clean = await sourceCommitClean(discovered, config.cacheDir, log, {
+        delivery: { commit: expected_source_commit, skillSha256: skill.sha256,
+          ...(skill.bundle !== undefined ? { bundle: skill.bundle } : {}) },
+      })
+      if (!clean.ok) {
+        if ('dirty' in clean) {
+          throw new Error(`Git source checkout for "${name}" has ${clean.dirty} uncommitted change(s) below the skill directory; expected_source_commit covers committed content only. Review or discard the local edits, clear assume-unchanged/skip-worktree flags, or resync the source, before loading.`)
+        }
+        throw new Error(`source checkout for "${name}" could not be proven clean; refusing to load with expected_source_commit`)
       }
     }
     const { declaredTools, receipt, ...rest } = skill
