@@ -104,7 +104,7 @@
     "showcase:check": "node huggingface/check.cjs && node .dsh-showcase/tools/build.js --seal"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/server": "2.3.0",
     "chokidar": "^5.0.0",
     "mdast-util-from-markdown": "^2.0.3",
     "yaml": "^2.9.0",
