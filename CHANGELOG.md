@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- add an opt-in IsaacLab v3.0.0 example that pins five user skills to commit e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4. examples/isaaclab-v3.0.0/skills-anywhere.json has five Git-source entries, one per skill folder, all with the same full SHA as ref. Copy it into a project's .dsh/skills-anywhere.json or the plugin config.sources to opt in; the default config is unchanged. catalog.json (schema skills-anywhere-pinned-catalog-1) is a review record that dsh does not read at runtime. For each skill it lists the published name, folder, commit, the sha256 and size of every file, the license (BSD-3-Clause, with the basis: inferred from the repository root LICENSE), the upstream status and the checkout-relative references. It also records the 19 excluded upstream skills with reasons, and three ways around the allowlist: working inside an IsaacLab checkout, another unpinned IsaacLab source, and non-allowlisted skills on disk in the full checkout. tests/isaaclab-catalog.test.ts checks the config and catalog offline and syncs a synthetic IsaacLab-shaped repository through the real Git-source code. The test checks that only the five published names are discovered, that file hashes match, that a moved tag changes nothing, and that MCP open_skill accepts the catalogued commit and digest. scripts/verify-pinned-catalog.ts is a manual, networked, read-only check for pin bumps; CI does not run it. It re-derives every catalogued hash from the upstream commit, reports a moved tag and the three bypasses, and exits 1 on any mismatch. Runtime behavior is unchanged; the dsh skill tool still does not enforce the pin.
+
 ## 0.19.0 — 2026-10-09
 
 - refuse expected_source_commit loads when the pinned skill directory has local changes. MCP open_skill now checks one more thing when expected_source_commit is supplied. After the checkout HEAD matches the pin, the server also confirms that the skill directory has no local changes. It runs two read-only Git probes with no shell, optional locks off and fsmonitor disabled: status (including untracked and ignored files) and ls-files -v (to find entries hidden by assume-unchanged or skip-worktree). If it finds any changes, the call returns isError with a count of the changes and recovery guidance. The error contains no body, no receipt, no paths and no checkout locations. If a probe fails, times out or produces more output than the bound allows, the load fails closed with 'could not be proven clean' and logs exactly one warning. Clean pinned loads return the same body and skills-anywhere-load-1 receipt as before, with source_commit equal to the pin. Unpinned loads, the existing HEAD-mismatch and 'could not be proven' refusals, and sourceCommit() are unchanged. The new export sourceCommitClean(skill, cacheDir, log, options?) never throws. docs/VERIFIED-LOADS.md, docs/LOAD-RECEIPTS.md, README.md and the expected_source_commit input description now explain the clean-directory requirement.
@@ -21,8 +25,6 @@
 - Check local Markdown resources with `check --resources`; use `--fail-on-resource-issues` for an explicit CLI/Action gate.
 - Check browser-selected skill folders locally and download line-level reports.
 - Publish three licensed, commit-pinned public skill snapshots with hash-verified, reproducible full-folder and SKILL.md-only controls.
-
-## Unreleased
 
 ## 0.14.0 — 2026-09-25
 

@@ -1,0 +1,9 @@
+{
+  "sources": [
+    { "repo": "isaac-sim/IsaacLab", "ref": "e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4", "path": "skills/user/migrate-2x-to-3x" },
+    { "repo": "isaac-sim/IsaacLab", "ref": "e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4", "path": "skills/user/train-rl-agents" },
+    { "repo": "isaac-sim/IsaacLab", "ref": "e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4", "path": "skills/user/create-environments" },
+    { "repo": "isaac-sim/IsaacLab", "ref": "e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4", "path": "skills/user/select-backends" },
+    { "repo": "isaac-sim/IsaacLab", "ref": "e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4", "path": "skills/user/debug-rl-training" }
+  ]
+}
