@@ -344,7 +344,7 @@ describe('IsaacLab v3.0.0 pinned example synced through dsh Git sources (synthet
       const again = await provider.syncAll(project)
       expect(again.map(result => result.status)).toEqual(Array(5).fill('unchanged'))
       const forced = await provider.syncAll(project, { force: true })
-      expect(forced.every(result => result.sha === synthetic.commit)).toBe(true)
+      expect(forced.map(result => [result.status, result.sha, result.error])).toEqual(Array(5).fill(['unchanged', synthetic.commit, undefined]))
       expect(await git(checkout, 'rev-parse', 'HEAD')).toBe(synthetic.commit)
       const train = join(checkout, 'skills', 'user', 'train-rl-agents')
       expect(await folderHashes(train)).toEqual(synthetic.manifest['skills/user/train-rl-agents'])
