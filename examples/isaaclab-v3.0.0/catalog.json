@@ -1,0 +1,511 @@
+{
+  "schema": "skills-anywhere-pinned-catalog-1",
+  "recorded_on": "2026-10-22",
+  "description": "Review record for examples/isaaclab-v3.0.0/skills-anywhere.json. dsh-skills-anywhere does not read this file at runtime; tests/isaaclab-catalog.test.ts checks it offline and scripts/verify-pinned-catalog.ts re-derives it from the upstream commit.",
+  "config": "skills-anywhere.json",
+  "source": {
+    "repository": "isaac-sim/IsaacLab",
+    "url": "https://github.com/isaac-sim/IsaacLab.git",
+    "tag": "v3.0.0",
+    "tag_kind": "lightweight",
+    "commit": "e3f7d9ff1f5d7f8280de3ece9000b7117f66bcf4",
+    "committed_at": "2026-10-19T14:09:52-07:00",
+    "version_file": "3.0.0"
+  },
+  "license_files": {
+    "LICENSE": {
+      "spdx": "BSD-3-Clause",
+      "spdx_line": 7,
+      "sha256": "932e8d7120d38062d68754314b8be64380bc8236eb012626f9c6c1353d6dc9df",
+      "bytes": 1690
+    }
+  },
+  "skills": [
+    {
+      "slug": "migrate-2x-to-3x",
+      "directory": "skills/user/migrate-2x-to-3x",
+      "name": "isaaclab-migrating-2x-to-3x",
+      "audience": "user",
+      "status": "experimental",
+      "license": {
+        "spdx": "BSD-3-Clause",
+        "file": "LICENSE",
+        "basis": "Inferred from the repository root LICENSE (line 7: SPDX-License-Identifier: BSD-3-Clause, sha256 recorded under license_files). The skill directory has no license file and its SKILL.md frontmatter has no license field, so this is not a skill-level declaration."
+      },
+      "files": {
+        "SKILL.md": {
+          "sha256": "adaa2ded83f201c83aa0567f60179b9b2c7ae3b6d4530e0f53ea7b8f63f4f1f6",
+          "bytes": 3690
+        },
+        "evaluations.md": {
+          "sha256": "11ddd702d427ee5edc8e0ee8d650b23f0cfdfe89d42d2cf1a1f454502889873c",
+          "bytes": 1708
+        },
+        "examples.md": {
+          "sha256": "ece382ac9175c126e70cd23716697340b76cfad8ae5a633ff110ca940d774381",
+          "bytes": 1396
+        },
+        "reference.md": {
+          "sha256": "9457df3bd5374bc3df8e4b935cabcb8b14c41cec8128c6d08021b3b37b917042",
+          "bytes": 1837
+        },
+        "supplemental-checks.md": {
+          "sha256": "91c7e55accfb47ca16c72cd0e6a6ba7230e95b6d8a720ddbff8a8f5b530dc8f5",
+          "bytes": 2604
+        }
+      },
+      "references": {
+        "links": [
+          "docs/source/isaaclab/migrating.rst",
+          "source/isaaclab_rl/isaaclab_rl/rsl_rl/utils.py"
+        ],
+        "mentioned_paths": [
+          "docs/source",
+          "docs/source/concepts/backends_and_presets.rst",
+          "docs/source/concepts/schema_cfgs.rst",
+          "docs/source/isaaclab/installation.rst",
+          "scripts/tools/find_quaternions.py",
+          "source/isaaclab/isaaclab/app/sim_launcher.py",
+          "source/isaaclab_rl/isaaclab_rl/utils/pretrained_checkpoint.py",
+          "tools/skills/cli.py"
+        ],
+        "skill_links": [],
+        "mentioned_skills": []
+      }
+    },
+    {
+      "slug": "train-rl-agents",
+      "directory": "skills/user/train-rl-agents",
+      "name": "isaaclab-training-rl-agents",
+      "audience": "user",
+      "status": "experimental",
+      "license": {
+        "spdx": "BSD-3-Clause",
+        "file": "LICENSE",
+        "basis": "Inferred from the repository root LICENSE (line 7: SPDX-License-Identifier: BSD-3-Clause, sha256 recorded under license_files). The skill directory has no license file and its SKILL.md frontmatter has no license field, so this is not a skill-level declaration."
+      },
+      "files": {
+        "SKILL.md": {
+          "sha256": "057459c84cccc84e9797c6710bacfa1e93fa847d0620c07105855a83fc136bf5",
+          "bytes": 4143
+        },
+        "evaluations.md": {
+          "sha256": "29bdab4c0c6ed77f44436d3d1fada60cdc41fedd3fc80ad5c746b7412130a9a2",
+          "bytes": 2150
+        },
+        "examples.md": {
+          "sha256": "37b6937254c7149eb4050767720a3e5c169966aaeed757fbc3493a00dcabcd7e",
+          "bytes": 2801
+        }
+      },
+      "references": {
+        "links": [
+          "docs/source/concepts/reinforcement_learning.rst",
+          "docs/source/how-to/configuring_rl_training.rst",
+          "docs/source/how-to/run_rl_training.rst",
+          "source/isaaclab_tasks/isaaclab_tasks"
+        ],
+        "mentioned_paths": [
+          "docs/source/how-to",
+          "docs/source/isaaclab/installation.rst",
+          "scripts/environments/random_agent.py",
+          "scripts/reinforcement_learning",
+          "source/isaaclab_tasks/isaaclab_tasks/core/cartpole/agents",
+          "tools/skills/cli.py"
+        ],
+        "skill_links": [
+          {
+            "directory": "skills/user/debug-rl-training",
+            "name": "isaaclab-debugging-rl-training",
+            "allowlisted": true
+          },
+          {
+            "directory": "skills/user/train-multi-gpu",
+            "name": "isaaclab-training-multi-gpu",
+            "allowlisted": false
+          }
+        ],
+        "mentioned_skills": [
+          {
+            "directory": "skills/user/create-environments",
+            "name": "isaaclab-building-environments",
+            "allowlisted": true
+          },
+          {
+            "directory": "skills/user/debug-rl-training",
+            "name": "isaaclab-debugging-rl-training",
+            "allowlisted": true
+          },
+          {
+            "directory": "skills/user/train-multi-gpu",
+            "name": "isaaclab-training-multi-gpu",
+            "allowlisted": false
+          }
+        ]
+      }
+    },
+    {
+      "slug": "create-environments",
+      "directory": "skills/user/create-environments",
+      "name": "isaaclab-building-environments",
+      "audience": "user",
+      "status": "experimental",
+      "license": {
+        "spdx": "BSD-3-Clause",
+        "file": "LICENSE",
+        "basis": "Inferred from the repository root LICENSE (line 7: SPDX-License-Identifier: BSD-3-Clause, sha256 recorded under license_files). The skill directory has no license file and its SKILL.md frontmatter has no license field, so this is not a skill-level declaration."
+      },
+      "files": {
+        "SKILL.md": {
+          "sha256": "ba84da725af1b107c39298b75b0669f150461b36f854c097bd056e5448570b9d",
+          "bytes": 5960
+        },
+        "evaluations.md": {
+          "sha256": "9b1166a9ec0932ebb53efc15c59d10ff916da0d7ced991ccdb0e7ec85e2e93d2",
+          "bytes": 4689
+        },
+        "examples.md": {
+          "sha256": "1e68bd978a99e0354e309d9c04bac2aff4e5284ee5e2d1efa48e84c656f72767",
+          "bytes": 2750
+        }
+      },
+      "references": {
+        "links": [
+          "docs/source/concepts/task_workflows.rst",
+          "docs/source/developer-tools/template_generator.rst",
+          "docs/source/how-to/create_direct_rl_env.rst",
+          "docs/source/how-to/create_manager_base_env.rst",
+          "docs/source/how-to/create_manager_rl_env.rst",
+          "docs/source/how-to/modify_direct_rl_env.rst",
+          "docs/source/how-to/register_rl_env_gym.rst"
+        ],
+        "mentioned_paths": [
+          "docs/source/how-to/configuring_rl_training.rst",
+          "scripts/environments/list_envs.py",
+          "source/isaaclab_tasks",
+          "source/isaaclab_tasks/isaaclab_tasks",
+          "source/isaaclab_tasks/isaaclab_tasks/contrib/anymal_c_direct/anymal_c_env_cfg.py",
+          "source/isaaclab_tasks/isaaclab_tasks/core",
+          "source/isaaclab_tasks/isaaclab_tasks/core/cartpole/cartpole_direct_env_cfg.py",
+          "source/isaaclab_tasks/isaaclab_tasks/core/cartpole/cartpole_manager_env_cfg.py",
+          "source/isaaclab_tasks/isaaclab_tasks/core/velocity/config",
+          "source/isaaclab_tasks/isaaclab_tasks/core/velocity/config/go2/rough_env_cfg.py",
+          "source/isaaclab_tasks/isaaclab_tasks/core/velocity/velocity_env_cfg.py",
+          "tools/skills/cli.py",
+          "tools/template/cli.py"
+        ],
+        "outside_checkout": [
+          {
+            "path": "scripts/list_envs.py",
+            "context": "run from the root of a template-generated external project, not the IsaacLab checkout"
+          }
+        ],
+        "skill_links": [
+          {
+            "directory": "skills/user/convert-direct-to-manager",
+            "name": "isaaclab-converting-direct-to-manager",
+            "allowlisted": false
+          },
+          {
+            "directory": "skills/user/plan-manipulation-tasks",
+            "name": "isaaclab-planning-manipulation-tasks",
+            "allowlisted": false
+          }
+        ],
+        "mentioned_skills": [
+          {
+            "directory": "skills/developer/isaaclab-updating-environment-docs",
+            "name": "isaaclab-updating-environment-docs",
+            "allowlisted": false
+          },
+          {
+            "directory": "skills/user/convert-direct-to-manager",
+            "name": "isaaclab-converting-direct-to-manager",
+            "allowlisted": false
+          },
+          {
+            "directory": "skills/user/migrate-from-isaac-gym",
+            "name": "isaaclab-migrating-from-isaac-gym",
+            "allowlisted": false
+          },
+          {
+            "directory": "skills/user/plan-manipulation-tasks",
+            "name": "isaaclab-planning-manipulation-tasks",
+            "allowlisted": false
+          },
+          {
+            "directory": "skills/user/use-sensors-actuators",
+            "name": "isaaclab-using-sensors-actuators",
+            "allowlisted": false
+          }
+        ]
+      }
+    },
+    {
+      "slug": "select-backends",
+      "directory": "skills/user/select-backends",
+      "name": "isaaclab-selecting-backends",
+      "audience": "user",
+      "status": "experimental",
+      "license": {
+        "spdx": "BSD-3-Clause",
+        "file": "LICENSE",
+        "basis": "Inferred from the repository root LICENSE (line 7: SPDX-License-Identifier: BSD-3-Clause, sha256 recorded under license_files). The skill directory has no license file and its SKILL.md frontmatter has no license field, so this is not a skill-level declaration."
+      },
+      "files": {
+        "SKILL.md": {
+          "sha256": "2054c579f9908212bfe5af22031ef72b1a64ffb9cb93e4b289a4b8e3a016dbdf",
+          "bytes": 3828
+        },
+        "evaluations.md": {
+          "sha256": "c6e89764635afad6a4160590e300bce3c60e4ce566db82763bfa11361b68e269",
+          "bytes": 2136
+        },
+        "examples.md": {
+          "sha256": "4293b450d39a0c380a692074172f8056d22f25382fabbe8a17f4e745e9697d53",
+          "bytes": 1703
+        }
+      },
+      "references": {
+        "links": [
+          "docs/source/concepts/backends_and_presets.rst",
+          "docs/source/concepts/physics_backends.rst",
+          "docs/source/concepts/renderers.rst",
+          "docs/source/concepts/schema_cfgs.rst",
+          "docs/source/isaaclab/installation.rst",
+          "source/isaaclab_tasks/isaaclab_tasks"
+        ],
+        "mentioned_paths": [
+          "scripts/environments/list_envs.py",
+          "scripts/environments/random_agent.py",
+          "tools/skills/cli.py"
+        ],
+        "skill_links": [
+          {
+            "directory": "skills/user/prepare-assets-for-newton",
+            "name": "isaaclab-preparing-assets-for-newton",
+            "allowlisted": false
+          }
+        ],
+        "mentioned_skills": [
+          {
+            "directory": "skills/user/prepare-assets-for-newton",
+            "name": "isaaclab-preparing-assets-for-newton",
+            "allowlisted": false
+          }
+        ]
+      }
+    },
+    {
+      "slug": "debug-rl-training",
+      "directory": "skills/user/debug-rl-training",
+      "name": "isaaclab-debugging-rl-training",
+      "audience": "user",
+      "status": "experimental",
+      "license": {
+        "spdx": "BSD-3-Clause",
+        "file": "LICENSE",
+        "basis": "Inferred from the repository root LICENSE (line 7: SPDX-License-Identifier: BSD-3-Clause, sha256 recorded under license_files). The skill directory has no license file and its SKILL.md frontmatter has no license field, so this is not a skill-level declaration."
+      },
+      "files": {
+        "SKILL.md": {
+          "sha256": "9c6edf7d7dab455eb3d8e20fa0f101815c48e8853bb82a7ebd1beec2b4420cb0",
+          "bytes": 3001
+        },
+        "evaluations.md": {
+          "sha256": "546df6bae996e9e871ce8de24afba092e011c5d971daad5a4b274fb96a5ccdbc",
+          "bytes": 1468
+        },
+        "examples.md": {
+          "sha256": "25e5f889134a3bd01b19643b7d34a540ab6d2d0412490773316f866a440950a8",
+          "bytes": 1304
+        },
+        "reference.md": {
+          "sha256": "b80f37170bf30569af5407eb7e26b7d8ee994f8d0b9a84aaf901f6f3b2eafa03",
+          "bytes": 2433
+        }
+      },
+      "references": {
+        "links": [
+          "docs/source/concepts/reinforcement_learning.rst",
+          "source/isaaclab_tasks/isaaclab_tasks"
+        ],
+        "mentioned_paths": [
+          "docs/source",
+          "tools/skills/cli.py"
+        ],
+        "skill_links": [
+          {
+            "directory": "skills/user/train-rl-agents",
+            "name": "isaaclab-training-rl-agents",
+            "allowlisted": true
+          }
+        ],
+        "mentioned_skills": [
+          {
+            "directory": "skills/user/train-rl-agents",
+            "name": "isaaclab-training-rl-agents",
+            "allowlisted": true
+          }
+        ]
+      }
+    }
+  ],
+  "excluded": [
+    {
+      "directory": "skills/developer/changelog-fragments",
+      "name": "isaaclab-writing-changelog-fragments",
+      "audience": "developer",
+      "status": "stable",
+      "reason": "developer-audience"
+    },
+    {
+      "directory": "skills/developer/coding-style",
+      "name": "isaaclab-following-coding-style",
+      "audience": "developer",
+      "status": "stable",
+      "reason": "developer-audience"
+    },
+    {
+      "directory": "skills/developer/isaaclab-updating-environment-docs",
+      "name": "isaaclab-updating-environment-docs",
+      "audience": "developer",
+      "status": "experimental",
+      "reason": "developer-audience"
+    },
+    {
+      "directory": "skills/developer/issue-audit",
+      "name": "isaaclab-auditing-an-issue",
+      "audience": "developer",
+      "status": "experimental",
+      "reason": "developer-audience"
+    },
+    {
+      "directory": "skills/developer/issue-backlog-triage",
+      "name": "isaaclab-triaging-issue-backlog",
+      "audience": "developer",
+      "status": "experimental",
+      "reason": "developer-audience"
+    },
+    {
+      "directory": "skills/developer/pr-workflow",
+      "name": "isaaclab-preparing-pr-workflow",
+      "audience": "developer",
+      "status": "stable",
+      "reason": "developer-audience"
+    },
+    {
+      "directory": "skills/developer/test-audit",
+      "name": "isaaclab-auditing-tests",
+      "audience": "developer",
+      "status": "experimental",
+      "reason": "developer-audience",
+      "note": "Adapted from the OpenClaw test-audit skill at commit 80930af448ebabc84174146b56bc106d37fab3b4, MIT licensed (skills/developer/test-audit/LICENSE-openclaw.txt, Copyright (c) 2026 OpenClaw Foundation, sha256 73571b25326281d369087f469842c02444fe39faaecebda4d82ed21ff3a1c29d). That file says third-party notices are recorded in THIRD_PARTY_NOTICES.md, which does not exist at this commit."
+    },
+    {
+      "directory": "skills/user/convert-direct-to-manager",
+      "name": "isaaclab-converting-direct-to-manager",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/diagnose-joint-poses",
+      "name": "isaaclab-diagnosing-joint-poses",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/domain-randomization-events",
+      "name": "isaaclab-randomizing-with-events",
+      "audience": "user",
+      "status": "stable",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/install-isaac-lab",
+      "name": "isaaclab-installing-isaac-lab",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "install-automation",
+      "note": "Its frontmatter description says it auto-detects the system, shows one consolidated plan and \"after a single confirmation executes the docs-prescribed commands unattended through verification\". Unattended installation is out of scope for a reviewed example."
+    },
+    {
+      "directory": "skills/user/isaaclab-transferring-policies-sim-to-sim",
+      "name": "isaaclab-transferring-policies-sim-to-sim",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/migrate-from-isaac-gym",
+      "name": "isaaclab-migrating-from-isaac-gym",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/plan-manipulation-tasks",
+      "name": "isaaclab-planning-manipulation-tasks",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/prepare-assets-for-newton",
+      "name": "isaaclab-preparing-assets-for-newton",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/setup-troubleshooting",
+      "name": "isaaclab-setup-troubleshooting",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/train-multi-gpu",
+      "name": "isaaclab-training-multi-gpu",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/use-presets",
+      "name": "isaaclab-using-presets",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    },
+    {
+      "directory": "skills/user/use-sensors-actuators",
+      "name": "isaaclab-using-sensors-actuators",
+      "audience": "user",
+      "status": "experimental",
+      "reason": "not-allowlisted"
+    }
+  ],
+  "bypasses": [
+    {
+      "id": "isaaclab-project-agent-dirs",
+      "description": "The working directory is inside an IsaacLab checkout. dsh scans that project's agent skill directories (.claude/skills at rank 250; .agents/skills at rank 200 when sharedDirs is on, which the standalone MCP server enables). Upstream links both to all 24 skills, so every skill is discovered regardless of this allowlist.",
+      "check": "node scripts/verify-pinned-catalog.ts --project <dir>",
+      "mitigation": "Set excludeAgents: [\"claude-code\", \"agents\"] for that project, or work outside the checkout."
+    },
+    {
+      "id": "unpinned-isaaclab-source",
+      "description": "Another isaac-sim/IsaacLab source (plugin config.sources, ~/.dsh/skills-anywhere/sources.json or <project>/.dsh/skills-anywhere.json) with a different ref, a tag or branch ref, no ref, or a path other than the five allowlisted directories. It is scanned in addition to this allowlist.",
+      "check": "node scripts/verify-pinned-catalog.ts --project <dir> [--dsh-home <dir>] [--config <file>]",
+      "mitigation": "Remove the entry or make it one of the five pinned entries in skills-anywhere.json."
+    },
+    {
+      "id": "non-allowlisted-on-disk",
+      "description": "The managed checkout is a full working tree of the pinned commit. Skills outside the allowlist are not discovered, but their files are on disk next to the allowlisted ones; four links from allowlisted skills point at them (references.skill_links with allowlisted: false). An agent that follows those links, or a tool that scans the cache directory itself, reads them.",
+      "check": "node scripts/verify-pinned-catalog.ts lists them for the temporary checkout and for <dsh-home>/skills-anywhere/cache when present.",
+      "mitigation": "Accepted for this example (no sparse checkout). Never add the cache directory, or anything below it, to an agent skill directory."
+    }
+  ]
+}

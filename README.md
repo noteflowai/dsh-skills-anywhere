@@ -291,6 +291,12 @@ checkout; a source that has never synchronized contributes no cached skills.
 Successful changes invalidate the catalog without making discovery wait for
 network synchronization.
 
+To take only some skills from a repository, add one entry per skill folder with
+the same `repo` and a full commit SHA as `ref`; they share one checkout.
+[examples/isaaclab-v3.0.0](examples/isaaclab-v3.0.0/) does this for five
+IsaacLab user skills (opt-in). It includes a catalog of file hashes and
+licenses, and lists the ways around such an allowlist.
+
 ## Catalog budget and the `find_skills` / `open_skill` tools
 
 dsh publishes every model-invocable skill's name and description into the session, on every request. With marketplaces and a few git sources that is hundreds of lines of context. The provider therefore ranks its skills and marks only the first `catalog.limit` (default 50) as model-invocable; the remainder is published with model invocation off, which keeps it out of the catalog but still loadable by you with `/name`.
